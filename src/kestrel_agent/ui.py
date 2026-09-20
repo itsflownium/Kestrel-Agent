@@ -1,0 +1,207 @@
+from __future__ import annotations
+
+import asyncio
+import json
+import time
+from pathlib import Path
+
+from prompt_toolkit import HTML, PromptSession
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.patch_stdout import patch_stdout
+from prompt_toolkit.styles import Style
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+
+from . import __version__
+from .config import Settings, redact
+from .engine import Engine
+from .store import Store
+
+COMMANDS = ["/help", "/new", "/continue", "/sessions", "/resume", "/model", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+STYLE = Style.from_dict({"prompt": "#8bd5ca bold", "bottom-toolbar": "bg:#20232b #a8acb8", "completion-menu.completion": "bg:#20232b #cdd6f4", "completion-menu.completion.current": "bg:#3a4554 #ffffff"})
+
+
+class Terminal:
+    def __init__(self, settings: Settings, workspace: Path, store: Store, sid: str):
+        self.settings, self.workspace, self.store, self.sid = settings, workspace, store, sid
+        self.console = Console(highlight=False)
+        self.phase = "ready"
+        self.busy = False
+        self.job: asyncio.Task | None = None
+        self.pending_approval: asyncio.Future | None = None
+        bindings = KeyBindings()
+
+        @bindings.add("c-c")
+        def interrupt(event):
+            if self.job and not self.job.done():
+                self.job.cancel()
+                self.phase = "stopping"
+            else:
+                event.current_buffer.reset()
+
+        @bindings.add("escape", "enter")
+        def newline(event):
+            event.current_buffer.insert_text("\n")
+
+        self.prompt = PromptSession(
+            completer=WordCompleter(COMMANDS, sentence=True), complete_while_typing=False,
+            style=STYLE, key_bindings=bindings,
+            bottom_toolbar=self.toolbar, refresh_interval=0.5,
+        )
+        self.engine = Engine(settings, workspace, store, sid, self.emit, self.confirm)
+
+    def toolbar(self):
+        return f"  {self.phase}  │  {self.settings.model or 'Codex default'} + Jev  │  {self.settings.permission}  │  Ctrl+C stop · Alt+Enter newline · /help  "
+
+    def welcome(self):
+        title = Text()
+        title.append("  ◇  K E S T R E L", style="bold #8bd5ca")
+        title.append(f"  v{__version__}\n", style="dim")
+        title.append("     Think deeply. Move lightly.\n\n", style="#a8acb8")
+        title.append("  Codex plans & creates  ·  Jev decides  ·  You control access\n", style="white")
+        title.append(f"  {self.workspace}\n  Session {self.sid}", style="dim")
+        self.console.print(Panel(title, border_style="#374151", padding=(1, 1)))
+        self.console.print("  Ask a question or describe a task. [bold]/help[/bold] for commands.\n", style="dim")
+
+    def emit(self, kind: str, text: str):
+        if kind == "output":
+            self.console.print(Panel(Text(redact(text)), border_style="#303642", padding=(0, 1)))
+            return
+        symbols = {"model": ("◌", "#a6adc8"), "judge": ("◇", "#8bd5ca"), "plan": ("→", "#c4b5fd"),
+                   "planned": ("·", "dim"), "tool": ("↳", "#89b4fa"), "done": ("✓", "#a6e3a1"),
+                   "warning": ("!", "#f9e2af"), "decision": ("·", "dim"), "usage": ("─", "dim")}
+        if kind == "delta":
+            self.console.print(text, end="", markup=False)
+            return
+        symbol, color = symbols.get(kind, ("·", "white"))
+        if kind in {"model", "judge", "tool"}:
+            self.phase = text[:65]
+        line = Text(f"  {symbol} ", style=color)
+        line.append(redact(text))
+        self.console.print(line)
+
+    async def confirm(self, description: str) -> bool:
+        # Keep a single prompt active while the background worker awaits user input.
+        self.console.print(Panel(Text(redact(description)), title="Permission requested", border_style="#f9e2af"))
+        self.console.print("  Enter [bold]yes[/bold] to allow once, or [bold]no[/bold] to decline.")
+        self.pending_approval = asyncio.get_running_loop().create_future()
+        try:
+            return await self.pending_approval
+        finally:
+            self.pending_approval = None
+
+    async def work(self, message: str | None):
+        self.busy = True
+        try:
+            answer = await self.engine.run(message)
+            self.console.print()
+            self.console.print(Panel(Markdown(answer), title="Kestrel", title_align="left", border_style="#8bd5ca", padding=(1, 2)))
+        except asyncio.CancelledError:
+            self.emit("warning", "Stopped. /continue resumes the task; /status shows its checkpoint.")
+        except Exception as error:
+            self.emit("warning", redact(str(error)))
+        finally:
+            self.busy = False
+            self.phase = "ready"
+
+    async def chat(self):
+        self.welcome()
+        with patch_stdout(raw=True):
+            while True:
+                try:
+                    message = (await self.prompt.prompt_async(HTML('<prompt>  ❯ </prompt>'))).strip()
+                except (EOFError, KeyboardInterrupt):
+                    break
+                if not message:
+                    continue
+                if self.pending_approval is not None:
+                    if message.lower() not in {"yes", "y", "no", "n"}:
+                        self.emit("warning", "Please answer yes or no for the pending action.")
+                    elif not self.pending_approval.done():
+                        self.pending_approval.set_result(message.lower() in {"yes", "y"})
+                    continue
+                if message == "/exit":
+                    break
+                if self.busy:
+                    self.emit("warning", "A task is running. Ctrl+C stops it before you send another request.")
+                    continue
+                try:
+                    if message.startswith("/"):
+                        await self.command(message)
+                    else:
+                        self.job = asyncio.create_task(self.work(message))
+                        # Set immediately so two fast submissions cannot start concurrent runs.
+                        self.busy = True
+                except Exception as error:
+                    self.emit("warning", redact(str(error)))
+        if self.job and not self.job.done():
+            self.job.cancel()
+            await asyncio.gather(self.job, return_exceptions=True)
+        await self.engine.close()
+
+    async def command(self, message: str):
+        name, _, argument = message.partition(" ")
+        argument = argument.strip()
+        if name == "/help":
+            table = Table(show_header=False, box=None, padding=(0, 2))
+            for command, meaning in [
+                ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
+                ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List or select your fixed Codex model"),
+                ("/permissions [read-only|workspace|full]", "View or change access profile"),
+                ("/config", "Inspect settings; use kestrel config set KEY VALUE to edit"),
+                ("/tools", "Discover connected MCP tools"), ("/status", "Show checkpoint and usage"),
+                ("/clear · /exit", "Clear the screen or leave"), ("Ctrl+C · Alt+Enter", "Stop a task · insert newline")]:
+                table.add_row(command, meaning)
+            self.console.print(table)
+        elif name == "/clear":
+            self.console.clear()
+            self.welcome()
+        elif name in {"/new", "/resume"}:
+            sid = self.store.create(self.workspace) if name == "/new" else argument
+            record = self.store.session(sid)
+            await self.engine.close()
+            self.sid, self.workspace = sid, Path(record["workspace"])
+            self.engine = Engine(self.settings, self.workspace, self.store, sid, self.emit, self.confirm)
+            self.welcome()
+            if name == "/resume":
+                for item in self.store.history(sid, 10):
+                    if item["kind"] in {"user", "assistant"}:
+                        self.console.print(Panel(Text(str(item["body"])), title=item["kind"], border_style="dim"))
+        elif name == "/sessions":
+            for record in self.store.sessions():
+                self.console.print(Text(f"  {record['id']}  {record['title']}  {record['workspace']}"))
+        elif name == "/continue":
+            self.busy = True
+            self.job = asyncio.create_task(self.work(None))
+        elif name == "/status":
+            state = self.engine.state
+            self.console.print_json(json.dumps({k: state.get(k) for k in ("status", "steps", "statuses", "usage")}))
+        elif name == "/config":
+            self.console.print_json(self.settings.model_dump_json())
+        elif name == "/permissions":
+            if argument:
+                self.settings.permission = argument
+                self.settings.save()
+            self.console.print(Text(f"  Profile: {self.settings.permission} · shell confirmation: {self.settings.confirm_shell} · network: {self.settings.network}"))
+        elif name == "/model":
+            await self.engine.runtime.start()
+            models = (await self.engine.runtime.codex.models()).data
+            if argument:
+                available = {m.model for m in models}
+                if argument not in available:
+                    raise ValueError("Choose one of the model IDs listed by /model.")
+                self.settings.model = argument
+                self.settings.save()
+                self.emit("done", f"Model set to {argument}")
+            else:
+                for model in models:
+                    self.console.print(Text(f"  {model.model} · {model.display_name}"))
+        elif name == "/tools":
+            self.engine.mcp_tools = await self.engine.runtime.mcp_catalog()
+            self.console.print_json(json.dumps(self.engine.mcp_tools, default=str))
+        else:
+            self.emit("warning", "Unknown command. Use /help.")
