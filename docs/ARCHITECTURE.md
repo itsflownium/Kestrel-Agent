@@ -68,3 +68,11 @@ Plans can declare `final_response_ref`, a whole-value reference to a declared ac
 Actions default to `after=success`. `after=failure` runs a recovery branch after a definite dependency error, while `after=completion` permits inspection after either outcome. Skipped branches propagate skips instead of creating spurious errors. Uncertain outcomes do not enable an automatic failure retry; completion actions directly dependent on uncertain outcomes are restricted to read tools. Existing uncertain-effect fingerprint checks remain in place.
 
 Evidence now includes the executing tool, bound argument excerpts, and execution status alongside results. Older checkpoints without these fields remain readable. This gives Jev more execution context, but command arguments alone do not prove absence of side effects. The live recovery benchmark still shows unnecessary work, so minimal repair and broader interruption testing remain unfinished.
+
+## Jev-driven grouped table path
+
+For one explicitly named CSV/JSON file of at most 12 KB and 64 object rows, the router may offer grouped numeric aggregation. Jev selects an enumerated operation, source-derived columns, and up to three AND predicates. Options use only literal categorical values present in both the input and request, plus numeric thresholds parsed from the request. At most 16 common columns, 8 thresholds, and 64 predicate choices are offered; larger or incompatible queries fall back to general planning.
+
+The ordinary permission-checked `query_table` computes the result. A fresh source read must match the original SHA256. A separate Jev call checks the chosen query, all source records, result metadata, and exact JSON answer against the whole request before returning it. Joins, OR predicates, external facts, file edits, missing options, explanations, changed sources, and rejected checks fall back. This avoids all generation calls for supported requests; it does not broaden Jev into an arbitrary text/code generator or promise that semantic checks are infallible.
+
+The new path has independent schema/filter/source-change tests and live sum/mean/count comparisons. The benchmark fixtures are not imported by the application. A new table-with-write task checks that required file creation reaches the general controller.

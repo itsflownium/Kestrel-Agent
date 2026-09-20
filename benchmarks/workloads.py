@@ -39,6 +39,11 @@ CASES = [
          {'station':'North','reading':'80','accepted':'yes','minutes':1}])}},
     {'id':'recovery_variant','prompt':'Run python3 calculate.py. If it fails, inspect the program and correct the arguments using the existing input file, then run it successfully. Do not edit files. Report the actual emitted result.',
      'files':{'calculate.py':'import argparse, json\np=argparse.ArgumentParser()\np.add_argument("--source", required=True)\na=p.parse_args()\nprint("RESULT=" + str(sum(json.load(open(a.source))["values"])))\n', 'batch.json':'{"values":[-4, 8, 13]}\n'}},
+    {'id':'table_count_variant','prompt':'Read events.csv. Count rows by queue where status is closed and score is below 4. Return only JSON mapping each queue to its numeric count.',
+     'files':{'events.csv':'queue,status,score\nX,closed,-1\nX,closed,2\nX,closed,7\nY,closed,0\nY,open,2\n'}},
+    {'id':'table_write_variant','prompt':'Read transactions.csv. Sum net by team for state settled only, then write totals.json with the numeric totals. Reply exactly SAVED after the file is written.',
+     'files':{'transactions.csv':'team,net,state\nA,3,settled\nB,-1,settled\nA,4,settled\nB,90,pending\n'},
+     'created_files':['totals.json']},
 ]
 
 async def allow(_): return True
@@ -48,6 +53,9 @@ def json_answer(text):
     if value.startswith('```'):
         value='\n'.join(value.splitlines()[1:-1])
     return json.loads(value)
+
+def numeric_mapping(value, expected):
+    return isinstance(value,dict) and all(type(v) in {int,float} for v in value.values()) and value==expected
 
 async def grade(case,answer,workspace,runtime,events):
     try:
@@ -60,10 +68,16 @@ async def grade(case,answer,workspace,runtime,events):
             return value.get('release')=='r21' and bool(value.get('reason')), {'parsed':value}
         if case=='csv_totals':
             value=json_answer(answer)
-            return value=={'EU':41.5,'US':7.0}, {'parsed':value}
+            return numeric_mapping(value,{'EU':41.5,'US':7.0}), {'parsed':value}
         if case=='table_mean_variant':
             value=json.loads(answer)
-            return value=={'North':2,'South':2}, {'parsed':value}
+            return numeric_mapping(value,{'North':2,'South':2}), {'parsed':value}
+        if case=='table_count_variant':
+            value=json.loads(answer)
+            return numeric_mapping(value,{'X':2,'Y':1}), {'parsed':value}
+        if case=='table_write_variant':
+            value=json.loads((workspace/'totals.json').read_text())
+            return numeric_mapping(value,{'A':7,'B':-1}) and answer.strip()=='SAVED', {'saved_json':value}
         if case=='ambiguous_selection':
             return answer.strip()=='TIE', {}
         if case=='tool_recovery':
@@ -79,6 +93,7 @@ async def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--output',default='benchmarks/results-workloads.json')
     parser.add_argument('--tasks',default='')
+    parser.add_argument('--repeat',type=int,default=1,choices=range(1,11))
     args=parser.parse_args()
     tasks=[c for c in CASES if not args.tasks or c['id'] in args.tasks.split(',')]
     load_secrets()
@@ -90,9 +105,10 @@ async def main():
         os.environ['KESTREL_HOME']=str(root/'state')
         settings=Settings(model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=3)
         store=Store(settings)
-        for index,case in enumerate(tasks):
+        for index,case in enumerate(tasks * args.repeat):
+            repetition=index // len(tasks) + 1
             for arm in (['kestrel','codex'] if index%2 else ['codex','kestrel']):
-                workspace=root/(case['id']+'-'+arm); workspace.mkdir()
+                workspace=root/(case['id']+'-'+str(repetition)+'-'+arm); workspace.mkdir()
                 for name,body in case['files'].items(): (workspace/name).write_text(body)
                 events=[]
                 start=time.perf_counter()
@@ -101,7 +117,7 @@ async def main():
                     if kind!='output': print(arm,case['id'],kind,redact(text)[:160],flush=True)
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
-                record={'task':case['id'],'arm':arm,'source_sha256':source_hash,'model':settings.model,'effort':settings.effort,'input_files':case['files'],'prompt':case['prompt']}
+                record={'task':case['id'],'arm':arm,'repetition':repetition,'source_sha256':source_hash,'model':settings.model,'effort':settings.effort,'input_files':case['files'],'prompt':case['prompt']}
                 try:
                     async with asyncio.timeout(180):
                         if arm=='kestrel':
@@ -135,11 +151,12 @@ async def main():
                 record['artifacts']={p.name:p.read_text() for p in workspace.iterdir() if p.is_file() and p.stat().st_size<100000}
                 # Scope is part of task quality, independently of answer correctness.
                 unchanged=all(record['artifacts'].get(name)==body for name,body in case['files'].items() if not (case['id']=='code_edit' and name=='stats.py'))
-                no_extra_files=set(record['artifacts'])==set(case['files'])
+                no_extra_files=set(record['artifacts'])==set(case['files']) | set(case.get('created_files',[]))
                 record['scope_passed']=unchanged and no_extra_files
                 record['passed']=record['passed'] and record['scope_passed']
                 if arm=='kestrel':
                     record['verified_result_reuses']=sum(row['kind']=='verified_result_reuse' for row in record.get('trace',[]))
+                    record['table_fastpaths']=sum(row['kind']=='table_fastpath_result' for row in record.get('trace',[]))
                 results.append(record)
                 Path(args.output).write_text(json.dumps(results,indent=2))
                 print('RESULT',json.dumps({k:v for k,v in record.items() if k in {'task','arm','seconds','passed','error','generation_calls','jev_calls','answer','grading'}}),flush=True)

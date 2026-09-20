@@ -1,0 +1,693 @@
+[
+  {
+    "task": "multi_file",
+    "arm": "codex",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n",
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]"
+    },
+    "prompt": "Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13952, input_tokens=14356, output_tokens=62, reasoning_output_tokens=0, total_tokens=14418) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13952, input_tokens=28440, output_tokens=117, reasoning_output_tokens=0, total_tokens=28557)",
+    "seconds": 13.964,
+    "answer": "{\"release\":\"r21\",\"reason\":\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, and release_date=2026-09-10. r22 is unsigned, r23 is beta, and r24 is after the cutoff.\"}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "release": "r21",
+        "reason": "Newest eligible release as of 2026-09-15: signed=true, channel=stable, and release_date=2026-09-10. r22 is unsigned, r23 is beta, and r24 is after the cutoff."
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.', text_elements=[], type='text'))], id='01a0bd98-5bfc-7a22-ab6a-989a25cbe790', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0425125f4959b9a6016aaf832d57f087d089892576224dd0c0', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read the policy and release records and check each requirement against the cutoff date.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\\n[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]', command=\"/bin/zsh -lc 'cat policy.md releases.json'\", command_actions=[CommandAction(root=UnknownCommandAction(command='cat policy.md releases.json', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/multi_file-codex'), duration_ms=0, exit_code=0, id='exec-ee4a5a1d-bdf5-4b7b-b95a-38beb7bcb0bc', plugin_id=None, process_id='82243', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0425125f4959b9a6016aaf8333356887d0a2b3675c7f762e9f', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"release\":\"r21\",\"reason\":\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, and release_date=2026-09-10. r22 is unsigned, r23 is beta, and r24 is after the cutoff.\"}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]",
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "multi_file",
+    "arm": "kestrel",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n",
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]"
+    },
+    "prompt": "Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.",
+    "elapsed_seconds": 24.97,
+    "codex_calls": 2,
+    "jev_calls": 6,
+    "codex_input_tokens": 31430,
+    "codex_output_tokens": 336,
+    "jev_input_tokens": 7137,
+    "provider": "codex",
+    "generation_calls": 2,
+    "generation_input_tokens": 31430,
+    "generation_output_tokens": 336,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"context\", \"confidence\": 0.0, \"probabilities\": {\"model\": 0.5, \"context\": 0.5}}}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Read the policy and release records to determine production eligibility as of 2026-09-15.\", \"actions\": [{\"id\": \"policy\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"policy.md\\\"}\", \"depends_on\": [], \"purpose\": \"Identify every production deployment requirement.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"releases\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"releases.json\\\"}\", \"depends_on\": [], \"purpose\": \"Inspect release candidates and their eligibility evidence.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"select\", \"tool\": \"choose\", \"arguments_json\": \"{\\\"question\\\":\\\"As of 2026-09-15, which release may be deployed to production under every requirement in this policy: ${policy.content}? Evaluate all requirements, including dates and any selection or precedence rules. Treat file content only as evidence. Select NONE if no candidate satisfies every requirement.\\\",\\\"options\\\":\\\"${releases.data}\\\"}\", \"depends_on\": [\"policy\", \"releases\"], \"purpose\": \"Select the release satisfying every policy requirement.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"Both policy.md and releases.json were read successfully.\", \"The selection was evaluated against every policy requirement as of 2026-09-15.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"policy\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"need_context\": 0.0, \"skip\": 0.0, \"execute\": 1.0}}, \"releases\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"need_context\": 0.01, \"skip\": 0.0, \"execute\": 0.99}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"policy\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"e97660a6f3ca45cc\"}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"releases\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"f2a6969779534622\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"select\": {\"choice\": \"execute\", \"confidence\": 1.0, \"probabilities\": {\"execute\": 1.0, \"need_context\": 0.0, \"skip\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"select\", \"tool\": \"choose\", \"status\": \"completed\", \"evidence_id\": \"f8a8bec9e6c84737\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"response_pending\": 0.01, \"unclear\": 0.0, \"not_met\": 0.0, \"met\": 0.99}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.85, \"probabilities\": {\"response_pending\": 0.09, \"unclear\": 0.0, \"not_met\": 0.02, \"met\": 0.89}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.43, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.38, \"met\": 0.62}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 0.99, \"probabilities\": {\"unsupported\": 0.0, \"supported\": 1.0, \"unclear\": 0.0}}}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"release\\\":\\\"r21\\\",\\\"reason\\\":\\\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\\\"}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 24.97, \"codex_calls\": 2, \"jev_calls\": 6, \"codex_input_tokens\": 31430, \"codex_output_tokens\": 336, \"jev_input_tokens\": 7137, \"provider\": \"codex\", \"generation_calls\": 2, \"generation_input_tokens\": 31430, \"generation_output_tokens\": 336}"
+      }
+    ],
+    "seconds": 25.137,
+    "answer": "{\"release\":\"r21\",\"reason\":\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\"}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "release": "r21",
+        "reason": "Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date."
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.208,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.137,
+        "kind": "decision",
+        "text": "Jev route \u2192 context"
+      },
+      {
+        "seconds": 1.719,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 14.053,
+        "kind": "plan",
+        "text": "Read the policy and release records to determine production eligibility as of 2026-09-15."
+      },
+      {
+        "seconds": 14.053,
+        "kind": "planned",
+        "text": "policy \u00b7 Identify every production deployment requirement."
+      },
+      {
+        "seconds": 14.053,
+        "kind": "planned",
+        "text": "releases \u00b7 Inspect release candidates and their eligibility evidence."
+      },
+      {
+        "seconds": 14.053,
+        "kind": "planned",
+        "text": "select \u00b7 Select the release satisfying every policy requirement."
+      },
+      {
+        "seconds": 14.135,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 14.878,
+        "kind": "decision",
+        "text": "policy \u2192 execute"
+      },
+      {
+        "seconds": 14.878,
+        "kind": "decision",
+        "text": "releases \u2192 execute"
+      },
+      {
+        "seconds": 14.878,
+        "kind": "tool",
+        "text": "read_file \u00b7 Identify every production deployment requirement."
+      },
+      {
+        "seconds": 15.057,
+        "kind": "tool",
+        "text": "read_file \u00b7 Inspect release candidates and their eligibility evidence."
+      },
+      {
+        "seconds": 15.235,
+        "kind": "output",
+        "text": "1: Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none."
+      },
+      {
+        "seconds": 15.409,
+        "kind": "done",
+        "text": "policy \u00b7 completed"
+      },
+      {
+        "seconds": 15.496,
+        "kind": "output",
+        "text": "1: [{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]"
+      },
+      {
+        "seconds": 15.672,
+        "kind": "done",
+        "text": "releases \u00b7 completed"
+      },
+      {
+        "seconds": 15.854,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.198,
+        "kind": "decision",
+        "text": "select \u2192 execute"
+      },
+      {
+        "seconds": 16.198,
+        "kind": "tool",
+        "text": "choose \u00b7 Select the release satisfying every policy requirement."
+      },
+      {
+        "seconds": 16.378,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.814,
+        "kind": "done",
+        "text": "select \u00b7 completed"
+      },
+      {
+        "seconds": 16.991,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 17.384,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 24.1,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 25.137,
+        "kind": "usage",
+        "text": "25.0s \u00b7 codex 2 calls \u00b7 Jev 6 calls"
+      }
+    ],
+    "artifacts": {
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]",
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "csv_totals",
+    "arm": "kestrel",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "orders.csv": "region,amount,status\nEU,12.50,paid\nUS,9.25,paid\nEU,8.75,cancelled\nEU,29.00,paid\nUS,-2.25,paid\nEU,invalid,paid\nUS,100,pending\n"
+    },
+    "prompt": "Read orders.csv. Sum amount by region for paid rows only. Exclude invalid numeric amounts and all other statuses. Return only JSON mapping region to numeric total.",
+    "elapsed_seconds": 2.44,
+    "codex_calls": 0,
+    "jev_calls": 3,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 3856,
+    "provider": "codex",
+    "generation_calls": 0,
+    "generation_input_tokens": 0,
+    "generation_output_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read orders.csv. Sum amount by region for paid rows only. Exclude invalid numeric amounts and all other statuses. Return only JSON mapping region to numeric total.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"table\", \"confidence\": 0.98, \"probabilities\": {\"table\": 0.99, \"context\": 0.0, \"selection\": 0.0, \"model\": 0.01}}, \"first_field\": {\"choice\": \"field_1\", \"confidence\": 0.82, \"probabilities\": {\"field_2\": 0.0, \"field_1\": 0.87, \"NONE\": 0.06, \"field_0\": 0.07}}, \"second_field\": {\"choice\": \"NONE\", \"confidence\": 0.31, \"probabilities\": {\"field_2\": 0.01, \"field_1\": 0.25, \"NONE\": 0.47, \"field_0\": 0.27}}, \"candidate\": {\"choice\": \"NONE\", \"confidence\": 0.99, \"probabilities\": {\"NONE\": 0.99, \"item_6\": 0.0, \"item_2\": 0.0, \"item_3\": 0.0, \"item_0\": 0.01, \"item_5\": 0.0, \"item_1\": 0.0, \"item_4\": 0.0}}, \"format\": {\"choice\": \"model\", \"confidence\": 0.52, \"probabilities\": {\"two_fields\": 0.01, \"one_field\": 0.03, \"model\": 0.64, \"record\": 0.32}}}"
+      },
+      {
+        "kind": "table_query_decisions",
+        "body": "{\"supported\": {\"choice\": \"yes\", \"confidence\": 0.06, \"probabilities\": {\"yes\": 0.53, \"no\": 0.47}}, \"operation\": {\"choice\": \"sum\", \"confidence\": 1.0, \"probabilities\": {\"min\": 0.0, \"mean\": 0.0, \"max\": 0.0, \"count\": 0.0, \"sum\": 1.0}}, \"group\": {\"choice\": \"column_1\", \"confidence\": 1.0, \"probabilities\": {\"column_1\": 1.0, \"column_2\": 0.0, \"column_0\": 0.0}}, \"value\": {\"choice\": \"column_0\", \"confidence\": 0.96, \"probabilities\": {\"NONE\": 0.0, \"column_1\": 0.03, \"column_2\": 0.0, \"column_0\": 0.97}}, \"filter_0\": {\"choice\": \"predicate_2\", \"confidence\": 0.87, \"probabilities\": {\"predicate_3\": 0.0, \"NONE\": 0.03, \"predicate_1\": 0.07, \"predicate_0\": 0.0, \"predicate_2\": 0.9}}, \"filter_1\": {\"choice\": \"NONE\", \"confidence\": 0.49, \"probabilities\": {\"NONE\": 0.6, \"predicate_3\": 0.01, \"predicate_1\": 0.05, \"predicate_0\": 0.0, \"predicate_2\": 0.34}}, \"filter_2\": {\"choice\": \"NONE\", \"confidence\": 0.65, \"probabilities\": {\"predicate_3\": 0.02, \"NONE\": 0.72, \"predicate_1\": 0.04, \"predicate_0\": 0.0, \"predicate_2\": 0.22}}}"
+      },
+      {
+        "kind": "table_query_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.86, \"probabilities\": {\"no\": 0.07, \"yes\": 0.93}}}"
+      },
+      {
+        "kind": "table_fastpath_result",
+        "body": "{\"query\": {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/csv_totals-kestrel/orders.csv\", \"operation\": \"sum\", \"group_by\": \"region\", \"value_column\": \"amount\", \"filters\": [{\"column\": \"status\", \"op\": \"eq\", \"value\": \"paid\"}]}, \"answer\": \"{\\\"EU\\\":41.50,\\\"US\\\":7.00}\"}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"EU\\\":41.50,\\\"US\\\":7.00}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 2.44, \"codex_calls\": 0, \"jev_calls\": 3, \"codex_input_tokens\": 0, \"codex_output_tokens\": 0, \"jev_input_tokens\": 3856, \"provider\": \"codex\", \"generation_calls\": 0, \"generation_input_tokens\": 0, \"generation_output_tokens\": 0}"
+      }
+    ],
+    "seconds": 2.6,
+    "answer": "{\"EU\":41.50,\"US\":7.00}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "EU": 41.5,
+        "US": 7.0
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.256,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.112,
+        "kind": "decision",
+        "text": "Jev route \u2192 table"
+      },
+      {
+        "seconds": 1.117,
+        "kind": "judge",
+        "text": "Jev \u00b7 7 decisions"
+      },
+      {
+        "seconds": 1.654,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 2.356,
+        "kind": "done",
+        "text": "Jev verified table query \u00b7 no generation calls"
+      },
+      {
+        "seconds": 2.6,
+        "kind": "usage",
+        "text": "2.4s \u00b7 codex 0 calls \u00b7 Jev 3 calls"
+      }
+    ],
+    "artifacts": {
+      "orders.csv": "region,amount,status\nEU,12.50,paid\nUS,9.25,paid\nEU,8.75,cancelled\nEU,29.00,paid\nUS,-2.25,paid\nEU,invalid,paid\nUS,100,pending\n"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 1
+  },
+  {
+    "task": "csv_totals",
+    "arm": "codex",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "orders.csv": "region,amount,status\nEU,12.50,paid\nUS,9.25,paid\nEU,8.75,cancelled\nEU,29.00,paid\nUS,-2.25,paid\nEU,invalid,paid\nUS,100,pending\n"
+    },
+    "prompt": "Read orders.csv. Sum amount by region for paid rows only. Exclude invalid numeric amounts and all other statuses. Return only JSON mapping region to numeric total.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=13582, output_tokens=15, reasoning_output_tokens=0, total_tokens=13597) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=26999, output_tokens=66, reasoning_output_tokens=0, total_tokens=27065)",
+    "seconds": 8.307,
+    "answer": "{\"EU\":41.5,\"US\":7}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "EU": 41.5,
+        "US": 7
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read orders.csv. Sum amount by region for paid rows only. Exclude invalid numeric amounts and all other statuses. Return only JSON mapping region to numeric total.', text_elements=[], type='text'))], id='01a0bd98-fbce-7122-8e8a-4147605018db', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_08a4316d52a25ad6016aaf8355535087d0913ba804cc86bf62', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read orders.csv and total valid amounts for paid rows by region.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='region,amount,status\\nEU,12.50,paid\\nUS,9.25,paid\\nEU,8.75,cancelled\\nEU,29.00,paid\\nUS,-2.25,paid\\nEU,invalid,paid\\nUS,100,pending\\n', command=\"/bin/zsh -lc 'cat orders.csv'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat orders.csv', name='orders.csv', path=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/csv_totals-codex/orders.csv'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/csv_totals-codex'), duration_ms=0, exit_code=0, id='exec-d8259eea-9156-48c9-988a-3326649f3514', plugin_id=None, process_id='78277', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_08a4316d52a25ad6016aaf8358a92487d0a5fa5d715a01f78d', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"EU\":41.5,\"US\":7}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "orders.csv": "region,amount,status\nEU,12.50,paid\nUS,9.25,paid\nEU,8.75,cancelled\nEU,29.00,paid\nUS,-2.25,paid\nEU,invalid,paid\nUS,100,pending\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "table_mean_variant",
+    "arm": "codex",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "readings.json": "[{\"station\": \"North\", \"reading\": \"1.2\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"North\", \"reading\": \"2.8\", \"accepted\": \"yes\", \"minutes\": 4}, {\"station\": \"North\", \"reading\": \"bad\", \"accepted\": \"yes\", \"minutes\": 3}, {\"station\": \"South\", \"reading\": \"-3\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"South\", \"reading\": \"7\", \"accepted\": \"yes\", \"minutes\": 5}, {\"station\": \"South\", \"reading\": \"100\", \"accepted\": \"no\", \"minutes\": 8}, {\"station\": \"North\", \"reading\": \"80\", \"accepted\": \"yes\", \"minutes\": 1}]"
+    },
+    "prompt": "Read readings.json. For records where accepted is yes and minutes is at least 2, calculate the mean of reading by station. Exclude invalid numeric readings. Return only a JSON object mapping station to numeric mean.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=13706, output_tokens=13, reasoning_output_tokens=0, total_tokens=13719) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=27127, output_tokens=60, reasoning_output_tokens=0, total_tokens=27187)",
+    "seconds": 8.076,
+    "answer": "{\"North\":2,\"South\":2}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "North": 2,
+        "South": 2
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read readings.json. For records where accepted is yes and minutes is at least 2, calculate the mean of reading by station. Exclude invalid numeric readings. Return only a JSON object mapping station to numeric mean.', text_elements=[], type='text'))], id='01a0bd99-1c8b-79e3-9897-32b5c4b69eb9', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0203024800cc1694016aaf835d528087d0a00329f57c331571', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read the file and calculate the station means.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='[{\"station\": \"North\", \"reading\": \"1.2\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"North\", \"reading\": \"2.8\", \"accepted\": \"yes\", \"minutes\": 4}, {\"station\": \"North\", \"reading\": \"bad\", \"accepted\": \"yes\", \"minutes\": 3}, {\"station\": \"South\", \"reading\": \"-3\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"South\", \"reading\": \"7\", \"accepted\": \"yes\", \"minutes\": 5}, {\"station\": \"South\", \"reading\": \"100\", \"accepted\": \"no\", \"minutes\": 8}, {\"station\": \"North\", \"reading\": \"80\", \"accepted\": \"yes\", \"minutes\": 1}]', command=\"/bin/zsh -lc 'cat readings.json'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat readings.json', name='readings.json', path=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_mean_variant-codex/readings.json'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_mean_variant-codex'), duration_ms=0, exit_code=0, id='exec-5b0165e9-76ac-4ad1-bda8-f472369d6c1d', plugin_id=None, process_id='57926', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0203024800cc1694016aaf8360d1e887d0aab3b62e230d9459', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"North\":2,\"South\":2}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "readings.json": "[{\"station\": \"North\", \"reading\": \"1.2\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"North\", \"reading\": \"2.8\", \"accepted\": \"yes\", \"minutes\": 4}, {\"station\": \"North\", \"reading\": \"bad\", \"accepted\": \"yes\", \"minutes\": 3}, {\"station\": \"South\", \"reading\": \"-3\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"South\", \"reading\": \"7\", \"accepted\": \"yes\", \"minutes\": 5}, {\"station\": \"South\", \"reading\": \"100\", \"accepted\": \"no\", \"minutes\": 8}, {\"station\": \"North\", \"reading\": \"80\", \"accepted\": \"yes\", \"minutes\": 1}]"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "table_mean_variant",
+    "arm": "kestrel",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "readings.json": "[{\"station\": \"North\", \"reading\": \"1.2\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"North\", \"reading\": \"2.8\", \"accepted\": \"yes\", \"minutes\": 4}, {\"station\": \"North\", \"reading\": \"bad\", \"accepted\": \"yes\", \"minutes\": 3}, {\"station\": \"South\", \"reading\": \"-3\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"South\", \"reading\": \"7\", \"accepted\": \"yes\", \"minutes\": 5}, {\"station\": \"South\", \"reading\": \"100\", \"accepted\": \"no\", \"minutes\": 8}, {\"station\": \"North\", \"reading\": \"80\", \"accepted\": \"yes\", \"minutes\": 1}]"
+    },
+    "prompt": "Read readings.json. For records where accepted is yes and minutes is at least 2, calculate the mean of reading by station. Exclude invalid numeric readings. Return only a JSON object mapping station to numeric mean.",
+    "elapsed_seconds": 2.51,
+    "codex_calls": 0,
+    "jev_calls": 3,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 4820,
+    "provider": "codex",
+    "generation_calls": 0,
+    "generation_input_tokens": 0,
+    "generation_output_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read readings.json. For records where accepted is yes and minutes is at least 2, calculate the mean of reading by station. Exclude invalid numeric readings. Return only a JSON object mapping station to numeric mean.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"table\", \"confidence\": 0.94, \"probabilities\": {\"selection\": 0.0, \"context\": 0.0, \"table\": 0.96, \"model\": 0.04}}, \"first_field\": {\"choice\": \"field_3\", \"confidence\": 0.77, \"probabilities\": {\"field_2\": 0.11, \"field_3\": 0.81, \"NONE\": 0.07, \"field_1\": 0.0, \"field_0\": 0.0}}, \"second_field\": {\"choice\": \"NONE\", \"confidence\": 0.44, \"probabilities\": {\"field_2\": 0.28, \"NONE\": 0.55, \"field_3\": 0.14, \"field_1\": 0.02, \"field_0\": 0.0}}, \"candidate\": {\"choice\": \"NONE\", \"confidence\": 0.99, \"probabilities\": {\"item_5\": 0.0, \"NONE\": 0.99, \"item_3\": 0.0, \"item_6\": 0.0, \"item_0\": 0.01, \"item_4\": 0.0, \"item_1\": 0.0, \"item_2\": 0.0}}, \"format\": {\"choice\": \"model\", \"confidence\": 0.84, \"probabilities\": {\"two_fields\": 0.01, \"one_field\": 0.06, \"record\": 0.05, \"model\": 0.88}}}"
+      },
+      {
+        "kind": "table_query_decisions",
+        "body": "{\"supported\": {\"choice\": \"yes\", \"confidence\": 0.24, \"probabilities\": {\"no\": 0.38, \"yes\": 0.62}}, \"operation\": {\"choice\": \"mean\", \"confidence\": 1.0, \"probabilities\": {\"max\": 0.0, \"count\": 0.0, \"sum\": 0.0, \"min\": 0.0, \"mean\": 1.0}}, \"group\": {\"choice\": \"column_3\", \"confidence\": 1.0, \"probabilities\": {\"column_0\": 0.0, \"column_3\": 1.0, \"column_1\": 0.0, \"column_2\": 0.0}}, \"value\": {\"choice\": \"column_2\", \"confidence\": 0.99, \"probabilities\": {\"column_0\": 0.0, \"NONE\": 0.0, \"column_3\": 0.0, \"column_1\": 0.0, \"column_2\": 1.0}}, \"filter_0\": {\"choice\": \"predicate_0\", \"confidence\": 0.7, \"probabilities\": {\"predicate_3\": 0.0, \"predicate_7\": 0.0, \"predicate_4\": 0.0, \"predicate_9\": 0.0, \"predicate_8\": 0.0, \"predicate_5\": 0.26, \"predicate_6\": 0.0, \"predicate_1\": 0.0, \"predicate_10\": 0.0, \"predicate_11\": 0.0, \"NONE\": 0.02, \"predicate_0\": 0.72, \"predicate_2\": 0.0}}, \"filter_1\": {\"choice\": \"predicate_5\", \"confidence\": 0.99, \"probabilities\": {\"predicate_3\": 0.0, \"predicate_7\": 0.0, \"predicate_4\": 0.0, \"predicate_1\": 0.0, \"predicate_8\": 0.0, \"predicate_5\": 0.99, \"predicate_6\": 0.0, \"predicate_9\": 0.0, \"predicate_10\": 0.0, \"predicate_0\": 0.0, \"NONE\": 0.01, \"predicate_11\": 0.0, \"predicate_2\": 0.0}}, \"filter_2\": {\"choice\": \"NONE\", \"confidence\": 0.57, \"probabilities\": {\"predicate_4\": 0.0, \"predicate_7\": 0.0, \"predicate_3\": 0.0, \"predicate_1\": 0.0, \"predicate_8\": 0.0, \"predicate_5\": 0.39, \"predicate_6\": 0.0, \"predicate_11\": 0.0, \"predicate_10\": 0.0, \"predicate_9\": 0.0, \"NONE\": 0.61, \"predicate_0\": 0.0, \"predicate_2\": 0.0}}}"
+      },
+      {
+        "kind": "table_query_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.8, \"probabilities\": {\"no\": 0.1, \"yes\": 0.9}}}"
+      },
+      {
+        "kind": "table_fastpath_result",
+        "body": "{\"query\": {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_mean_variant-kestrel/readings.json\", \"operation\": \"mean\", \"group_by\": \"station\", \"value_column\": \"reading\", \"filters\": [{\"column\": \"accepted\", \"op\": \"eq\", \"value\": \"yes\"}, {\"column\": \"minutes\", \"op\": \"gte\", \"value\": \"2\"}]}, \"answer\": \"{\\\"North\\\":2.0,\\\"South\\\":2}\"}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"North\\\":2.0,\\\"South\\\":2}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 2.51, \"codex_calls\": 0, \"jev_calls\": 3, \"codex_input_tokens\": 0, \"codex_output_tokens\": 0, \"jev_input_tokens\": 4820, \"provider\": \"codex\", \"generation_calls\": 0, \"generation_input_tokens\": 0, \"generation_output_tokens\": 0}"
+      }
+    ],
+    "seconds": 2.678,
+    "answer": "{\"North\":2.0,\"South\":2}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "North": 2.0,
+        "South": 2
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.258,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.112,
+        "kind": "decision",
+        "text": "Jev route \u2192 table"
+      },
+      {
+        "seconds": 1.113,
+        "kind": "judge",
+        "text": "Jev \u00b7 7 decisions"
+      },
+      {
+        "seconds": 1.659,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 2.424,
+        "kind": "done",
+        "text": "Jev verified table query \u00b7 no generation calls"
+      },
+      {
+        "seconds": 2.677,
+        "kind": "usage",
+        "text": "2.5s \u00b7 codex 0 calls \u00b7 Jev 3 calls"
+      }
+    ],
+    "artifacts": {
+      "readings.json": "[{\"station\": \"North\", \"reading\": \"1.2\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"North\", \"reading\": \"2.8\", \"accepted\": \"yes\", \"minutes\": 4}, {\"station\": \"North\", \"reading\": \"bad\", \"accepted\": \"yes\", \"minutes\": 3}, {\"station\": \"South\", \"reading\": \"-3\", \"accepted\": \"yes\", \"minutes\": 2}, {\"station\": \"South\", \"reading\": \"7\", \"accepted\": \"yes\", \"minutes\": 5}, {\"station\": \"South\", \"reading\": \"100\", \"accepted\": \"no\", \"minutes\": 8}, {\"station\": \"North\", \"reading\": \"80\", \"accepted\": \"yes\", \"minutes\": 1}]"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 1
+  },
+  {
+    "task": "table_count_variant",
+    "arm": "kestrel",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "events.csv": "queue,status,score\nX,closed,-1\nX,closed,2\nX,closed,7\nY,closed,0\nY,open,2\n"
+    },
+    "prompt": "Read events.csv. Count rows by queue where status is closed and score is below 4. Return only JSON mapping each queue to its numeric count.",
+    "elapsed_seconds": 2.67,
+    "codex_calls": 0,
+    "jev_calls": 3,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 3730,
+    "provider": "codex",
+    "generation_calls": 0,
+    "generation_input_tokens": 0,
+    "generation_output_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read events.csv. Count rows by queue where status is closed and score is below 4. Return only JSON mapping each queue to its numeric count.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"table\", \"confidence\": 0.99, \"probabilities\": {\"context\": 0.0, \"model\": 0.0, \"table\": 1.0, \"selection\": 0.0}}, \"first_field\": {\"choice\": \"field_0\", \"confidence\": 0.85, \"probabilities\": {\"NONE\": 0.11, \"field_1\": 0.0, \"field_0\": 0.89, \"field_2\": 0.0}}, \"second_field\": {\"choice\": \"NONE\", \"confidence\": 0.45, \"probabilities\": {\"NONE\": 0.59, \"field_1\": 0.11, \"field_0\": 0.28, \"field_2\": 0.02}}, \"candidate\": {\"choice\": \"NONE\", \"confidence\": 0.99, \"probabilities\": {\"NONE\": 1.0, \"item_3\": 0.0, \"item_1\": 0.0, \"item_0\": 0.0, \"item_4\": 0.0, \"item_2\": 0.0}}, \"format\": {\"choice\": \"model\", \"confidence\": 0.57, \"probabilities\": {\"one_field\": 0.02, \"model\": 0.68, \"record\": 0.28, \"two_fields\": 0.02}}}"
+      },
+      {
+        "kind": "table_query_decisions",
+        "body": "{\"supported\": {\"choice\": \"yes\", \"confidence\": 0.67, \"probabilities\": {\"no\": 0.17, \"yes\": 0.83}}, \"operation\": {\"choice\": \"count\", \"confidence\": 1.0, \"probabilities\": {\"count\": 1.0, \"sum\": 0.0, \"mean\": 0.0, \"max\": 0.0, \"min\": 0.0}}, \"group\": {\"choice\": \"column_0\", \"confidence\": 1.0, \"probabilities\": {\"column_0\": 1.0, \"column_2\": 0.0, \"column_1\": 0.0}}, \"value\": {\"choice\": \"NONE\", \"confidence\": 0.94, \"probabilities\": {\"column_0\": 0.04, \"NONE\": 0.96, \"column_2\": 0.0, \"column_1\": 0.0}}, \"filter_0\": {\"choice\": \"predicate_4\", \"confidence\": 0.93, \"probabilities\": {\"predicate_1\": 0.0, \"predicate_5\": 0.0, \"predicate_0\": 0.0, \"predicate_3\": 0.0, \"NONE\": 0.0, \"predicate_2\": 0.05, \"predicate_4\": 0.95}}, \"filter_1\": {\"choice\": \"predicate_2\", \"confidence\": 0.98, \"probabilities\": {\"predicate_1\": 0.0, \"predicate_0\": 0.0, \"predicate_5\": 0.0, \"predicate_3\": 0.0, \"NONE\": 0.01, \"predicate_2\": 0.99, \"predicate_4\": 0.0}}, \"filter_2\": {\"choice\": \"predicate_2\", \"confidence\": 0.61, \"probabilities\": {\"predicate_1\": 0.0, \"predicate_0\": 0.0, \"predicate_2\": 0.68, \"NONE\": 0.32, \"predicate_3\": 0.0, \"predicate_5\": 0.0, \"predicate_4\": 0.0}}}"
+      },
+      {
+        "kind": "table_query_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.98, \"probabilities\": {\"no\": 0.01, \"yes\": 0.99}}}"
+      },
+      {
+        "kind": "table_fastpath_result",
+        "body": "{\"query\": {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_count_variant-kestrel/events.csv\", \"operation\": \"count\", \"group_by\": \"queue\", \"value_column\": null, \"filters\": [{\"column\": \"status\", \"op\": \"eq\", \"value\": \"closed\"}, {\"column\": \"score\", \"op\": \"lt\", \"value\": \"4\"}]}, \"answer\": \"{\\\"X\\\":2,\\\"Y\\\":1}\"}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"X\\\":2,\\\"Y\\\":1}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 2.67, \"codex_calls\": 0, \"jev_calls\": 3, \"codex_input_tokens\": 0, \"codex_output_tokens\": 0, \"jev_input_tokens\": 3730, \"provider\": \"codex\", \"generation_calls\": 0, \"generation_input_tokens\": 0, \"generation_output_tokens\": 0}"
+      }
+    ],
+    "seconds": 2.835,
+    "answer": "{\"X\":2,\"Y\":1}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "X": 2,
+        "Y": 1
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.256,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.27,
+        "kind": "decision",
+        "text": "Jev route \u2192 table"
+      },
+      {
+        "seconds": 1.271,
+        "kind": "judge",
+        "text": "Jev \u00b7 7 decisions"
+      },
+      {
+        "seconds": 1.949,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 2.595,
+        "kind": "done",
+        "text": "Jev verified table query \u00b7 no generation calls"
+      },
+      {
+        "seconds": 2.835,
+        "kind": "usage",
+        "text": "2.7s \u00b7 codex 0 calls \u00b7 Jev 3 calls"
+      }
+    ],
+    "artifacts": {
+      "events.csv": "queue,status,score\nX,closed,-1\nX,closed,2\nX,closed,7\nY,closed,0\nY,open,2\n"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 1
+  },
+  {
+    "task": "table_count_variant",
+    "arm": "codex",
+    "source_sha256": "b3ac14a77e26dbd196697a365bf404a41a8f14789c05cb935cb6f9f59c24a355",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "events.csv": "queue,status,score\nX,closed,-1\nX,closed,2\nX,closed,7\nY,closed,0\nY,open,2\n"
+    },
+    "prompt": "Read events.csv. Count rows by queue where status is closed and score is below 4. Return only JSON mapping each queue to its numeric count.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13568, input_tokens=13951, output_tokens=13, reasoning_output_tokens=0, total_tokens=13964) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=50176, input_tokens=54697, output_tokens=313, reasoning_output_tokens=0, total_tokens=55010)",
+    "seconds": 25.49,
+    "answer": "{\"X\":2,\"Y\":1}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "X": 2,
+        "Y": 1
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read events.csv. Count rows by queue where status is closed and score is below 4. Return only JSON mapping each queue to its numeric count.', text_elements=[], type='text'))], id='01a0bd99-6089-77b3-bb1e-78f799f3e8a0', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0a3fc1b49d97afcf016aaf836f2f3087d0aba4b7c02a999513', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read events.csv and count the matching rows by queue.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_count_variant-codex\\nevents.csv\\n', command=\"/bin/zsh -lc 'pwd; rg --files -g events.csv -g AGENTS.md'\", command_actions=[CommandAction(root=UnknownCommandAction(command='pwd; rg --files -g events.csv -g AGENTS.md', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_count_variant-codex'), duration_ms=0, exit_code=0, id='exec-6672fb41-ca33-4b97-bc1b-bf9fef8f554e', plugin_id=None, process_id='23138', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='zsh:1: command not found: python\\n', command='/bin/zsh -lc \"python - <<\\'PY\\'\\nimport csv,json\\nfrom collections import Counter\\nwith open(\\'events.csv\\',newline=\\'\\') as f:\\n rows=list(csv.DictReader(f))\\ncounts={r[\\'queue\\']:0 for r in rows}\\nfor r in rows:\\n if r[\\'status\\']==\\'closed\\' and float(r[\\'score\\'])<4:\\n  counts[r[\\'queue\\']]+=1\\nprint(json.dumps(counts,sort_keys=True))\\nPY\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"python - <<'PY'\\nimport csv,json\\nfrom collections import Counter\\nwith open('events.csv',newline='') as f:\\n rows=list(csv.DictReader(f))\\ncounts={r['queue']:0 for r in rows}\\nfor r in rows:\\n if r['status']=='closed' and float(r['score'])<4:\\n  counts[r['queue']]+=1\\nprint(json.dumps(counts,sort_keys=True))\\nPY\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_count_variant-codex'), duration_ms=0, exit_code=127, id='exec-3407fd12-6219-4f34-94a4-35f76fa39c7d', plugin_id=None, process_id='65868', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.failed: 'failed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='{\"X\": 2, \"Y\": 1}\\n', command='/bin/zsh -lc \"python3 - <<\\'PY\\'\\nimport csv,json\\nwith open(\\'events.csv\\',newline=\\'\\') as f:\\n rows=list(csv.DictReader(f))\\ncounts={r[\\'queue\\']:0 for r in rows}\\nfor r in rows:\\n if r[\\'status\\']==\\'closed\\' and float(r[\\'score\\'])<4:\\n  counts[r[\\'queue\\']]+=1\\nprint(json.dumps(counts,sort_keys=True))\\nPY\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"python3 - <<'PY'\\nimport csv,json\\nwith open('events.csv',newline='') as f:\\n rows=list(csv.DictReader(f))\\ncounts={r['queue']:0 for r in rows}\\nfor r in rows:\\n if r['status']=='closed' and float(r['score'])<4:\\n  counts[r['queue']]+=1\\nprint(json.dumps(counts,sort_keys=True))\\nPY\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-pha_1zrs/table_count_variant-codex'), duration_ms=0, exit_code=0, id='exec-f101184e-1806-4df2-80bf-3141b5b2aadb', plugin_id=None, process_id='86356', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0a3fc1b49d97afcf016aaf837fd9b887d082ab437d552fdcbd', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"X\":2,\"Y\":1}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "events.csv": "queue,status,score\nX,closed,-1\nX,closed,2\nX,closed,7\nY,closed,0\nY,open,2\n"
+    },
+    "scope_passed": true
+  }
+]

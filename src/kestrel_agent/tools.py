@@ -210,6 +210,12 @@ class ToolExecutor:
                 result["data"] = json.loads(text)
             except json.JSONDecodeError:
                 pass
+        elif suffix == ".csv" and len(text) <= 12000:
+            import csv
+            import io
+            rows = list(csv.DictReader(io.StringIO(text.lstrip("\ufeff"))))
+            if len(rows) <= 64:
+                result["data"] = rows
         return result
 
     def search_files(self, args: dict) -> dict:
