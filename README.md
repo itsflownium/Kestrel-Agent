@@ -1,6 +1,6 @@
 # Kestrel
 
-A general-purpose terminal AI agent powered by Codex and Jev, with reusable workflows and configurable permissions for coding, research, and everyday tasks.
+A general-purpose terminal AI agent powered by your chosen generation provider and Jev, with reusable workflows and configurable permissions for coding, research, and everyday tasks.
 
 ```text
   ◇  K E S T R E L
@@ -21,7 +21,7 @@ A general-purpose terminal AI agent powered by Codex and Jev, with reusable work
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** initial implementation with limited owner-authorized testing. Twenty-one offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
+**Status:** initial implementation with limited owner-authorized testing. Thirty-five offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
@@ -47,6 +47,27 @@ kestrel --workspace ~/Projects/example
 kestrel resume SESSION_ID
 ```
 
+## Providers and per-user sign-in
+
+Inside Kestrel, use `/provider` to select `codex`, `openai-compatible`, or `anthropic`, then enter an endpoint and model ID where applicable. Model IDs are not hardcoded. `/model` shows the active provider/model and Jev key status; missing Jev credentials prompt for hidden input (Enter skips). `/model jev-key` replaces the Jev key, and `/model provider-key` saves the generation provider key.
+
+Each person uses their own credentials:
+
+- **Codex:** run `kestrel auth login` for the official per-user ChatGPT OAuth flow. Existing Codex sign-in is reused; no developer-owned shared token is distributed.
+- **OpenAI-compatible:** configure the service's Chat Completions base URL and model ID, then use `/model provider-key` or `kestrel auth provider`. Local loopback servers can omit a key.
+- **Anthropic:** select `anthropic`, a model ID available to your account, and your API key. This adapter uses the Messages API, not Claude consumer-account OAuth.
+- **Jev:** each person supplies their own key through `/model` or `kestrel auth jev`.
+
+For example, DeepSeek documents an OpenAI-compatible endpoint at `https://api.deepseek.com`. Choose `openai-compatible` in `/provider`, enter that URL, and use a model ID from your provider account. Custom gateways and local compatible servers use the same adapter. APIs with a different protocol or authentication scheme still need a separate adapter; support for every service/model is not claimed.
+
+Provider keys are stored with owner-only permissions in `providers.json` under Kestrel's private data directory, scoped to provider and endpoint. The configured `provider_api_key_env` (default `KESTREL_MODEL_API_KEY`) can override a saved key. Never put an API key directly into `/model MODEL_ID` or a configuration value.
+
+Advanced compatible-API settings: `provider_json_mode` accepts `prompt` (default), `json_object`, or `json_schema`; use only modes supported by your endpoint. Planning responses are always validated by Kestrel. `provider_token_parameter` selects `max_tokens` or `max_completion_tokens`; `provider_send_reasoning_effort=true` sends the configured effort to endpoints that support it. `provider_max_tokens` and `provider_timeout_seconds` bound responses. HTTP adapters buffer the final response rather than streaming tokens.
+
+Generation, planning, workflow learning, and GEPA reflection use the selected provider. Jev remains the decision provider. File tools and URL fetching are provider-independent; shell execution still uses the bundled Codex sandbox runtime. Native web research and the current MCP bridge are Codex-only; HTTP generation never silently substitutes Codex for these features. The `network` setting controls task tools, not the explicitly configured model APIs.
+
+Protocol adapters and controller dispatch have mocked tests; Anthropic/DeepSeek live calls have not been run because their credentials were not supplied. Official protocol references: [DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/), [Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create).
+
 ## Architecture
 
 ```mermaid
@@ -56,7 +77,7 @@ flowchart TD
     R --> F[Read-only bounded recipes]
     F --> V[Jev: select and check source-grounded result]
     V --> U
-    R --> P[Codex: answer or structured plan]
+    R --> P[Selected provider: answer or structured plan]
     V -. uncertain or unsupported .-> P
     W[(Versioned workflows)] --> P
     P --> C
@@ -65,7 +86,7 @@ flowchart TD
     C --> T[Permission-checked tools]
     T --> E[(Original evidence and checkpoints)]
     E --> C
-    C --> G[Codex: generation or web research]
+    C --> G[Selected provider: generation]
     G --> E
     C --> A[Criteria checks and final response]
     C -. execution traces .-> L[Manual workflow learning / offline GEPA]
@@ -73,7 +94,7 @@ flowchart TD
     L -. versioned questions .-> J
 ```
 
-- **Codex** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call after Jev routing. The user selects a fixed model; there is no learned model router.
+- **The selected generation provider** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call after Jev routing. Native web research requires Codex. The user selects a fixed provider/model; there is no learned model router.
 - **Jev** routes every new request, evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
 - **Fast paths** can finish bounded arithmetic and single-record selection over explicitly named small JSON files with zero Codex calls. Arithmetic is computed locally after Jev routing. Record candidates and output field choices are derived from the actual file schema; a second Jev check verifies selection and requested fields. Unsupported formats, ambiguity, ties, or failed checks fall back to the general agent. There are no benchmark-answer lookups. These limited recipes do not replace general generation or prove universal speed improvements.
 - **The controller** validates dependency graphs and result bindings, enforces permissions, parallelizes independent reads, serializes writes, tracks budgets, and checkpoints operations. Jev cannot change permissions.
@@ -111,7 +132,9 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/new` | Fresh conversation |
 | `/sessions`, `/resume ID` | List/reopen sessions |
 | `/continue` | Continue interrupted work |
-| `/model`, `/model ID` | List/select the fixed Codex model |
+| `/model`, `/model ID` | Model selection and Jev credential status |
+| `/provider` | Configure provider, endpoint, and model |
+| `/model jev-key`, `/model provider-key` | Hidden key entry |
 | `/permissions [PROFILE]` | Inspect/change access |
 | `/config` | Inspect settings |
 | `/tools` | Discover configured MCP tools |
@@ -143,7 +166,7 @@ kestrel optimize --train train.jsonl --validation validation.jsonl --component v
 kestrel promote-prompt /absolute/path/to/reviewed-candidate.json
 ```
 
-Train/validation sets must not overlap. GEPA saves inactive candidates for review and never replays real shell/MCP actions. Its reflection callable uses the same Codex OAuth runtime. Promotion preserves a previous prompt version.
+Train/validation sets must not overlap. GEPA saves inactive candidates for review and never replays real shell/MCP actions. Its reflection callable uses the selected generation provider. Promotion preserves a previous prompt version.
 
 ## Storage
 

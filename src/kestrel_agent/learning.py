@@ -79,7 +79,7 @@ def optimize(settings: Settings, train_path: Path, validation_path: Path, compon
         nonlocal reflections
         reflections += 1
         if reflections > min(10, settings.max_model_calls):
-            raise RuntimeError("Offline Codex reflection budget reached; existing prompts remain active.")
+            raise RuntimeError("Offline generation reflection budget reached; existing prompts remain active.")
 
         async def call():
             runtime = Runtime(settings, Path.cwd(), emit)
