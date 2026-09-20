@@ -68,3 +68,21 @@ Plans can declare `final_response_ref`, a whole-value reference to a declared ac
 Actions default to `after=success`. `after=failure` runs a recovery branch after a definite dependency error, while `after=completion` permits inspection after either outcome. Skipped branches propagate skips instead of creating spurious errors. Uncertain outcomes do not enable an automatic failure retry; completion actions directly dependent on uncertain outcomes are restricted to read tools. Existing uncertain-effect fingerprint checks remain in place.
 
 Evidence now includes the executing tool, bound argument excerpts, and execution status alongside results. Older checkpoints without these fields remain readable. This gives Jev more execution context, but command arguments alone do not prove absence of side effects. The live recovery benchmark still shows unnecessary work, so minimal repair and broader interruption testing remain unfinished.
+
+## Jev-driven grouped table path
+
+For one explicitly named CSV/JSON file of at most 12 KB and 64 object rows, the router may offer grouped numeric aggregation. Jev selects an enumerated operation, source-derived columns, and up to three AND predicates. Options use only literal categorical values present in both the input and request, plus numeric thresholds parsed from the request. At most 16 common columns, 8 thresholds, and 64 predicate choices are offered; larger or incompatible queries fall back to general planning.
+
+The ordinary permission-checked `query_table` computes the result. A fresh source read must match the original SHA256. A separate Jev call checks the chosen query, all source records, result metadata, and exact JSON answer against the whole request before returning it. Joins, OR predicates, external facts, file edits, missing options, explanations, changed sources, and rejected checks fall back. This avoids all generation calls for supported requests; it does not broaden Jev into an arbitrary text/code generator or promise that semantic checks are infallible.
+
+The new path has independent schema/filter/source-change tests and live sum/mean/count comparisons. The benchmark fixtures are not imported by the application. A new table-with-write task checks that required file creation reaches the general controller.
+
+## Initial source evidence
+
+When a new request leaves the bounded fast paths, the controller inspects at most four explicitly named small local text/code/data files before planning. Existing files up to 12 KB use the normal permission-checked reader; absent destinations receive an observed existence record. This exposes source content and hashes to the first plan and avoids inspection-only planning turns. Known script extensions are not prefetched when the request contains run/execute, preserving failure-inspection sequencing. Large, denied, unsupported, and unreadable paths remain for the normal controller to handle.
+
+This evidence does not authorize writes or prove effects occurred. Existing-file writes still require a matching observed hash, and an absent destination is checked again by write_file. A direct answer following inspection must pass both original-task completion and answer-support/format questions in the same Jev call. Initial reads count toward the action budget and reserve a step for the normal controller; unsupported output claims cause replanning rather than being treated as completion.
+
+Plans are also instructed to bind already-produced text directly into downstream tools: numeric JSON from query_table can be written without another generation call. These instructions are general; there are no workload-name checks in application code.
+
+Write receipts now include previous_sha256 and a description of the precondition actually checked. Approval can leave a dialog open while another process edits or creates the target, so write_file rechecks existence/content after approval before replacing it. This narrows the race window but cannot provide an OS-level compare-and-swap against concurrent writers. Short self-contained new content may be embedded directly in a plan's arguments; execution, permissions, and hash guards remain in the controller.
