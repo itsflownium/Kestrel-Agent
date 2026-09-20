@@ -17,6 +17,8 @@ from kestrel_agent.providers import Runtime
 from kestrel_agent.store import Store
 
 CASES = [
+    {'id':'command_json', 'prompt':'Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.',
+     'files':{'emit.py':'import json\nprint(json.dumps({"items": len(set(["b", "a", "b", "c"])), "ready": True}))\n'}},
     {'id':'code_edit', 'prompt':'Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.',
      'files':{'stats.py':'def mean(values):\n    return sum(values) / len(values)\n'}, 'editable_files':['stats.py']},
     {'id':'code_edit_variant','prompt':'Fix labels.py: normalize(items) must accept any iterable of strings, trim whitespace, lowercase values, remove empty values, and keep only the first occurrence of each normalized value in original order. Do not mutate the input collection. Edit only labels.py.',
@@ -64,8 +66,12 @@ def json_answer(text):
 def numeric_mapping(value, expected):
     return isinstance(value,dict) and all(type(v) in {int,float} for v in value.values()) and value==expected
 
-async def grade(case,answer,workspace,runtime,events):
+async def grade(case,answer,workspace,runtime,events,commands):
     try:
+        if case=='command_json':
+            value=json.loads(answer)
+            observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and command.get('stdout','').strip() == answer.strip() for command in commands if command.get('stdout','').lstrip().startswith('{'))
+            return value=={'items':3,'ready':True} and observed, {'parsed':value,'observed_output':observed}
         if case=='code_edit':
             code='import sys; sys.path.insert(0,"."); from stats import mean; assert mean([]) is None; assert mean(iter([])) is None; assert mean((v for v in [2,4,9])) == 5; assert mean([-2,2]) == 0; assert mean([1.5,2.5]) == 2; print("PASS")'
             result=await runtime.command([sys.executable,'-I','-c',code],str(workspace),'grade-code')
@@ -94,14 +100,14 @@ async def grade(case,answer,workspace,runtime,events):
         if case=='ambiguous_selection':
             return answer.strip()=='TIE', {}
         if case=='tool_recovery':
-            output=json.dumps(events)
-            return '42' in answer and 'TOTAL=42' in output, {'observed_success':'TOTAL=42' in output}
+            observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and 'TOTAL=42' in command.get('stdout','').splitlines() for command in commands)
+            return '42' in answer and observed, {'observed_success':observed}
         if case=='recovery_variant':
-            output=json.dumps(events)
-            return '17' in answer and 'RESULT=17' in output, {'observed_success':'RESULT=17' in output}
+            observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and 'RESULT=17' in command.get('stdout','').splitlines() for command in commands)
+            return '17' in answer and observed, {'observed_success':observed}
         if case=='recovery_two_arguments':
-            output=json.dumps(events)
-            return '36' in answer and 'VALUE=36' in output, {'observed_success':'VALUE=36' in output}
+            observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and 'VALUE=36' in command.get('stdout','').splitlines() for command in commands)
+            return '36' in answer and observed, {'observed_success':observed}
     except Exception as error:
         return False, {'grader_error':redact(str(error))}
 
@@ -133,6 +139,7 @@ async def main():
                     if kind!='output': print(arm,case['id'],kind,redact(text)[:160],flush=True)
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
+                commands=[]
                 record={'task':case['id'],'arm':arm,'repetition':repetition,'source_sha256':source_hash,'model':settings.model,'effort':settings.effort,'input_files':case['files'],'prompt':case['prompt']}
                 try:
                     async with asyncio.timeout(180):
@@ -140,6 +147,7 @@ async def main():
                             sid=store.create(workspace)
                             engine=Engine(settings,workspace,store,sid,emit,allow)
                             answer=await engine.run(case['prompt'])
+                            commands=[{'exit_code':o['result'].get('exitCode'),'stdout':o['result'].get('stdout','')} for o in engine.state.get('observations',[]) if o.get('tool')=='shell' and o.get('status')=='completed']
                             record.update(engine.state.get('usage',{}))
                             record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=?',(sid,))]
                         else:
@@ -152,10 +160,13 @@ async def main():
                             answer=result.final_response
                             record['usage']=str(result.usage)
                             for item in result.items:
+                                root_item=getattr(item,'root',item)
+                                if getattr(root_item,'type',None)=='commandExecution':
+                                    commands.append({'exit_code':getattr(root_item,'exit_code',None),'stdout':getattr(root_item,'aggregated_output','') or ''})
                                 events.append({'kind':'codex_item','text':str(item)})
                     record['seconds']=round(time.perf_counter()-start,3)
                     record['answer']=answer
-                    record['passed'],record['grading']=await grade(case['id'],answer,workspace,runtime,events)
+                    record['passed'],record['grading']=await grade(case['id'],answer,workspace,runtime,events,commands)
                 except Exception as error:
                     record.update(seconds=round(time.perf_counter()-start,3),error=redact(str(error)),passed=False)
                 finally:
@@ -163,6 +174,7 @@ async def main():
                         record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls)
                         await engine.close()
                     await runtime.close()
+                record['observed_commands']=commands
                 record['events']=events
                 record['artifacts']={p.name:p.read_text() for p in workspace.iterdir() if p.is_file() and p.stat().st_size<100000}
                 # Scope is part of task quality, independently of answer correctness.
