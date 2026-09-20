@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-ToolName = Literal["list_files", "read_file", "search_files", "write_file", "shell", "fetch_url", "mcp", "generate", "research", "choose", "read_evidence"]
+ToolName = Literal["list_files", "read_file", "search_files", "write_file", "shell", "fetch_url", "mcp", "generate", "research", "choose", "read_evidence", "query_table"]
 
 
 class Action(BaseModel):
@@ -17,6 +17,7 @@ class Action(BaseModel):
     depends_on: list[str]
     purpose: str
     condition: str
+    after: Literal["success", "failure", "completion"] = "success"
 
     def arguments(self) -> dict[str, Any]:
         value = json.loads(self.arguments_json)
@@ -31,6 +32,7 @@ class Plan(BaseModel):
     message: str
     actions: list[Action] = Field(max_length=12)
     success_criteria: list[str] = Field(max_length=8)
+    final_response_ref: str | None = None
 
     @model_validator(mode="after")
     def valid_graph(self) -> "Plan":
@@ -41,7 +43,13 @@ class Plan(BaseModel):
             raise ValueError("An execution plan needs actions.")
         if self.mode != "plan" and self.actions:
             raise ValueError("Direct answers and clarification cannot execute tools.")
+        if self.final_response_ref is not None:
+            match = re.fullmatch(r"\$\{([a-z][a-z0-9_]*)\.([A-Za-z0-9_.]+)\}", self.final_response_ref)
+            if self.mode != "plan" or not match or match.group(1) not in ids:
+                raise ValueError("final_response_ref must reference a declared action result.")
         for action in self.actions:
+            if action.after != "success" and not action.depends_on:
+                raise ValueError("Failure/completion actions need dependencies.")
             action.arguments()
             if any(d not in ids or d == action.id for d in action.depends_on):
                 raise ValueError("Invalid dependency.")

@@ -1,6 +1,6 @@
 # Owner-controlled acceptance guide
 
-The owner authorized testing on September 20, 2026. Thirty-five offline checks pass. Terminal startup, `/help`, and exit were exercised in a PTY with isolated session storage. Live comparisons ran using GPT-6-Astra medium and Jev, including renamed schemas, changed data, no-match cases, and open-ended fallback. See `benchmarks/README.md` for results and limitations. The remaining checklist below is not yet fully executed. No automatic test workflow is configured.
+The owner authorized testing on September 20, 2026. Forty offline checks pass. Terminal startup, `/help`, and exit were exercised in a PTY with isolated session storage. Live comparisons ran using GPT-6-Astra medium and Jev, including renamed schemas, changed data, no-match cases, and open-ended fallback. See `benchmarks/README.md` for results and limitations. The remaining checklist below is not yet fully executed. No automatic test workflow is configured.
 
 ## Local checks
 
@@ -30,3 +30,5 @@ Compare identical tasks against Codex alone with the same model, effort, tools, 
 Runtime areas still requiring validation: Codex sandbox compatibility, inherited MCP settings, terminal rendering/cancellation, provider schemas, and the full GEPA path. Source inspection and package installation do not prove these work.
 
 Provider additions: mocked OpenAI-compatible/Anthropic requests, controller dispatch without Codex startup, per-endpoint credential isolation, HTTP error redaction, and truncated-output rejection pass. A PTY smoke check verified masked Jev key entry and provider configuration with dummy credentials. No live third-party generation credentials were available.
+
+Broader workloads: isolated coding edits (independent behavioral checks), policy/release reconciliation, CSV aggregation, recovery from a failed command, and ambiguous selection. See benchmarks/WORKLOADS.md for initial and follow-up measurements; the original-request completion guard and table queries have regression coverage.

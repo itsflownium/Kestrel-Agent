@@ -10,8 +10,8 @@
 4. Resolve `${action_id.field}` in code; enforce access; save in-flight checkpoints.
 5. Parallelize independent reads. Serialize effects and generation.
 6. Store originals with evidence IDs; include bounded excerpts in prompts. Retrieve omitted detail through `read_evidence`.
-7. Check explicit criteria with Jev. Errors override optimistic judgments. Replan when necessary.
-8. Generate a grounded answer and check its claims about execution. Unsupported claims trigger a bounded revision.
+7. Check the original task and explicit criteria with Jev. Unresolved errors require replanning; a definite failure may be considered recovered only when subsequent execution evidence supports it.
+8. If a completed tool result is the entire requested answer, Jev may approve returning it directly. Otherwise generate a grounded answer and check its claims about execution. Unsupported claims trigger a bounded revision.
 
 Arguments are JSON strings inside the strict plan schema because arbitrary tool-specific objects otherwise require enumerating every connected schema. They are decoded as JSON, validated by the selected tool, and never evaluated as code. Commands use argv arrays.
 
@@ -52,3 +52,37 @@ These are generic, read-only capability recipes, not a lookup of task answers. T
 Codex remains the default and the local sandbox runtime dependency. Non-Codex generation does not start its app-server or require Codex authentication. Native research and MCP discovery are explicitly unavailable for HTTP providers rather than silently invoking a different model/account. HTTP model calls use configured credentials independently of task-tool network access.
 
 API keys are private per-user files, scoped to protocol plus endpoint; an explicit environment override is supported. Codex OAuth uses the official SDK login and credential storage for each user. No shared OAuth client secret, shared account token, or Jev key is shipped in source. Password entry uses an explicit prompt-toolkit output to prevent its minimal-terminal echo shortcut from exposing input.
+
+## Completion and table-workload revisions
+
+Completion criteria now cover the original user request as well as the latest plan. A recovery plan that merely diagnoses a failure cannot finish a task that requires a successful rerun. Answer-only replans after tool execution also pass this guard. These are Jev judgments over recorded evidence, not infallible proofs; independent graders remain important.
+
+Final-answer-only criteria can be deferred until generation, then checked in the final support/format review. Missing tool work cannot be deferred as presentation. The single-record fast path is unavailable when the request names multiple source files.
+
+`query_table` is a permission-checked read tool over bounded CSV/JSON inputs. Operations and comparisons are enumerated; columns and filter values come from the request/plan. It never evaluates code. Decimal values are returned as strings with precision/rounding metadata, and invalid/missing rows are counted. Existing file/size limits and the operation's stricter row/group limits bound execution.
+
+## Verified result reuse and failure branches
+
+Plans can declare `final_response_ref`, a whole-value reference to a declared action. The controller requires successful execution, binds the value without evaluation, and limits the candidate to 12,000 characters. Jev checks the original task, all completion criteria, and exact candidate formatting in one batch. Only a supported candidate can bypass final generation; missing fields, rejection, or incomplete work fall back to the existing generation/replanning path. Table results provide `json_content` with numeric JSON values without converting Decimal totals to binary floats.
+
+Actions default to `after=success`. `after=failure` runs a recovery branch after a definite dependency error, while `after=completion` permits inspection after either outcome. Skipped branches propagate skips instead of creating spurious errors. Uncertain outcomes do not enable an automatic failure retry; completion actions directly dependent on uncertain outcomes are restricted to read tools. Existing uncertain-effect fingerprint checks remain in place.
+
+Evidence now includes the executing tool, bound argument excerpts, and execution status alongside results. Older checkpoints without these fields remain readable. This gives Jev more execution context, but command arguments alone do not prove absence of side effects. The live recovery benchmark still shows unnecessary work, so minimal repair and broader interruption testing remain unfinished.
+
+## Jev-driven grouped table path
+
+For one explicitly named CSV/JSON file of at most 12 KB and 64 object rows, the router may offer grouped numeric aggregation. Jev selects an enumerated operation, source-derived columns, and up to three AND predicates. Options use only literal categorical values present in both the input and request, plus numeric thresholds parsed from the request. At most 16 common columns, 8 thresholds, and 64 predicate choices are offered; larger or incompatible queries fall back to general planning.
+
+The ordinary permission-checked `query_table` computes the result. A fresh source read must match the original SHA256. A separate Jev call checks the chosen query, all source records, result metadata, and exact JSON answer against the whole request before returning it. Joins, OR predicates, external facts, file edits, missing options, explanations, changed sources, and rejected checks fall back. This avoids all generation calls for supported requests; it does not broaden Jev into an arbitrary text/code generator or promise that semantic checks are infallible.
+
+The new path has independent schema/filter/source-change tests and live sum/mean/count comparisons. The benchmark fixtures are not imported by the application. A new table-with-write task checks that required file creation reaches the general controller.
+
+## Initial source evidence
+
+When a new request leaves the bounded fast paths, the controller inspects at most four explicitly named small local text/code/data files before planning. Existing files up to 12 KB use the normal permission-checked reader; absent destinations receive an observed existence record. This exposes source content and hashes to the first plan and avoids inspection-only planning turns. Known script extensions are not prefetched when the request contains run/execute, preserving failure-inspection sequencing. Large, denied, unsupported, and unreadable paths remain for the normal controller to handle.
+
+This evidence does not authorize writes or prove effects occurred. Existing-file writes still require a matching observed hash, and an absent destination is checked again by write_file. A direct answer following inspection must pass both original-task completion and answer-support/format questions in the same Jev call. Initial reads count toward the action budget and reserve a step for the normal controller; unsupported output claims cause replanning rather than being treated as completion.
+
+Plans are also instructed to bind already-produced text directly into downstream tools: numeric JSON from query_table can be written without another generation call. These instructions are general; there are no workload-name checks in application code.
+
+Write receipts now include previous_sha256 and a description of the precondition actually checked. Approval can leave a dialog open while another process edits or creates the target, so write_file rechecks existence/content after approval before replacing it. This narrows the race window but cannot provide an OS-level compare-and-swap against concurrent writers. Short self-contained new content may be embedded directly in a plan's arguments; execution, permissions, and hash guards remain in the controller.
