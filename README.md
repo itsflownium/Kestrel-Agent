@@ -21,7 +21,7 @@ A general-purpose terminal AI agent powered by Codex and Jev, with reusable work
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** initial implementation with limited owner-authorized testing. Nine offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Broader acceptance testing remains pending. See the [comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
+**Status:** initial implementation with limited owner-authorized testing. Twenty-one offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
@@ -52,7 +52,12 @@ kestrel resume SESSION_ID
 ```mermaid
 flowchart TD
     U[Terminal request] --> C[Python controller]
-    C --> P[Codex: answer or structured plan]
+    C --> R[Jev: choose execution route]
+    R --> F[Read-only bounded recipes]
+    F --> V[Jev: select and check source-grounded result]
+    V --> U
+    R --> P[Codex: answer or structured plan]
+    V -. uncertain or unsupported .-> P
     W[(Versioned workflows)] --> P
     P --> C
     C --> J[Jev: batched bounded decisions]
@@ -68,8 +73,9 @@ flowchart TD
     L -. versioned questions .-> J
 ```
 
-- **Codex** creates plans, code, prose, and research. Simple conversation can finish in one generation call. The user selects a fixed model; there is no learned model router.
-- **Jev** evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
+- **Codex** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call after Jev routing. The user selects a fixed model; there is no learned model router.
+- **Jev** routes every new request, evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
+- **Fast paths** can finish bounded arithmetic and single-record selection over explicitly named small JSON files with zero Codex calls. Arithmetic is computed locally after Jev routing. Record candidates and output field choices are derived from the actual file schema; a second Jev check verifies selection and requested fields. Unsupported formats, ambiguity, ties, or failed checks fall back to the general agent. There are no benchmark-answer lookups. These limited recipes do not replace general generation or prove universal speed improvements.
 - **The controller** validates dependency graphs and result bindings, enforces permissions, parallelizes independent reads, serializes writes, tracks budgets, and checkpoints operations. Jev cannot change permissions.
 - **Tools** include file listing/search, text editing with content-hash protection, PDF/DOCX/XLSX reading, sandboxed commands, public URL fetching, Codex web research, and configured MCP tools. Complex artifact creation uses explicitly authorized commands and suitable libraries.
 - **Memory** retains original evidence, bounded prompt excerpts, sessions, and parameterized workflow recipes in SQLite. `read_evidence` retrieves retained detail. Workflows supplement fresh planning rather than limiting task types.

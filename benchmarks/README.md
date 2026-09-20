@@ -1,30 +1,40 @@
-# Initial live comparison — September 20, 2026
+# Jev-led comparison — September 20, 2026
 
-These measurements do **not** establish that Kestrel is better, faster, or cheaper than Codex. Direct Codex was faster on both small tasks. Both returned the expected arithmetic result and plan selection.
+The final version was faster on five of six small tasks, with the expected answers from both systems. Open-ended writing was slower. This is evidence for bounded-workload improvements, not proof of overall superiority or lower dollar cost.
 
-Both arms used `gpt-6-astra`, medium reasoning, the same account/SDK, fresh threads, and identical isolated task inputs. Kestrel additionally used `jev-latest`. Execution was sequential; order alternated by task. Timings include runtime/thread startup and task execution, excluding cleanup. Authentication/model-list calls and offline checks are outside task timings.
+Both arms used GPT-6-Astra with medium reasoning through the same installed Codex SDK/account. Kestrel used jev-latest. Fresh isolated workspaces contained identical inputs; requests ran sequentially with alternating arm order. Times include startup and execution, excluding cleanup. This compares complete tool harnesses, not isolated model latency.
 
-| Task | Direct Codex, initial | Kestrel, initial | Direct Codex, after fixes | Kestrel, after fixes |
-| --- | ---: | ---: | ---: | ---: |
-| 17 × 23 | 5.810 s | 6.192 s | 4.524 s | 5.321 s |
-| Select cheapest eligible plan from JSON | 12.560 s | 46.433 s | 9.241 s | 20.227 s |
+| Task | Direct Codex | Kestrel | Kestrel Codex/Jev calls | Checks |
+| --- | ---: | ---: | ---: | --- |
+| arithmetic | 4.64 s | 1.42 s | 0/1 | Both pass |
+| selection | 8.19 s | 1.88 s | 0/2 | Both pass |
+| renamed_fields | 7.97 s | 2.01 s | 0/2 | Both pass |
+| shuffled_values | 7.34 s | 1.65 s | 0/2 | Both pass |
+| no_match | 10.33 s | 1.85 s | 0/2 | Both pass |
+| open_ended | 6.36 s | 12.02 s | 1/1 | Both pass |
 
-The final selection run used two Kestrel Codex calls and four Jev API calls. Arithmetic used one Codex call and zero Jev calls. Both selected Cedar at 12/month. The baseline added a dollar symbol although the input did not specify currency: the automated check only checks the plan name and amount, not full factual grounding.
+## What changed
 
-## Bugs found and addressed
+Jev now routes each new request before any Codex planning call. Read-only, bounded recipes handle exact single-expression arithmetic and selection over small JSON arrays. Jev selects a candidate and output fields from the actual schema, then separately checks the result. Open-ended work falls back to the general Codex/controller loop. Unsupported/ambiguous results do not become invented fast answers.
 
-- The configured `jev-1.13` model was rejected by the live service. Its model-list endpoint returned `jev-latest` and `jev-preview`; the default now uses `jev-latest`.
-- A planner bound numbered file text into the candidate-selection API. Small JSON files now expose parsed `data`, with explicit binding guidance and a regression test.
-- Plans unnecessarily generated a reply before the controller generated its final answer. Planning guidance now avoids that redundant action.
+No benchmark names, prices, expected winners, or task-string lookups exist in application code. The schema suite changes field names, generates new supplier IDs/prices with independent reproducible seeds, and shuffles input order. Test-only oracle code computes the expected supplier using constraints; it is not imported by the application. Fast paths are intentionally limited reusable capabilities, not unrestricted task understanding.
 
-The improved selection run still replanned following a Jev completion check. Reducing unnecessary criteria and orchestration overhead remains future work; no blanket performance claim is justified.
+## Quality and cost interpretation
 
-## Usage and limits
+All six final prompts passed their stated checks: exact numeric answers, correct selected ID and amount, exact no-match marker, and a two-sentence list/tuple explanation covering mutability. Both systems met those checks. These small checks do not establish general answer-quality superiority. Codex inferred a dollar symbol on an input without currency in the original selection case; Kestrel preserved the actual field labels and values. The renamed-schema cases explicitly specify EUR.
 
-On the final selection run, Kestrel reported 35,364 Codex input tokens, 241 output tokens, and 3,524 Jev input tokens. Direct Codex reported 26,298 total input tokens and 57 output tokens. Input counts include cached tokens; cache conditions differed between runs. Subscription usage cannot be translated into a reliable per-request dollar price here, and Jev dollars were not measured.
+The five bounded cases used zero Codex calls and one or two Jev calls. This reduces Codex subscription usage on those cases; it does not prove lower dollar cost, because subscription billing is not per-request API billing and Jev charges were not measured. The general-generation case used one Codex call plus a Jev routing call and was slower.
 
-Only two synthetic tasks were used, with one observation per version/task/arm. There are no statistically meaningful medians or p95 estimates. Both systems could read the same file, but the tool harnesses differ: Kestrel uses its file/decision tools, whereas the baseline uses native Codex tools. This is a system comparison, not an isolated test of Jev model speed. Neither workflow memory nor GEPA was trained or activated; their benefits are not measured. MCP, web research, complex coding, writes, interruption recovery, and broad UI behavior remain unvalidated.
+## Coverage and limitations
 
-`results-initial.json` preserves the initial trials; `results.json` contains the post-fix trials. `compare.py` is the post-fix runner. Run explicitly with the installed Python environment; it makes live provider calls and overwrites `results.json`. Credentials are loaded from the normal private Kestrel configuration, and benchmark state is isolated in a temporary directory.
+- Twenty-one offline tests pass, including permissions, bindings, arithmetic boundaries, failed-verification fallback, and schema-derived output fields. Compilation and whitespace checks pass.
+- Terminal startup, help, and clean exit were exercised in an isolated PTY. Full visual and interaction acceptance remains pending.
+- Earlier additional-suite tests included alternative choices, a different domain, and an instruction hidden inside a record. Both systems selected correctly. Those results predate the final schema-independent formatter and are retained separately.
+- One final observation per task/arm is too few for statistical claims, p95 latency, or a realistic overall workload score. Earlier measurements varied with network/cache conditions. The suite is biased toward capabilities deliberately optimized during development.
+- No broad coding, MCP, writes, web research, GEPA, learned memory, or recovery benchmark is represented. No model weights were trained.
 
-Additional checks: nine offline tests passed in 1.15 seconds; compilation and Git whitespace checks passed. A PTY smoke check rendered the welcome screen, accepted `/help`, and exited cleanly using isolated writable storage. A first attempt with the default data directory hit this testing environment's filesystem restriction; it was not treated as a product startup failure.
+## Reproduction and preserved evidence
+
+Run `python benchmarks/compare.py --suite original --output benchmarks/results.json` and `python benchmarks/compare.py --suite schema --output benchmarks/results-schema.json` with the installed environment. These commands make live requests. The final records include input data and an application-source SHA-256; credentials and private account data are excluded.
+
+`results.json` and `results-schema.json` are final-version trials. `results-initial.json` and `results-before-fastpath.json` preserve the slow initial design and its first repair. `results-fastpath-v1.json`, `results-fastpath-v2.json`, and additional-suite files preserve intermediate versions. See INITIAL.md for the initial comparison narrative; its claims describe that earlier implementation only.

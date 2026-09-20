@@ -1,0 +1,442 @@
+[
+  {
+    "task": "renamed_fields",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "supplier_identifier": "S-65647",
+        "jurisdiction": "EU",
+        "retention_days": 10,
+        "annual_fee_eur": 30
+      },
+      {
+        "supplier_identifier": "S-28063",
+        "jurisdiction": "EU",
+        "retention_days": 60,
+        "annual_fee_eur": 264
+      },
+      {
+        "supplier_identifier": "S-50499",
+        "jurisdiction": "EU",
+        "retention_days": 45,
+        "annual_fee_eur": 125
+      },
+      {
+        "supplier_identifier": "S-73244",
+        "jurisdiction": "US",
+        "retention_days": 60,
+        "annual_fee_eur": 40
+      }
+    ],
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12928, input_tokens=13297, output_tokens=13, reasoning_output_tokens=0, total_tokens=13310) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=17920, input_tokens=26340, output_tokens=71, reasoning_output_tokens=0, total_tokens=26411)",
+    "answer": "S-50499 \u2014 \u20ac125 annually.",
+    "passed": true,
+    "seconds": 7.972,
+    "events": []
+  },
+  {
+    "task": "renamed_fields",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "supplier_identifier": "S-65647",
+        "jurisdiction": "EU",
+        "retention_days": 10,
+        "annual_fee_eur": 30
+      },
+      {
+        "supplier_identifier": "S-28063",
+        "jurisdiction": "EU",
+        "retention_days": 60,
+        "annual_fee_eur": 264
+      },
+      {
+        "supplier_identifier": "S-50499",
+        "jurisdiction": "EU",
+        "retention_days": 45,
+        "annual_fee_eur": 125
+      },
+      {
+        "supplier_identifier": "S-73244",
+        "jurisdiction": "US",
+        "retention_days": 60,
+        "annual_fee_eur": 40
+      }
+    ],
+    "elapsed_seconds": 1.84,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1999,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.0, \"selection\": 1.0, \"context\": 0.0}}, \"first_field\": {\"choice\": \"field_3\", \"confidence\": 1.0, \"probabilities\": {\"field_0\": 0.0, \"field_3\": 1.0, \"field_1\": 0.0, \"field_2\": 0.0, \"NONE\": 0.0}}, \"second_field\": {\"choice\": \"field_0\", \"confidence\": 0.98, \"probabilities\": {\"field_2\": 0.0, \"field_3\": 0.01, \"field_1\": 0.0, \"field_0\": 0.98, \"NONE\": 0.01}}, \"candidate\": {\"choice\": \"item_2\", \"confidence\": 1.0, \"probabilities\": {\"item_2\": 1.0, \"item_0\": 0.0, \"item_3\": 0.0, \"item_1\": 0.0, \"NONE\": 0.0}}, \"format\": {\"choice\": \"two_fields\", \"confidence\": 1.0, \"probabilities\": {\"model\": 0.0, \"one_field\": 0.0, \"record\": 0.0, \"two_fields\": 1.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.97, \"probabilities\": {\"yes\": 0.99, \"no\": 0.01}}}"
+      }
+    ],
+    "answer": "supplier_identifier: S-50499 \u00b7 annual_fee_eur: 125",
+    "passed": true,
+    "seconds": 2.007,
+    "events": [
+      {
+        "seconds": 0.274,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.094,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.094,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 2.007,
+        "kind": "usage",
+        "text": "1.8s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "shuffled_values",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "supplier_identifier": "S-58341",
+        "jurisdiction": "EU",
+        "retention_days": 60,
+        "annual_fee_eur": 268
+      },
+      {
+        "supplier_identifier": "S-29028",
+        "jurisdiction": "EU",
+        "retention_days": 45,
+        "annual_fee_eur": 155
+      },
+      {
+        "supplier_identifier": "S-21282",
+        "jurisdiction": "US",
+        "retention_days": 60,
+        "annual_fee_eur": 40
+      },
+      {
+        "supplier_identifier": "S-11984",
+        "jurisdiction": "EU",
+        "retention_days": 10,
+        "annual_fee_eur": 30
+      }
+    ],
+    "elapsed_seconds": 1.52,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1999,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 1.0, \"probabilities\": {\"selection\": 1.0, \"context\": 0.0, \"model\": 0.0}}, \"first_field\": {\"choice\": \"field_3\", \"confidence\": 1.0, \"probabilities\": {\"NONE\": 0.0, \"field_3\": 1.0, \"field_2\": 0.0, \"field_1\": 0.0, \"field_0\": 0.0}}, \"second_field\": {\"choice\": \"field_0\", \"confidence\": 0.99, \"probabilities\": {\"NONE\": 0.0, \"field_3\": 0.0, \"field_2\": 0.0, \"field_1\": 0.0, \"field_0\": 1.0}}, \"candidate\": {\"choice\": \"item_1\", \"confidence\": 1.0, \"probabilities\": {\"NONE\": 0.0, \"item_2\": 0.0, \"item_0\": 0.0, \"item_3\": 0.0, \"item_1\": 1.0}}, \"format\": {\"choice\": \"two_fields\", \"confidence\": 1.0, \"probabilities\": {\"one_field\": 0.0, \"model\": 0.0, \"record\": 0.0, \"two_fields\": 1.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.98, \"probabilities\": {\"no\": 0.01, \"yes\": 0.99}}}"
+      }
+    ],
+    "answer": "supplier_identifier: S-29028 \u00b7 annual_fee_eur: 155",
+    "passed": true,
+    "seconds": 1.647,
+    "events": [
+      {
+        "seconds": 0.244,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.01,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.01,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.647,
+        "kind": "usage",
+        "text": "1.5s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "shuffled_values",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "supplier_identifier": "S-58341",
+        "jurisdiction": "EU",
+        "retention_days": 60,
+        "annual_fee_eur": 268
+      },
+      {
+        "supplier_identifier": "S-29028",
+        "jurisdiction": "EU",
+        "retention_days": 45,
+        "annual_fee_eur": 155
+      },
+      {
+        "supplier_identifier": "S-21282",
+        "jurisdiction": "US",
+        "retention_days": 60,
+        "annual_fee_eur": 40
+      },
+      {
+        "supplier_identifier": "S-11984",
+        "jurisdiction": "EU",
+        "retention_days": 10,
+        "annual_fee_eur": 30
+      }
+    ],
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13292, output_tokens=13, reasoning_output_tokens=0, total_tokens=13305) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=26333, output_tokens=70, reasoning_output_tokens=0, total_tokens=26403)",
+    "answer": "S-29028 \u2014 \u20ac155 annually.",
+    "passed": true,
+    "seconds": 7.339,
+    "events": []
+  },
+  {
+    "task": "no_match",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13568, input_tokens=13930, output_tokens=5, reasoning_output_tokens=0, total_tokens=13935) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=25984, input_tokens=27635, output_tokens=59, reasoning_output_tokens=0, total_tokens=27694)",
+    "answer": "NONE",
+    "passed": true,
+    "seconds": 10.333,
+    "events": []
+  },
+  {
+    "task": "no_match",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "elapsed_seconds": 1.63,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1730,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.88, \"probabilities\": {\"context\": 0.04, \"model\": 0.04, \"selection\": 0.92}}, \"first_field\": {\"choice\": \"field_1\", \"confidence\": 0.39, \"probabilities\": {\"NONE\": 0.45, \"field_2\": 0.04, \"field_3\": 0.0, \"field_0\": 0.0, \"field_1\": 0.51}}, \"second_field\": {\"choice\": \"NONE\", \"confidence\": 0.92, \"probabilities\": {\"NONE\": 0.93, \"field_2\": 0.04, \"field_3\": 0.0, \"field_0\": 0.0, \"field_1\": 0.03}}, \"candidate\": {\"choice\": \"NONE\", \"confidence\": 1.0, \"probabilities\": {\"item_2\": 0.0, \"item_1\": 0.0, \"item_0\": 0.0, \"NONE\": 1.0, \"item_3\": 0.0}}, \"format\": {\"choice\": \"model\", \"confidence\": 0.43, \"probabilities\": {\"record\": 0.14, \"one_field\": 0.29, \"model\": 0.57, \"two_fields\": 0.0}}}"
+      }
+    ],
+    "answer": "NONE",
+    "passed": true,
+    "seconds": 1.846,
+    "events": [
+      {
+        "seconds": 0.237,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.034,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.034,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.846,
+        "kind": "usage",
+        "text": "1.6s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "open_ended",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "elapsed_seconds": 11.87,
+    "codex_calls": 1,
+    "jev_calls": 1,
+    "codex_input_tokens": 17103,
+    "codex_output_tokens": 89,
+    "jev_input_tokens": 402,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.99, \"context\": 0.01}}}"
+      }
+    ],
+    "answer": "A Python list is mutable, so you can add, remove, or replace its elements, while a tuple is immutable, so its elements cannot be added, removed, or replaced after creation. Lists use square brackets, like [1, 2], while tuples typically use parentheses, like (1, 2).",
+    "passed": true,
+    "seconds": 12.022,
+    "events": [
+      {
+        "seconds": 0.176,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 0.935,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 1.758,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 12.021,
+        "kind": "usage",
+        "text": "11.9s \u00b7 Codex 1 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "open_ended",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=4992, input_tokens=13031, output_tokens=69, reasoning_output_tokens=0, total_tokens=13100) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=4992, input_tokens=13031, output_tokens=69, reasoning_output_tokens=0, total_tokens=13100)",
+    "answer": "A list is mutable, so you can add, remove, or replace its elements, while a tuple is immutable, so its elements cannot be changed after creation. Lists use square brackets, like `[1, 2, 3]`, while tuples typically use parentheses, like `(1, 2, 3)`.",
+    "passed": true,
+    "seconds": 6.363,
+    "events": []
+  }
+]

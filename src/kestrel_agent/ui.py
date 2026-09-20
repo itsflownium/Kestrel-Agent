@@ -146,8 +146,8 @@ class Terminal:
     async def work(self, message: str | None):
         self.busy = True
         self.started_at = time.monotonic()
-        self.phase = "Connecting"
-        self.emit("connecting", "Connecting to Codex · loading available tools")
+        self.phase = "Routing"
+        self.emit("connecting", "Jev · checking the quickest supported route")
         try:
             answer = await self.engine.run(message)
             self.console.print()

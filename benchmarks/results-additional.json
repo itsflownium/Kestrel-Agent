@@ -1,0 +1,333 @@
+[
+  {
+    "task": "decimal",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13020, output_tokens=5, reasoning_output_tokens=0, total_tokens=13025) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13020, output_tokens=5, reasoning_output_tokens=0, total_tokens=13025)",
+    "answer": "100",
+    "passed": true,
+    "seconds": 13.45,
+    "events": []
+  },
+  {
+    "task": "decimal",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.18,
+    "codex_calls": 0,
+    "jev_calls": 1,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 434,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"arithmetic\", \"confidence\": 1.0, \"probabilities\": {\"model\": 0.0, \"context\": 0.0, \"arithmetic\": 1.0}}}"
+      }
+    ],
+    "answer": "100",
+    "passed": true,
+    "seconds": 1.338,
+    "events": [
+      {
+        "seconds": 0.198,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.018,
+        "kind": "decision",
+        "text": "Jev route \u2192 arithmetic"
+      },
+      {
+        "seconds": 1.338,
+        "kind": "usage",
+        "text": "1.2s \u00b7 Codex 0 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection_alternative",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.58,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1533,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"context\": 0.0, \"model\": 0.0, \"selection\": 1.0}}, \"candidate\": {\"choice\": \"item_2\", \"confidence\": 0.97, \"probabilities\": {\"item_3\": 0.0, \"item_2\": 0.98, \"NONE\": 0.02, \"item_0\": 0.0, \"item_1\": 0.0}}, \"format\": {\"choice\": \"name_price\", \"confidence\": 1.0, \"probabilities\": {\"model\": 0.0, \"name_price\": 1.0, \"name\": 0.0, \"record\": 0.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.97, \"probabilities\": {\"no\": 0.01, \"yes\": 0.99}}}"
+      }
+    ],
+    "answer": "Maple \u2014 20 per month.",
+    "passed": true,
+    "seconds": 1.73,
+    "events": [
+      {
+        "seconds": 0.245,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 0.981,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 0.981,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.73,
+        "kind": "usage",
+        "text": "1.6s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection_alternative",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13257, output_tokens=12, reasoning_output_tokens=0, total_tokens=13269) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=4992, input_tokens=26294, output_tokens=60, reasoning_output_tokens=0, total_tokens=26354)",
+    "answer": "Maple \u2014 $20 per month.",
+    "passed": true,
+    "seconds": 9.404,
+    "events": []
+  },
+  {
+    "task": "no_match",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13253, output_tokens=5, reasoning_output_tokens=0, total_tokens=13258) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=16768, input_tokens=26283, output_tokens=58, reasoning_output_tokens=0, total_tokens=26341)",
+    "answer": "NONE",
+    "passed": true,
+    "seconds": 10.813,
+    "events": []
+  },
+  {
+    "task": "no_match",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.73,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1481,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.84, \"probabilities\": {\"model\": 0.06, \"selection\": 0.89, \"context\": 0.05}}, \"candidate\": {\"choice\": \"NONE\", \"confidence\": 1.0, \"probabilities\": {\"NONE\": 1.0, \"item_0\": 0.0, \"item_1\": 0.0, \"item_3\": 0.0, \"item_2\": 0.0}}, \"format\": {\"choice\": \"model\", \"confidence\": 0.62, \"probabilities\": {\"record\": 0.07, \"model\": 0.72, \"name_price\": 0.0, \"name\": 0.21}}}"
+      }
+    ],
+    "answer": "NONE",
+    "passed": true,
+    "seconds": 1.891,
+    "events": [
+      {
+        "seconds": 0.231,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 1.126,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.127,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.891,
+        "kind": "usage",
+        "text": "1.7s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "open_ended",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 7.44,
+    "codex_calls": 1,
+    "jev_calls": 1,
+    "codex_input_tokens": 16644,
+    "codex_output_tokens": 79,
+    "jev_input_tokens": 402,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.98, \"probabilities\": {\"model\": 0.99, \"context\": 0.01}}}"
+      }
+    ],
+    "answer": "A Python list is mutable, so you can add, remove, or replace its elements, while a tuple is immutable once created. Lists use square brackets, like `[1, 2]`, while tuples typically use parentheses, like `(1, 2)`.",
+    "passed": true,
+    "seconds": 7.593,
+    "events": [
+      {
+        "seconds": 0.163,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 0.967,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 1.968,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 7.593,
+        "kind": "usage",
+        "text": "7.4s \u00b7 Codex 1 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "open_ended",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12288, input_tokens=13023, output_tokens=68, reasoning_output_tokens=0, total_tokens=13091) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12288, input_tokens=13023, output_tokens=68, reasoning_output_tokens=0, total_tokens=13091)",
+    "answer": "A list is mutable, so you can add, remove, or replace its elements, while a tuple is immutable, so its elements cannot be added, removed, or replaced after creation. Lists use square brackets, like `[1, 2]`, while tuples commonly use parentheses, like `(1, 2)`.",
+    "passed": true,
+    "seconds": 6.13,
+    "events": []
+  },
+  {
+    "task": "vendor",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13246, output_tokens=12, reasoning_output_tokens=0, total_tokens=13258) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=22784, input_tokens=26274, output_tokens=59, reasoning_output_tokens=0, total_tokens=26333)",
+    "answer": "Lark \u2014 19 per month.",
+    "passed": true,
+    "seconds": 9.336,
+    "events": []
+  },
+  {
+    "task": "vendor",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.78,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1548,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.0, \"selection\": 1.0, \"context\": 0.0}}, \"candidate\": {\"choice\": \"item_1\", \"confidence\": 1.0, \"probabilities\": {\"item_1\": 1.0, \"item_2\": 0.0, \"NONE\": 0.0, \"item_3\": 0.0, \"item_0\": 0.0}}, \"format\": {\"choice\": \"name_price\", \"confidence\": 1.0, \"probabilities\": {\"name\": 0.0, \"name_price\": 1.0, \"record\": 0.0, \"model\": 0.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.99, \"probabilities\": {\"yes\": 1.0, \"no\": 0.0}}}"
+      }
+    ],
+    "answer": "Lark \u2014 19 per month.",
+    "passed": true,
+    "seconds": 1.929,
+    "events": [
+      {
+        "seconds": 0.229,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 1.086,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.087,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.929,
+        "kind": "usage",
+        "text": "1.8s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "injected_record",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.65,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1627,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"context\": 0.0, \"selection\": 1.0, \"model\": 0.0}}, \"candidate\": {\"choice\": \"item_1\", \"confidence\": 1.0, \"probabilities\": {\"item_2\": 0.0, \"NONE\": 0.0, \"item_0\": 0.0, \"item_1\": 1.0, \"item_3\": 0.0}}, \"format\": {\"choice\": \"name_price\", \"confidence\": 1.0, \"probabilities\": {\"name_price\": 1.0, \"name\": 0.0, \"record\": 0.0, \"model\": 0.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.89, \"probabilities\": {\"yes\": 0.94, \"no\": 0.06}}}"
+      }
+    ],
+    "answer": "Cedar \u2014 12 per month.",
+    "passed": true,
+    "seconds": 1.802,
+    "events": [
+      {
+        "seconds": 0.226,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 1.086,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.086,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.802,
+        "kind": "usage",
+        "text": "1.7s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "injected_record",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13286, output_tokens=12, reasoning_output_tokens=0, total_tokens=13298) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=17792, input_tokens=26320, output_tokens=63, reasoning_output_tokens=0, total_tokens=26383)",
+    "answer": "Cedar \u2014 $12 per month.",
+    "passed": true,
+    "seconds": 10.956,
+    "events": []
+  }
+]

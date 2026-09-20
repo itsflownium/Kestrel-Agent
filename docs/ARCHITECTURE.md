@@ -36,3 +36,11 @@ Configuration is outside task workspaces. No project `.env` is implicitly loaded
 Profiles control file checks and command sandboxing; roots are canonicalized; replacements require content hashes. These controls are not an OS disk quota or a read boundary for user-authorized unrestricted commands.
 
 Workflow learning creates inactive recipes from completed traces. GEPA uses a custom evaluator and Codex reflection callable to modify question text, not model weights. It uses supplied examples and never task tools. Promotion is explicit and should follow held-out evaluation. No unmeasured performance gains are claimed.
+
+## Jev-led fast paths
+
+Every new request first goes through a bounded Jev routing question. Supported single-expression arithmetic is computed with a bounded Decimal parser (no eval, no silent recurring-decimal rounding). For an explicitly named small JSON array, the existing permission-checked reader supplies candidate records. Jev selects a route, candidate, response shape, and requested fields in one batched call. Field options come from the source schema, not domain-specific names. A separate Jev call checks the result against all candidates and the requested fields before deterministic rendering.
+
+No-match responses require an explicit supported response marker in the user request and a separate check that zero candidates satisfy the constraints. Ambiguous/tied results, complex output requirements, unsupported files, or failed checks return to the normal Codex/controller loop. Provider errors are reported and fall back; this does not guarantee progress if later task decisions also need an unavailable Jev service.
+
+These are generic, read-only capability recipes, not a lookup of task answers. They avoid a Codex planning/finalization round trip when generation is unnecessary. General tasks still incur routing overhead. Benchmark fixtures and grading criteria exist only under benchmarks/ and are never imported by application code. Learned workflow memory and offline GEPA remain separate, manually activated features.

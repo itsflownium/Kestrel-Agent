@@ -1,6 +1,6 @@
 # Owner-controlled acceptance guide
 
-The owner authorized testing on September 20, 2026. Nine offline checks pass. Terminal startup, `/help`, and exit were exercised in a PTY with isolated session storage. Live arithmetic and file-selection comparisons ran using GPT-6-Astra medium and Jev. See `benchmarks/README.md` for results and limitations. The remaining checklist below is not yet fully executed. No automatic test workflow is configured.
+The owner authorized testing on September 20, 2026. Twenty-one offline checks pass. Terminal startup, `/help`, and exit were exercised in a PTY with isolated session storage. Live comparisons ran using GPT-6-Astra medium and Jev, including renamed schemas, changed data, no-match cases, and open-ended fallback. See `benchmarks/README.md` for results and limitations. The remaining checklist below is not yet fully executed. No automatic test workflow is configured.
 
 ## Local checks
 
@@ -11,7 +11,7 @@ The owner authorized testing on September 20, 2026. Nine offline checks pass. Te
 
 ## End-to-end scenarios
 
-- General chat: one Codex call, no unnecessary tool loop.
+- General chat: Jev routing, one Codex call, no unnecessary tool loop.
 - Select relevant documents and summarize them; inspect Jev choices and evidence references.
 - Create, read, and revise a small file; require the observed hash for replacement.
 - Request harmless commands; decline one and allow another; inspect output.

@@ -76,7 +76,15 @@ class Engine:
             raise ValueError("This task already completed. Send a new message to start more work.")
         try:
             async with asyncio.timeout(self.settings.max_minutes * 60):
-                result = await self._loop()
+                result = None
+                if message is not None:
+                    from .fastpath import try_fastpath
+                    try:
+                        result = await try_fastpath(self, message)
+                    except Exception as error:
+                        self.emit("warning", f"Jev fast path unavailable; using the general agent: {redact(str(error))[:200]}")
+                if result is None:
+                    result = await self._loop()
             self.state["status"] = "completed"
             self.log("assistant", result)
             return result
