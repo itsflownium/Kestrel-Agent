@@ -22,6 +22,7 @@ CATALOG = """
 list_files: {path: '.', pattern: '*', limit: 100}. Returns files relative to workspace. Skips hidden/vendor directories.
 read_file: {path, start_line: 1, max_lines: 200}. Text, PDF, DOCX, XLSX supported. Returns content and source path. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
 search_files: {path: '.', query, limit: 30}. Literal text search across small text files.
+query_table: {path, operation: 'sum'|'mean'|'count'|'min'|'max', group_by: column_or_null, value_column: column_or_null, filters: [{column, op: 'eq'|'ne'|'gt'|'gte'|'lt'|'lte', value}]}. Deterministically aggregate CSV or JSON records. Filters are ANDed; eq/ne use exact text, ordered comparisons are numeric. Numeric operations skip invalid amounts and report skipped counts. Returns results mapping groups to decimal strings. Inspect unknown headers first. Prefer this over generating code for supported table operations.
 write_file: {path, content, expected_sha256: null}. Writes UTF-8 text. Supply prior hash to protect existing files.
 shell: {command: ['executable', 'arg'], cwd: '.'}. An argv array, not shell text; zsh -lc is possible with permission. Exit code is authoritative.
 fetch_url: {url}. Fetch a public HTTP(S) page. Private/loopback endpoints excluded.
@@ -33,7 +34,7 @@ read_evidence: {id, offset: 0, max_chars: 12000}. Read retained evidence from th
 Argument values can reference a declared dependency using ${action_id.content} or ${action_id.value}; whole-value references preserve types.
 """
 
-READ_TOOLS = {"list_files", "read_file", "search_files", "fetch_url", "read_evidence"}
+READ_TOOLS = {"list_files", "read_file", "search_files", "fetch_url", "read_evidence", "query_table"}
 IGNORED = {".git", ".venv", ".kestrel", ".cache", "node_modules", "__pycache__", "dist", "build"}
 SENSITIVE = {".env", "auth.json", "secrets.env", "id_rsa", "id_ed25519", ".netrc", ".npmrc", ".pypirc"}
 
@@ -92,6 +93,9 @@ class ToolExecutor:
             return {"files": found, "limit": limit, "possibly_truncated": len(found) == limit}
         if tool == "read_file":
             return await asyncio.to_thread(self.read_file, args)
+        if tool == "query_table":
+            from .tables import query
+            return await asyncio.to_thread(query, self.path(args["path"]), args)
         if tool == "search_files":
             return await asyncio.to_thread(self.search_files, args)
         if tool == "write_file":

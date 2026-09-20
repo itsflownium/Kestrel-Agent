@@ -47,7 +47,9 @@ async def try_fastpath(engine, request: str) -> str | None:
     candidates = None
     # Only an explicitly named JSON file can supply candidates. No discovery or writes.
     names = re.findall(r'(?<![\w/])(?:[\w./-]+\.json)\b', request)
-    if len(names) == 1:
+    named_sources = set(re.findall(r'(?<![\w/])[\w./-]+\.[A-Za-z][A-Za-z0-9]{0,9}\b', request))
+    # A single-record shortcut cannot honor a separate policy/document it has not read.
+    if len(names) == 1 and named_sources == {names[0]}:
         try:
             path = engine.tools.path(names[0])
             if path.is_file() and path.stat().st_size <= 12000:

@@ -52,3 +52,11 @@ These are generic, read-only capability recipes, not a lookup of task answers. T
 Codex remains the default and the local sandbox runtime dependency. Non-Codex generation does not start its app-server or require Codex authentication. Native research and MCP discovery are explicitly unavailable for HTTP providers rather than silently invoking a different model/account. HTTP model calls use configured credentials independently of task-tool network access.
 
 API keys are private per-user files, scoped to protocol plus endpoint; an explicit environment override is supported. Codex OAuth uses the official SDK login and credential storage for each user. No shared OAuth client secret, shared account token, or Jev key is shipped in source. Password entry uses an explicit prompt-toolkit output to prevent its minimal-terminal echo shortcut from exposing input.
+
+## Completion and table-workload revisions
+
+Completion criteria now cover the original user request as well as the latest plan. A recovery plan that merely diagnoses a failure cannot finish a task that requires a successful rerun. Answer-only replans after tool execution also pass this guard. These are Jev judgments over recorded evidence, not infallible proofs; independent graders remain important.
+
+Final-answer-only criteria can be deferred until generation, then checked in the final support/format review. Missing tool work cannot be deferred as presentation. The single-record fast path is unavailable when the request names multiple source files.
+
+`query_table` is a permission-checked read tool over bounded CSV/JSON inputs. Operations and comparisons are enumerated; columns and filter values come from the request/plan. It never evaluates code. Decimal values are returned as strings with precision/rounding metadata, and invalid/missing rows are counted. Existing file/size limits and the operation's stricter row/group limits bound execution.
