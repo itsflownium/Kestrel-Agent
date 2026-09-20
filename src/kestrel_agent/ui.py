@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
+import re
 import time
 from pathlib import Path
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.history import DummyHistory
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.styles import Style
 from rich.console import Console
@@ -18,11 +21,11 @@ from rich.table import Table
 from rich.text import Text
 
 from . import __version__
-from .config import Settings, redact
+from .config import Settings, redact, load_secrets, home, atomic_write
 from .engine import Engine
 from .store import Store
 
-COMMANDS = ["/help", "/new", "/continue", "/sessions", "/resume", "/model", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/help", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -72,7 +75,7 @@ class Terminal:
         else:
             status = "● Ready"
         width = self.console.size.width
-        details = f"  {self.settings.permission}  ·  Ctrl+C stop" if width < 90 else f"  {self.settings.model or 'Codex default'} + Jev  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C stop"
+        details = f"  {self.settings.permission}  ·  Ctrl+C stop" if width < 90 else f"  {self.settings.model or self.settings.provider} + Jev  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C stop"
         return [("class:status", f"  {status}  "), ("", details)]
 
     def input_prompt(self):
@@ -101,7 +104,8 @@ class Terminal:
         info.add_column(style="#8993a7")
         info.add_column(style="#d8dee9", overflow="fold")
         info.add_row("Workspace", workspace)
-        info.add_row("Models", f"{self.settings.model or 'Codex default'}  +  Jev")
+        info.add_row("Provider", self.settings.provider)
+        info.add_row("Models", f"{self.settings.model or 'default'}  +  Jev")
         info.add_row("Access", self.settings.permission)
         self.console.print(Panel(info, title="[bold #8bd5ca]Your workspace[/]", title_align="left",
                                  subtitle=f"[dim]session {self.sid}[/dim]", subtitle_align="right",
@@ -204,7 +208,9 @@ class Terminal:
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
-                ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List or select your fixed Codex model"),
+                ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List/select model and configure Jev key"),
+                ("/provider", "Choose provider, endpoint, and model"),
+                ("/model jev-key · /model provider-key", "Enter or replace keys privately"),
                 ("/permissions [read-only|workspace|full]", "View or change access profile"),
                 ("/config", "Inspect settings; use kestrel config set KEY VALUE to edit"),
                 ("/tools", "Discover connected MCP tools"), ("/status", "Show checkpoint and usage"),
@@ -241,7 +247,29 @@ class Terminal:
                 self.settings.permission = argument
                 self.settings.save()
             self.console.print(Text(f"  Profile: {self.settings.permission} · shell confirmation: {self.settings.confirm_shell} · network: {self.settings.network}"))
+        elif name == "/provider":
+            await self.configure_provider()
         elif name == "/model":
+            if argument in {"jev-key", "provider-key"}:
+                await self.configure_key(argument == "jev-key")
+                return
+            load_secrets()
+            self.console.print(Text(f"  Provider: {self.settings.provider} · Model: {self.settings.model or 'default'} · Jev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}"))
+            self.console.print("  /model jev-key replaces the Jev key; /model provider-key sets the generation API key.", style="dim")
+            if not os.environ.get('TYPESAFE_API_KEY'):
+                await self.configure_key(True)
+            if self.settings.provider != "codex":
+                if argument:
+                    self.settings.model = argument
+                    self.settings.save()
+                    self.emit("done", f"Model set to {argument}")
+                else:
+                    try:
+                        for model in await self.engine.runtime.generator.models():
+                            self.console.print(Text(f"  {model}"))
+                    except Exception as error:
+                        self.emit("warning", f"Model listing unavailable: {redact(str(error))}. Set an exact ID with /model MODEL_ID.")
+                return
             await self.engine.runtime.start()
             models = (await self.engine.runtime.codex.models()).data
             if argument:
@@ -259,3 +287,59 @@ class Terminal:
             self.console.print_json(json.dumps(self.engine.mcp_tools, default=str))
         else:
             self.emit("warning", "Unknown command. Use /help.")
+
+    async def configure_key(self, jev: bool):
+        from .generation import endpoint, save_key
+        if not jev and self.settings.provider == 'codex':
+            self.console.print('Codex uses OAuth. Run kestrel auth login from your shell.')
+            return
+        label = 'Jev' if jev else f'{self.settings.provider} ({endpoint(self.settings)})'
+        self.console.print(Text(f'  {label} API key · hidden input · Enter skips'))
+        # Explicit output avoids prompt_toolkit's TERM=dumb shortcut, which echoes
+        # buffer changes without applying the password processor.
+        prompt = PromptSession(history=DummyHistory(), output=self.prompt.output)
+        try:
+            key = (await prompt.prompt_async('  API key: ', is_password=True)).strip()
+        except (EOFError, KeyboardInterrupt):
+            return
+        if not key:
+            return
+        if any(char.isspace() for char in key) or (jev and not re.fullmatch(r'apikey_[A-Za-z0-9_]+', key)):
+            raise ValueError('Invalid API key format.')
+        if jev:
+            home().mkdir(parents=True, exist_ok=True, mode=0o700)
+            atomic_write(home() / 'secrets.env', f'TYPESAFE_API_KEY={key}\n')
+            os.environ['TYPESAFE_API_KEY'] = key
+            await self.engine.judge.close()
+            self.engine.judge.client = None
+        else:
+            save_key(self.settings, key)
+            # Explicit interactive replacement wins over an inherited environment value.
+            os.environ.pop(self.settings.provider_api_key_env, None)
+        self.emit('done', f'{"Jev" if jev else "Provider"} key saved privately. No API request was made.')
+
+    async def configure_provider(self):
+        from .generation import endpoint
+        self.console.print('  Providers: codex (OAuth), openai-compatible (API key/local), anthropic (API key)')
+        prompt = PromptSession(history=DummyHistory())
+        try:
+            provider = (await prompt.prompt_async('  Provider (Enter cancels): ')).strip()
+            if not provider:
+                return
+            values = self.settings.model_dump()
+            values.update(provider=provider, provider_base_url=None, model=None)
+            candidate = Settings.model_validate(values)
+            if provider != 'codex':
+                base = (await prompt.prompt_async(f'  Base URL [{endpoint(candidate)}]: ')).strip()
+                candidate.provider_base_url = base or None
+                endpoint(candidate)
+                candidate.model = (await prompt.prompt_async('  Model ID: ')).strip()
+                if not candidate.model:
+                    raise ValueError('A model ID is required for this provider.')
+            await self.engine.close()
+            candidate.save()
+            self.settings = candidate
+            self.engine = Engine(candidate, self.workspace, self.store, self.sid, self.emit, self.confirm)
+            self.emit('done', f'Provider set to {provider}. Use /model to configure keys and select models.')
+        except (EOFError, KeyboardInterrupt):
+            return

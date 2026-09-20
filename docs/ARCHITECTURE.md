@@ -44,3 +44,11 @@ Every new request first goes through a bounded Jev routing question. Supported s
 No-match responses require an explicit supported response marker in the user request and a separate check that zero candidates satisfy the constraints. Ambiguous/tied results, complex output requirements, unsupported files, or failed checks return to the normal Codex/controller loop. Provider errors are reported and fall back; this does not guarantee progress if later task decisions also need an unavailable Jev service.
 
 These are generic, read-only capability recipes, not a lookup of task answers. They avoid a Codex planning/finalization round trip when generation is unnecessary. General tasks still incur routing overhead. Benchmark fixtures and grading criteria exist only under benchmarks/ and are never imported by application code. Learned workflow memory and offline GEPA remain separate, manually activated features.
+
+## Generation-provider boundary
+
+`Runtime.complete` dispatches to Codex OAuth or an HTTP generator. The HTTP generator supports OpenAI-compatible Chat Completions and Anthropic Messages, accepts arbitrary model IDs, and supplies the same controller-owned-action instructions and plan schema. It performs no model-side tool execution; the controller validates plans and executes authorized tools. Non-Codex usage is recorded as generation usage rather than incorrectly labeled Codex usage. Workflow learning and GEPA reflection reuse this boundary.
+
+Codex remains the default and the local sandbox runtime dependency. Non-Codex generation does not start its app-server or require Codex authentication. Native research and MCP discovery are explicitly unavailable for HTTP providers rather than silently invoking a different model/account. HTTP model calls use configured credentials independently of task-tool network access.
+
+API keys are private per-user files, scoped to protocol plus endpoint; an explicit environment override is supported. Codex OAuth uses the official SDK login and credential storage for each user. No shared OAuth client secret, shared account token, or Jev key is shipped in source. Password entry uses an explicit prompt-toolkit output to prevent its minimal-terminal echo shortcut from exposing input.
