@@ -28,6 +28,14 @@ def load_secrets() -> None:
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
     model: str | None = None
+    provider: Literal["codex", "openai-compatible", "anthropic"] = "codex"
+    provider_base_url: str | None = None
+    provider_api_key_env: str = Field(default="KESTREL_MODEL_API_KEY", pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
+    provider_json_mode: Literal["prompt", "json_object", "json_schema"] = "prompt"
+    provider_max_tokens: int = Field(default=4096, ge=256, le=65536)
+    provider_token_parameter: Literal["max_tokens", "max_completion_tokens"] = "max_tokens"
+    provider_send_reasoning_effort: bool = False
+    provider_timeout_seconds: int = Field(default=120, ge=1, le=1800)
     effort: Literal["low", "medium", "high"] = "low"
     jev_model: str = "jev-latest"
     permission: Literal["read-only", "workspace", "full"] = "workspace"
@@ -75,8 +83,10 @@ def atomic_write(path: Path, text: str, mode: int = 0o600) -> None:
 def redact(text: str) -> str:
     text = re.sub(r"apikey_[A-Za-z0-9_]+", "[REDACTED_JEV_KEY]", text)
     text = re.sub(r"\b(?:sk-|ghp_|gho_)[A-Za-z0-9_-]{16,}", "[REDACTED_TOKEN]", text)
-    key = os.environ.get("TYPESAFE_API_KEY")
-    return text.replace(key, "[REDACTED_JEV_KEY]") if key else text
+    for name, key in os.environ.items():
+        if (name.endswith("API_KEY") or name in {"TYPESAFE_API_KEY", "CODEX_API_KEY"}) and len(key) >= 8:
+            text = text.replace(key, "[REDACTED_KEY]")
+    return text
 
 
 def storage_bytes() -> int:

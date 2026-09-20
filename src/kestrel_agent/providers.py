@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict
 from typesafe_sdk import AsyncTypeSafeClient, Choice, RetryPolicy
 
 from .config import Settings, load_secrets, redact
+from .generation import HTTPGenerator
 
 Emit = Callable[[str, str], None]
 
@@ -25,7 +26,8 @@ class Runtime:
 
     def __init__(self, settings: Settings, workspace: Path, emit: Emit, confirm=None):
         self.settings, self.workspace, self.emit = settings, workspace, emit
-        self.codex = AsyncCodex(CodexConfig(cwd=str(workspace), env={"TYPESAFE_API_KEY": ""}, client_name="kestrel", client_title="Kestrel", client_version="0.1.0"))
+        self.generator = HTTPGenerator(settings)
+        self.codex = AsyncCodex(CodexConfig(cwd=str(workspace), env={key: "" for key in {"TYPESAFE_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", settings.provider_api_key_env}}, client_name="kestrel", client_title="Kestrel", client_version="0.1.0"))
         self.started = False
         self.confirm = confirm
         self.loop = None
@@ -86,7 +88,18 @@ class Runtime:
     async def complete(self, prompt: str, *, schema: dict | None = None, research: bool = False, stream: bool = False) -> str:
         async with self._generation_lock:
             if self.model_calls >= self.settings.max_model_calls:
-                raise RuntimeError("Codex call budget reached. Change max_model_calls or continue with a new message.")
+                raise RuntimeError("Generation call budget reached. Change max_model_calls or continue with a new message.")
+            if self.settings.provider != "codex":
+                if research:
+                    raise ValueError("Built-in web research is available only with Codex. Use fetch_url with known sources for this provider.")
+                self.model_calls += 1
+                self.emit("model", f"{self.settings.provider} · {self.settings.model or 'model not selected'}")
+                text, input_tokens, output_tokens = await self.generator.complete(prompt, schema)
+                self.input_tokens += input_tokens
+                self.output_tokens += output_tokens
+                if stream:
+                    self.emit("delta", redact(text))
+                return text
             await self.start()
             if not (await self.account()).get("account"):
                 raise RuntimeError("Codex is not signed in. Run `kestrel auth login`.")
@@ -165,7 +178,7 @@ class Runtime:
                 "sandboxPolicy": self.sandbox_policy(),
                 "timeoutMs": self.settings.command_timeout_seconds * 1000,
                 "outputBytesCap": 64000,
-                "env": {"TYPESAFE_API_KEY": None, "OPENAI_API_KEY": None, "CODEX_API_KEY": None},
+                "env": {key: None for key in {"TYPESAFE_API_KEY", "OPENAI_API_KEY", "CODEX_API_KEY", "ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", self.settings.provider_api_key_env}},
             })
         except asyncio.CancelledError:
             await asyncio.shield(self.rpc("command/exec/terminate", {"processId": process_id}))
@@ -183,6 +196,8 @@ class Runtime:
         return self.tool_thread.id
 
     async def mcp_catalog(self) -> list[dict]:
+        if self.settings.provider != "codex":
+            return []
         thread_id = await self.mcp_thread()
         data: list[dict] = []
         cursor = None
@@ -206,6 +221,7 @@ class Runtime:
                 pass
 
     async def close(self) -> None:
+        await self.generator.close()
         if self.started:
             await self.cancel()
             await self.codex.close()

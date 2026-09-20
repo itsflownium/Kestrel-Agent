@@ -97,8 +97,12 @@ def doctor(online: bool = typer.Option(False, "--online", help="Explicitly conta
         async def check():
             runtime = Runtime(settings, Path.cwd(), emit)
             try:
-                account = await runtime.account()
-                console.print("Codex: signed in" if account.get("account") else "Codex: run kestrel auth login")
+                if settings.provider == "codex":
+                    account = await runtime.account()
+                    console.print("Codex: signed in" if account.get("account") else "Codex: run kestrel auth login")
+                else:
+                    models = await runtime.generator.models()
+                    console.print(Text(f"{settings.provider}: model listing succeeded ({len(models)} models)"))
             finally:
                 await runtime.close()
             from typesafe_sdk import AsyncTypeSafeClient
@@ -139,6 +143,22 @@ def configure_jev():
     home().mkdir(parents=True, exist_ok=True, mode=0o700)
     atomic_write(home() / "secrets.env", f"TYPESAFE_API_KEY={key}\n")
     console.print("Jev key saved locally with owner-only file permissions. It was not tested.")
+
+
+@auth_app.command("provider")
+def configure_provider():
+    """Save an API key for the current provider and endpoint using hidden input."""
+    from .generation import endpoint, save_key
+    settings = Settings.load()
+    if settings.provider == "codex":
+        console.print("Codex uses OAuth: run kestrel auth login.")
+        return
+    console.print(Text(f"Provider: {settings.provider}\nEndpoint: {endpoint(settings)}"))
+    key = typer.prompt("Provider API key", hide_input=True).strip()
+    if not key or any(char.isspace() for char in key):
+        raise typer.BadParameter("Expected a nonempty API key without whitespace.")
+    save_key(settings, key)
+    console.print("Saved privately for this provider and endpoint. No API request was made.")
 
 
 @config_app.command("show")
@@ -188,7 +208,7 @@ def workflows_show(workflow: str):
 
 @workflows_app.command("learn")
 def workflows_learn(session: str):
-    """Use one Codex call to propose a reusable recipe from a completed session."""
+    """Use one generation call to propose a reusable recipe from a completed session."""
     from .learning import learn_workflow
     settings = Settings.load()
     store = Store(settings)
@@ -240,7 +260,7 @@ def eval_command(dataset: Path = typer.Argument(..., exists=True, dir_okay=False
 
 @app.command("optimize")
 def optimize_command(train: Path = typer.Option(..., exists=True, dir_okay=False), validation: Path = typer.Option(..., exists=True, dir_okay=False), component: str = typer.Option("verify"), budget: int = typer.Option(30, min=1, max=100)):
-    """Explicitly run offline GEPA optimization. Uses Jev and Codex; no task tools."""
+    """Explicitly run offline GEPA optimization. Uses Jev and the selected provider; no task tools."""
     from .learning import optimize
     load_secrets()
     path = optimize(Settings.load(), train, validation, component, budget, emit)
