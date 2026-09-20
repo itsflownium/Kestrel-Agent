@@ -21,7 +21,7 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** initial implementation with limited owner-authorized testing. 62 offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [Jev table benchmarks](benchmarks/JEV-TABLES.md), [latest controller tests](benchmarks/RESULT-REUSE.md), [broader workload report](benchmarks/WORKLOADS.md), [next improvements](benchmarks/NEXT-STEPS.md), and [initial comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
+**Status:** initial implementation with limited owner-authorized testing. 71 offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [general-task improvements](benchmarks/INITIAL-CONTEXT.md), [Jev table benchmarks](benchmarks/JEV-TABLES.md), [latest controller tests](benchmarks/RESULT-REUSE.md), [broader workload report](benchmarks/WORKLOADS.md), [next improvements](benchmarks/NEXT-STEPS.md), and [initial comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 

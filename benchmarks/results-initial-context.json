@@ -1,0 +1,1235 @@
+[
+  {
+    "task": "code_edit",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "stats.py": "def mean(values):\n    return sum(values) / len(values)\n"
+    },
+    "prompt": "Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13568, input_tokens=14135, output_tokens=55, reasoning_output_tokens=0, total_tokens=14190) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=40192, input_tokens=54880, output_tokens=532, reasoning_output_tokens=0, total_tokens=55412)",
+    "seconds": 30.147,
+    "answer": "Updated `stats.py` so `mean` handles iterables in one pass, returns `None` for empty input, and averages nonempty values correctly.\n\nAll 11 checks passed, including generators, decimals, and fractions. No other files were changed.",
+    "passed": true,
+    "grading": {
+      "grader": {
+        "exitCode": 0,
+        "stdout": "PASS\n",
+        "stderr": ""
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.', text_elements=[], type='text'))], id='01a0bda4-dabc-7002-805f-f6ec61f25d51', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_06f5f26f2681ef10016aaf865ff90c87d092a87b0e880e61bb', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll check `stats.py`, update `mean`, and verify it with several iterable types without changing other files.', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-codex\\nstats.py\\n', command='/bin/zsh -lc \"pwd; rg --files -g \\'AGENTS.md\\' -g \\'stats.py\\' -g \\'*test*\\' -g \\'pyproject.toml\\' -g \\'pytest.ini\\'\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"pwd; rg --files -g 'AGENTS.md' -g 'stats.py' -g '*test*' -g 'pyproject.toml' -g 'pytest.ini'\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-codex'), duration_ms=0, exit_code=0, id='exec-529051c2-b210-4340-8292-997c33ed7fa2', plugin_id=None, process_id='1519', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='def mean(values):\\n    return sum(values) / len(values)\\n', command=\"/bin/zsh -lc 'cat stats.py'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat stats.py', name='stats.py', path=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-codex/stats.py'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-codex'), duration_ms=0, exit_code=0, id='exec-4d561faa-fd09-45f3-98a5-55f665a5a8fb', plugin_id=None, process_id='24900', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=FileChangeThreadItem(changes=[FileUpdateChange(diff='@@ -1,2 +1,7 @@\\n def mean(values):\\n-    return sum(values) / len(values)\\n+    total = 0\\n+    count = 0\\n+    for value in values:\\n+        total += value\\n+        count += 1\\n+    return total / count if count else None\\n', kind=PatchChangeKind(root=UpdatePatchChangeKind(move_path=None, type='update')), path='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-codex/stats.py')], id='exec-10c23a07-256c-45f3-9fe8-7e527caa714e', status=<PatchApplyStatus.completed: 'completed'>, type='fileChange')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='All 11 mean checks passed.\\n', command='/bin/zsh -lc \"python3 -B - <<\\'PY\\'\\nfrom decimal import Decimal\\nfrom fractions import Fraction\\nfrom stats import mean\\n\\nassert mean([]) is None\\nassert mean(iter(())) is None\\nassert mean([1, 2, 3]) == 2\\nassert mean((2, 4)) == 3\\nassert mean(x for x in [1, 2, 6]) == 3\\nassert mean(range(5)) == 2\\nassert mean([0]) == 0\\nassert mean([-3, 1]) == -1\\nassert mean([1.5, 2.5]) == 2\\nassert mean([Decimal(\\'1.1\\'), Decimal(\\'2.3\\')]) == Decimal(\\'1.7\\')\\nassert mean([Fraction(1, 3), Fraction(2, 3)]) == Fraction(1, 2)\\nprint(\\'All 11 mean checks passed.\\')\\nPY\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"python3 -B - <<'PY'\\nfrom decimal import Decimal\\nfrom fractions import Fraction\\nfrom stats import mean\\n\\nassert mean([]) is None\\nassert mean(iter(())) is None\\nassert mean([1, 2, 3]) == 2\\nassert mean((2, 4)) == 3\\nassert mean(x for x in [1, 2, 6]) == 3\\nassert mean(range(5)) == 2\\nassert mean([0]) == 0\\nassert mean([-3, 1]) == -1\\nassert mean([1.5, 2.5]) == 2\\nassert mean([Decimal('1.1'), Decimal('2.3')]) == Decimal('1.7')\\nassert mean([Fraction(1, 3), Fraction(2, 3)]) == Fraction(1, 2)\\nprint('All 11 mean checks passed.')\\nPY\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-codex'), duration_ms=0, exit_code=0, id='exec-ab2f4f28-2fc9-4cb5-b728-9dfbd11114a3', plugin_id=None, process_id='50287', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_06f5f26f2681ef10016aaf8675d3f087d08445a68f53302bcf', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='Updated `stats.py` so `mean` handles iterables in one pass, returns `None` for empty input, and averages nonempty values correctly.\\n\\nAll 11 checks passed, including generators, decimals, and fractions. No other files were changed.', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "stats.py": "def mean(values):\n    total = 0\n    count = 0\n    for value in values:\n        total += value\n        count += 1\n    return total / count if count else None\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "code_edit",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "stats.py": "def mean(values):\n    return sum(values) / len(values)\n"
+    },
+    "prompt": "Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.",
+    "elapsed_seconds": 40.78,
+    "codex_calls": 3,
+    "jev_calls": 6,
+    "codex_input_tokens": 50289,
+    "codex_output_tokens": 642,
+    "jev_input_tokens": 7853,
+    "provider": "codex",
+    "generation_calls": 3,
+    "generation_input_tokens": 50289,
+    "generation_output_tokens": 642,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.44, \"probabilities\": {\"context\": 0.28, \"model\": 0.72}}}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/code_edit-1-kestrel/stats.py\", \"evidence_id\": \"cf6c88c5ac88416a\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Update mean to consume any iterable once, handle empty input, and verify representative cases without changing other files.\", \"actions\": [{\"id\": \"implement\", \"tool\": \"generate\", \"arguments_json\": \"{\\\"prompt\\\":\\\"Return only the complete replacement Python source for stats.py. Current entire source is: def mean(values):\\\\n    return sum(values) / len(values)\\\\nImplement mean(values) using a single pass with a running total and count, returning None if empty and total/count otherwise. Accept any iterable of numbers. Preserve the function name and signature. No unrelated changes.\\\"}\", \"depends_on\": [], \"purpose\": \"Generate the corrected function.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"write\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"stats.py\\\",\\\"content\\\":\\\"${implement.content}\\\",\\\"expected_sha256\\\":\\\"0bb06820d5dbd4aeeba094a435744772a2a76f51d796a6f26684eb2599f80a73\\\"}\", \"depends_on\": [\"implement\"], \"purpose\": \"Replace only stats.py using its observed hash.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"verify\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"-B\\\",\\\"-c\\\",\\\"from stats import mean; from decimal import Decimal; from fractions import Fraction; assert mean([]) is None; assert mean(iter(())) is None; assert mean([1, 2, 3]) == 2; assert mean((2, 4)) == 3; assert mean(x for x in [1, 2, 6]) == 3; assert mean(iter([7])) == 7; assert mean([-3, 0, 3]) == 0; assert mean([1.5, 2.5]) == 2; assert mean([Decimal('1'), Decimal('2')]) == Decimal('1.5'); assert mean([Fraction(1, 3), Fraction(2, 3)]) == Fraction(1, 2); print('All mean checks passed')\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [\"write\"], \"purpose\": \"Verify empty and nonempty inputs, including single-use iterables, without creating bytecode files.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"stats.py was successfully replaced with the observed-hash safeguard.\", \"Verification exits with code 0 and prints 'All mean checks passed'.\", \"Only stats.py is modified by the planned actions.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"implement\": {\"choice\": \"execute\", \"confidence\": 1.0, \"probabilities\": {\"execute\": 1.0, \"skip\": 0.0, \"need_context\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"implement\", \"tool\": \"generate\", \"status\": \"completed\", \"evidence_id\": \"c953c668a0d74832\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"write\": {\"choice\": \"execute\", \"confidence\": 0.93, \"probabilities\": {\"need_context\": 0.0, \"execute\": 0.96, \"skip\": 0.04}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"write\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"cdfad44588e14aba\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"verify\": {\"choice\": \"execute\", \"confidence\": 1.0, \"probabilities\": {\"execute\": 1.0, \"skip\": 0.0, \"need_context\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"verify\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"bf2ba2d37eb04028\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"not_met\", \"confidence\": 0.55, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.67, \"met\": 0.26, \"response_pending\": 0.07}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.0, \"met\": 0.99, \"response_pending\": 0.01}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.88, \"probabilities\": {\"unclear\": 0.01, \"not_met\": 0.01, \"met\": 0.91, \"response_pending\": 0.07}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.01, \"met\": 0.99}}}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"answer\", \"message\": \"Updated stats.py: mean now accepts iterables, returns None for empty input, and averages nonempty values in one pass. All verification checks passed. No other files were changed.\", \"actions\": [], \"success_criteria\": [], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "completion_guard",
+        "body": "{\"original_task\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"not_met\": 0.01, \"unclear\": 0.0, \"met\": 0.99}}, \"answer_support\": {\"choice\": \"supported\", \"confidence\": 0.74, \"probabilities\": {\"supported\": 0.87, \"unsupported\": 0.13}}}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"Updated stats.py: mean now accepts iterables, returns None for empty input, and averages nonempty values in one pass. All verification checks passed. No other files were changed.\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 40.78, \"codex_calls\": 3, \"jev_calls\": 6, \"codex_input_tokens\": 50289, \"codex_output_tokens\": 642, \"jev_input_tokens\": 7853, \"provider\": \"codex\", \"generation_calls\": 3, \"generation_input_tokens\": 50289, \"generation_output_tokens\": 642}"
+      }
+    ],
+    "seconds": 40.955,
+    "answer": "Updated stats.py: mean now accepts iterables, returns None for empty input, and averages nonempty values in one pass. All verification checks passed. No other files were changed.",
+    "passed": true,
+    "grading": {
+      "grader": {
+        "exitCode": 0,
+        "stdout": "PASS\n",
+        "stderr": ""
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.227,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.159,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 2.538,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 22.795,
+        "kind": "plan",
+        "text": "Update mean to consume any iterable once, handle empty input, and verify representative cases without changing other files."
+      },
+      {
+        "seconds": 22.795,
+        "kind": "planned",
+        "text": "implement \u00b7 Generate the corrected function."
+      },
+      {
+        "seconds": 22.795,
+        "kind": "planned",
+        "text": "write \u00b7 Replace only stats.py using its observed hash."
+      },
+      {
+        "seconds": 22.795,
+        "kind": "planned",
+        "text": "verify \u00b7 Verify empty and nonempty inputs, including single-use iterables, without creating bytecode files."
+      },
+      {
+        "seconds": 22.878,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 23.609,
+        "kind": "decision",
+        "text": "implement \u2192 execute"
+      },
+      {
+        "seconds": 23.609,
+        "kind": "tool",
+        "text": "generate \u00b7 Generate the corrected function."
+      },
+      {
+        "seconds": 23.797,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 28.759,
+        "kind": "output",
+        "text": "def mean(values):\n    total = 0\n    count = 0\n    for value in values:\n        total += value\n        count += 1\n    return total / count if count else None"
+      },
+      {
+        "seconds": 28.925,
+        "kind": "done",
+        "text": "implement \u00b7 completed"
+      },
+      {
+        "seconds": 29.088,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 30.654,
+        "kind": "decision",
+        "text": "write \u2192 execute"
+      },
+      {
+        "seconds": 30.654,
+        "kind": "tool",
+        "text": "write_file \u00b7 Replace only stats.py using its observed hash."
+      },
+      {
+        "seconds": 31.0,
+        "kind": "done",
+        "text": "write \u00b7 completed"
+      },
+      {
+        "seconds": 31.173,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 31.523,
+        "kind": "decision",
+        "text": "verify \u2192 execute"
+      },
+      {
+        "seconds": 31.523,
+        "kind": "tool",
+        "text": "shell \u00b7 Verify empty and nonempty inputs, including single-use iterables, without creating bytecode files."
+      },
+      {
+        "seconds": 31.773,
+        "kind": "output",
+        "text": "All mean checks passed\n"
+      },
+      {
+        "seconds": 31.946,
+        "kind": "done",
+        "text": "verify \u00b7 completed"
+      },
+      {
+        "seconds": 32.118,
+        "kind": "judge",
+        "text": "Jev \u00b7 4 decisions"
+      },
+      {
+        "seconds": 32.639,
+        "kind": "warning",
+        "text": "More work needed \u00b7 revising the plan"
+      },
+      {
+        "seconds": 32.65,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 39.191,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 40.955,
+        "kind": "usage",
+        "text": "40.8s \u00b7 codex 3 calls \u00b7 Jev 6 calls"
+      }
+    ],
+    "artifacts": {
+      "stats.py": "def mean(values):\n    total = 0\n    count = 0\n    for value in values:\n        total += value\n        count += 1\n    return total / count if count else None"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "multi_file",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n",
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]"
+    },
+    "prompt": "Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.",
+    "elapsed_seconds": 11.15,
+    "codex_calls": 1,
+    "jev_calls": 2,
+    "codex_input_tokens": 18524,
+    "codex_output_tokens": 113,
+    "jev_input_tokens": 1941,
+    "provider": "codex",
+    "generation_calls": 1,
+    "generation_input_tokens": 18524,
+    "generation_output_tokens": 113,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.14, \"probabilities\": {\"context\": 0.43, \"model\": 0.57}}}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/multi_file-1-kestrel/policy.md\", \"evidence_id\": \"815dc3ef22f34c01\"}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/multi_file-1-kestrel/releases.json\", \"evidence_id\": \"c73c8b6e5a2f4c0a\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"answer\", \"message\": \"{\\\"release\\\":\\\"r21\\\",\\\"reason\\\":\\\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\\\"}\", \"actions\": [], \"success_criteria\": [], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "completion_guard",
+        "body": "{\"original_task\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"met\": 0.99, \"unclear\": 0.0, \"not_met\": 0.01}}, \"answer_support\": {\"choice\": \"supported\", \"confidence\": 0.97, \"probabilities\": {\"unsupported\": 0.01, \"supported\": 0.99}}}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"release\\\":\\\"r21\\\",\\\"reason\\\":\\\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\\\"}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 11.15, \"codex_calls\": 1, \"jev_calls\": 2, \"codex_input_tokens\": 18524, \"codex_output_tokens\": 113, \"jev_input_tokens\": 1941, \"provider\": \"codex\", \"generation_calls\": 1, \"generation_input_tokens\": 18524, \"generation_output_tokens\": 113}"
+      }
+    ],
+    "seconds": 11.312,
+    "answer": "{\"release\":\"r21\",\"reason\":\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\"}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "release": "r21",
+        "reason": "Newest eligible release as of 2026-09-15: signed=true, channel=stable, released 2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date."
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.173,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 0.971,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 2.134,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 10.306,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 11.311,
+        "kind": "usage",
+        "text": "11.1s \u00b7 codex 1 calls \u00b7 Jev 2 calls"
+      }
+    ],
+    "artifacts": {
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]",
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "multi_file",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n",
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]"
+    },
+    "prompt": "Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=13693, output_tokens=65, reasoning_output_tokens=0, total_tokens=13758) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=18176, input_tokens=27110, output_tokens=124, reasoning_output_tokens=0, total_tokens=27234)",
+    "seconds": 14.905,
+    "answer": "{\"release\":\"r21\",\"reason\":\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, and release_date=2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\"}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "release": "r21",
+        "reason": "Newest eligible release as of 2026-09-15: signed=true, channel=stable, and release_date=2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date."
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.', text_elements=[], type='text'))], id='01a0bda6-1917-7551-bdf7-942bf7351377', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_097ebe400dcc7d63016aaf86b0d19087d08205f74b118a0c65', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read the policy and release records and check eligibility as of 2026-09-15.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\\n[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]', command=\"/bin/zsh -lc 'cat policy.md releases.json'\", command_actions=[CommandAction(root=UnknownCommandAction(command='cat policy.md releases.json', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/multi_file-1-codex'), duration_ms=0, exit_code=0, id='exec-23968413-14b8-4c93-b7df-28e2b56fb392', plugin_id=None, process_id='92707', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_097ebe400dcc7d63016aaf86b80efc87d090f271573593c59f', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"release\":\"r21\",\"reason\":\"Newest eligible release as of 2026-09-15: signed=true, channel=stable, and release_date=2026-09-10. r22 is unsigned, r23 is beta, and r24 is dated after the as-of date.\"}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "releases.json": "[{\"id\": \"r21\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-10\"}, {\"id\": \"r22\", \"signed\": false, \"channel\": \"stable\", \"release_date\": \"2026-09-14\"}, {\"id\": \"r23\", \"signed\": true, \"channel\": \"beta\", \"release_date\": \"2026-09-15\"}, {\"id\": \"r24\", \"signed\": true, \"channel\": \"stable\", \"release_date\": \"2026-09-18\"}]",
+      "policy.md": "Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "recovery_variant",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "calculate.py": "import argparse, json\np=argparse.ArgumentParser()\np.add_argument(\"--source\", required=True)\na=p.parse_args()\nprint(\"RESULT=\" + str(sum(json.load(open(a.source))[\"values\"])))\n",
+      "batch.json": "{\"values\":[-4, 8, 13]}\n"
+    },
+    "prompt": "Run python3 calculate.py. If it fails, inspect the program and correct the arguments using the existing input file, then run it successfully. Do not edit files. Report the actual emitted result.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13568, input_tokens=13843, output_tokens=33, reasoning_output_tokens=0, total_tokens=13876) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=40064, input_tokens=54562, output_tokens=162, reasoning_output_tokens=0, total_tokens=54724)",
+    "seconds": 17.668,
+    "answer": "Ran successfully with `python3 calculate.py --source batch.json`. No files were edited.\n\nActual output:\n```text\nRESULT=17\n```",
+    "passed": true,
+    "grading": {
+      "observed_success": true
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Run python3 calculate.py. If it fails, inspect the program and correct the arguments using the existing input file, then run it successfully. Do not edit files. Report the actual emitted result.', text_elements=[], type='text'))], id='01a0bda6-555d-7593-9150-355ecfc67f62', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0b734c8af5ef4500016aaf86bfe4a087d0b0fe0c2d543d39df', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll run the program, then check its expected arguments and existing input file if needed.', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='usage: calculate.py [-h] --source SOURCE\\ncalculate.py: error: the following arguments are required: --source\\n', command=\"/bin/zsh -lc 'python3 calculate.py'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 calculate.py', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/recovery_variant-1-codex'), duration_ms=0, exit_code=2, id='exec-196a3716-902c-4cc5-b558-5345ddacffaa', plugin_id=None, process_id='87477', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.failed: 'failed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/recovery_variant-1-codex\\nbatch.json\\ncalculate.py\\nimport argparse, json\\np=argparse.ArgumentParser()\\np.add_argument(\"--source\", required=True)\\na=p.parse_args()\\nprint(\"RESULT=\" + str(sum(json.load(open(a.source))[\"values\"])))\\n', command='/bin/zsh -lc \"pwd; rg --files -g \\'\"\\'! .git\\'\"\\'; cat calculate.py\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"pwd; rg --files -g '! .git'; cat calculate.py\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/recovery_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-7d3a4568-1ef4-4a0f-ac4a-e60755b8c032', plugin_id=None, process_id='94685', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='RESULT=17\\n', command=\"/bin/zsh -lc 'python3 calculate.py --source batch.json'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 calculate.py --source batch.json', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/recovery_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-e2926f01-0023-4aca-b03d-0183448df8f9', plugin_id=None, process_id='56044', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0b734c8af5ef4500016aaf86cba7d487d0ba7a7f5a4e92bc37', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='Ran successfully with `python3 calculate.py --source batch.json`. No files were edited.\\n\\nActual output:\\n```text\\nRESULT=17\\n```', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "calculate.py": "import argparse, json\np=argparse.ArgumentParser()\np.add_argument(\"--source\", required=True)\na=p.parse_args()\nprint(\"RESULT=\" + str(sum(json.load(open(a.source))[\"values\"])))\n",
+      "batch.json": "{\"values\":[-4, 8, 13]}\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "recovery_variant",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "calculate.py": "import argparse, json\np=argparse.ArgumentParser()\np.add_argument(\"--source\", required=True)\na=p.parse_args()\nprint(\"RESULT=\" + str(sum(json.load(open(a.source))[\"values\"])))\n",
+      "batch.json": "{\"values\":[-4, 8, 13]}\n"
+    },
+    "prompt": "Run python3 calculate.py. If it fails, inspect the program and correct the arguments using the existing input file, then run it successfully. Do not edit files. Report the actual emitted result.",
+    "elapsed_seconds": 49.96,
+    "codex_calls": 3,
+    "jev_calls": 10,
+    "codex_input_tokens": 44210,
+    "codex_output_tokens": 804,
+    "jev_input_tokens": 12791,
+    "provider": "codex",
+    "generation_calls": 3,
+    "generation_input_tokens": 44210,
+    "generation_output_tokens": 804,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Run python3 calculate.py. If it fails, inspect the program and correct the arguments using the existing input file, then run it successfully. Do not edit files. Report the actual emitted result.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.82, \"probabilities\": {\"context\": 0.09, \"model\": 0.91}}}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Run the program, then inspect and correct its arguments only if it fails. Preserve all files and report the actual output.\", \"actions\": [{\"id\": \"run\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"calculate.py\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Run the requested command and capture its output and exit code.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"program\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"calculate.py\\\",\\\"max_lines\\\":1000}\", \"depends_on\": [\"run\"], \"purpose\": \"Inspect argument parsing and input requirements after failure.\", \"condition\": \"always\", \"after\": \"failure\"}, {\"id\": \"scan\", \"tool\": \"list_files\", \"arguments_json\": \"{\\\"path\\\":\\\".\\\",\\\"pattern\\\":\\\"*\\\",\\\"limit\\\":100}\", \"depends_on\": [\"run\"], \"purpose\": \"Discover existing input files after failure.\", \"condition\": \"always\", \"after\": \"failure\"}, {\"id\": \"input\", \"tool\": \"choose\", \"arguments_json\": \"{\\\"question\\\":\\\"Which existing input file matches calculate.py's requirements? Program: ${program.content}\\\",\\\"options\\\":\\\"${scan.files}\\\"}\", \"depends_on\": [\"program\", \"scan\"], \"purpose\": \"Select the existing input using the program's requirements.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"inspect_input\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"${input.value}\\\",\\\"max_lines\\\":200}\", \"depends_on\": [\"input\"], \"purpose\": \"Verify the selected input's format before constructing corrected arguments.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"retry_command\", \"tool\": \"generate\", \"arguments_json\": \"{\\\"prompt\\\":\\\"Return only a properly shell-quoted direct python3 calculate.py command with corrected arguments. Do not use wrappers, redirects, or file edits. Use the observed program and existing input; invent no paths or values. Original failure: ${run}. Program: ${program.content}. Selected input path: ${input.value}. Input contents and format: ${inspect_input.content}.\\\"}\", \"depends_on\": [\"run\", \"program\", \"input\", \"inspect_input\"], \"purpose\": \"Construct the corrected invocation from inspected requirements and input.\", \"condition\": \"always\", \"after\": \"completion\"}, {\"id\": \"retry\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"zsh\\\",\\\"-lc\\\",\\\"${retry_command.content}\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [\"retry_command\"], \"purpose\": \"Execute the corrected command and capture the actual emitted result.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"The original python3 calculate.py invocation was attempted.\", \"Either the original invocation or the corrected invocation exited with code 0, with its actual emitted output captured.\", \"No files were edited.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"run\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"skip\": 0.0, \"need_context\": 0.01, \"execute\": 0.99}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"run\", \"tool\": \"shell\", \"status\": \"error\", \"evidence_id\": \"18ba6a26aead4802\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"program\": {\"choice\": \"execute\", \"confidence\": 1.0, \"probabilities\": {\"execute\": 1.0, \"need_context\": 0.0, \"skip\": 0.0}}, \"scan\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"execute\": 1.0, \"need_context\": 0.0, \"skip\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"scan\", \"tool\": \"list_files\", \"status\": \"completed\", \"evidence_id\": \"6dca512c346b4d21\"}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"program\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"7d3db6cf27fc4996\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"input\": {\"choice\": \"execute\", \"confidence\": 0.97, \"probabilities\": {\"execute\": 0.98, \"skip\": 0.02, \"need_context\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"input\", \"tool\": \"choose\", \"status\": \"completed\", \"evidence_id\": \"43e543be3a134537\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"inspect_input\": {\"choice\": \"execute\", \"confidence\": 0.84, \"probabilities\": {\"execute\": 0.9, \"skip\": 0.08, \"need_context\": 0.02}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"inspect_input\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"f3d0a8a33ed34ff3\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"retry_command\": {\"choice\": \"execute\", \"confidence\": 0.95, \"probabilities\": {\"execute\": 0.97, \"need_context\": 0.01, \"skip\": 0.02}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"retry_command\", \"tool\": \"generate\", \"status\": \"completed\", \"evidence_id\": \"3bd416695c444ea2\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"retry\": {\"choice\": \"execute\", \"confidence\": 0.88, \"probabilities\": {\"execute\": 0.91, \"skip\": 0.08, \"need_context\": 0.01}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"retry\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"2bf7f7914bd7478b\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.0, \"met\": 0.99, \"response_pending\": 0.01}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.97, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.0, \"met\": 0.98, \"response_pending\": 0.02}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.79, \"probabilities\": {\"unclear\": 0.06, \"not_met\": 0.01, \"met\": 0.84, \"response_pending\": 0.09}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.97, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.02, \"met\": 0.98}}, \"recovery_run\": {\"choice\": \"met\", \"confidence\": 1.0, \"probabilities\": {\"not_met\": 0.0, \"met\": 1.0}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 1.0, \"probabilities\": {\"supported\": 1.0, \"unsupported\": 0.0, \"unclear\": 0.0}}}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"RESULT=17\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 49.96, \"codex_calls\": 3, \"jev_calls\": 10, \"codex_input_tokens\": 44210, \"codex_output_tokens\": 804, \"jev_input_tokens\": 12791, \"provider\": \"codex\", \"generation_calls\": 3, \"generation_input_tokens\": 44210, \"generation_output_tokens\": 804}"
+      }
+    ],
+    "seconds": 50.17,
+    "answer": "RESULT=17",
+    "passed": true,
+    "grading": {
+      "observed_success": true
+    },
+    "events": [
+      {
+        "seconds": 0.172,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 0.987,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 1.648,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 29.798,
+        "kind": "plan",
+        "text": "Run the program, then inspect and correct its arguments only if it fails. Preserve all files and report the actual output."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "run \u00b7 Run the requested command and capture its output and exit code."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "program \u00b7 Inspect argument parsing and input requirements after failure."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "scan \u00b7 Discover existing input files after failure."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "input \u00b7 Select the existing input using the program's requirements."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "inspect_input \u00b7 Verify the selected input's format before constructing corrected arguments."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "retry_command \u00b7 Construct the corrected invocation from inspected requirements and input."
+      },
+      {
+        "seconds": 29.798,
+        "kind": "planned",
+        "text": "retry \u00b7 Execute the corrected command and capture the actual emitted result."
+      },
+      {
+        "seconds": 29.881,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 30.675,
+        "kind": "decision",
+        "text": "run \u2192 execute"
+      },
+      {
+        "seconds": 30.675,
+        "kind": "tool",
+        "text": "shell \u00b7 Run the requested command and capture its output and exit code."
+      },
+      {
+        "seconds": 31.124,
+        "kind": "warning",
+        "text": "run \u00b7 error \u00b7 Command exited with status 2"
+      },
+      {
+        "seconds": 31.289,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 31.708,
+        "kind": "decision",
+        "text": "program \u2192 execute"
+      },
+      {
+        "seconds": 31.708,
+        "kind": "decision",
+        "text": "scan \u2192 execute"
+      },
+      {
+        "seconds": 31.709,
+        "kind": "tool",
+        "text": "read_file \u00b7 Inspect argument parsing and input requirements after failure."
+      },
+      {
+        "seconds": 32.026,
+        "kind": "tool",
+        "text": "list_files \u00b7 Discover existing input files after failure."
+      },
+      {
+        "seconds": 32.212,
+        "kind": "output",
+        "text": "[\"batch.json\", \"calculate.py\"]"
+      },
+      {
+        "seconds": 32.357,
+        "kind": "done",
+        "text": "scan \u00b7 completed"
+      },
+      {
+        "seconds": 32.43,
+        "kind": "output",
+        "text": "1: import argparse, json\n2: p=argparse.ArgumentParser()\n3: p.add_argument(\"--source\", required=True)\n4: a=p.parse_args()\n5: print(\"RESULT=\" + str(sum(json.load(open(a.source))[\"values\"])))"
+      },
+      {
+        "seconds": 32.585,
+        "kind": "done",
+        "text": "program \u00b7 completed"
+      },
+      {
+        "seconds": 32.728,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 33.167,
+        "kind": "decision",
+        "text": "input \u2192 execute"
+      },
+      {
+        "seconds": 33.167,
+        "kind": "tool",
+        "text": "choose \u00b7 Select the existing input using the program's requirements."
+      },
+      {
+        "seconds": 33.368,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 33.828,
+        "kind": "done",
+        "text": "input \u00b7 completed"
+      },
+      {
+        "seconds": 34.031,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 34.389,
+        "kind": "decision",
+        "text": "inspect_input \u2192 execute"
+      },
+      {
+        "seconds": 34.389,
+        "kind": "tool",
+        "text": "read_file \u00b7 Verify the selected input's format before constructing corrected arguments."
+      },
+      {
+        "seconds": 34.573,
+        "kind": "output",
+        "text": "1: {\"values\":[-4, 8, 13]}"
+      },
+      {
+        "seconds": 34.76,
+        "kind": "done",
+        "text": "inspect_input \u00b7 completed"
+      },
+      {
+        "seconds": 34.942,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 35.39,
+        "kind": "decision",
+        "text": "retry_command \u2192 execute"
+      },
+      {
+        "seconds": 35.39,
+        "kind": "tool",
+        "text": "generate \u00b7 Construct the corrected invocation from inspected requirements and input."
+      },
+      {
+        "seconds": 35.595,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 41.037,
+        "kind": "output",
+        "text": "python3 calculate.py --source 'batch.json'"
+      },
+      {
+        "seconds": 41.22,
+        "kind": "done",
+        "text": "retry_command \u00b7 completed"
+      },
+      {
+        "seconds": 41.393,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 42.119,
+        "kind": "decision",
+        "text": "retry \u2192 execute"
+      },
+      {
+        "seconds": 42.119,
+        "kind": "tool",
+        "text": "shell \u00b7 Execute the corrected command and capture the actual emitted result."
+      },
+      {
+        "seconds": 42.398,
+        "kind": "output",
+        "text": "RESULT=17\n"
+      },
+      {
+        "seconds": 42.583,
+        "kind": "done",
+        "text": "retry \u00b7 completed"
+      },
+      {
+        "seconds": 42.768,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 43.262,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 49.101,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 50.17,
+        "kind": "usage",
+        "text": "50.0s \u00b7 codex 3 calls \u00b7 Jev 10 calls"
+      }
+    ],
+    "artifacts": {
+      "calculate.py": "import argparse, json\np=argparse.ArgumentParser()\np.add_argument(\"--source\", required=True)\na=p.parse_args()\nprint(\"RESULT=\" + str(sum(json.load(open(a.source))[\"values\"])))\n",
+      "batch.json": "{\"values\":[-4, 8, 13]}\n"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "table_write_variant",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "transactions.csv": "team,net,state\nA,3,settled\nB,-1,settled\nA,4,settled\nB,90,pending\n"
+    },
+    "prompt": "Read transactions.csv. Sum net by team for state settled only, then write totals.json with the numeric totals. Reply exactly SAVED after the file is written.",
+    "elapsed_seconds": 20.08,
+    "codex_calls": 2,
+    "jev_calls": 5,
+    "codex_input_tokens": 31968,
+    "codex_output_tokens": 218,
+    "jev_input_tokens": 6664,
+    "provider": "codex",
+    "generation_calls": 2,
+    "generation_input_tokens": 31968,
+    "generation_output_tokens": 218,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read transactions.csv. Sum net by team for state settled only, then write totals.json with the numeric totals. Reply exactly SAVED after the file is written.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.91, \"probabilities\": {\"context\": 0.05, \"model\": 0.95}}}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-kestrel/transactions.csv\", \"evidence_id\": \"17d51ed8b6984c4e\"}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"inspect_path\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-kestrel/totals.json\", \"evidence_id\": \"35ab19262ea44e2e\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Sum settled transactions by team, write numeric totals to totals.json, then reply exactly SAVED.\", \"actions\": [{\"id\": \"totals\", \"tool\": \"query_table\", \"arguments_json\": \"{\\\"path\\\":\\\"transactions.csv\\\",\\\"operation\\\":\\\"sum\\\",\\\"group_by\\\":\\\"team\\\",\\\"value_column\\\":\\\"net\\\",\\\"filters\\\":[{\\\"column\\\":\\\"state\\\",\\\"op\\\":\\\"eq\\\",\\\"value\\\":\\\"settled\\\"}]}\", \"depends_on\": [], \"purpose\": \"Calculate numeric net totals for settled transactions.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"save\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"totals.json\\\",\\\"content\\\":\\\"${totals.json_content}\\\",\\\"expected_sha256\\\":null}\", \"depends_on\": [\"totals\"], \"purpose\": \"Save the aggregation directly as numeric JSON.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"query_table returns settled net totals A=7 and B=-1.\", \"write_file successfully writes totals.json using totals.json_content.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"totals\": {\"choice\": \"execute\", \"confidence\": 1.0, \"probabilities\": {\"execute\": 1.0, \"skip\": 0.0, \"need_context\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"totals\", \"tool\": \"query_table\", \"status\": \"completed\", \"evidence_id\": \"fecba0ca104f472a\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"save\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"need_context\": 0.0, \"execute\": 1.0, \"skip\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"save\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"bfe6ec7298864b48\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"response_pending\": 0.01, \"met\": 0.99, \"unclear\": 0.0, \"not_met\": 0.0}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.83, \"probabilities\": {\"response_pending\": 0.05, \"met\": 0.87, \"unclear\": 0.0, \"not_met\": 0.08}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.72, \"probabilities\": {\"met\": 0.81, \"unclear\": 0.0, \"not_met\": 0.19}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 0.94, \"probabilities\": {\"unsupported\": 0.04, \"unclear\": 0.0, \"supported\": 0.96}}}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"SAVED\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 20.08, \"codex_calls\": 2, \"jev_calls\": 5, \"codex_input_tokens\": 31968, \"codex_output_tokens\": 218, \"jev_input_tokens\": 6664, \"provider\": \"codex\", \"generation_calls\": 2, \"generation_input_tokens\": 31968, \"generation_output_tokens\": 218}"
+      }
+    ],
+    "seconds": 20.252,
+    "answer": "SAVED",
+    "passed": true,
+    "grading": {
+      "saved_json": {
+        "A": 7,
+        "B": -1
+      }
+    },
+    "events": [
+      {
+        "seconds": 0.184,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 0.902,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 2.085,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 12.242,
+        "kind": "plan",
+        "text": "Sum settled transactions by team, write numeric totals to totals.json, then reply exactly SAVED."
+      },
+      {
+        "seconds": 12.243,
+        "kind": "planned",
+        "text": "totals \u00b7 Calculate numeric net totals for settled transactions."
+      },
+      {
+        "seconds": 12.243,
+        "kind": "planned",
+        "text": "save \u00b7 Save the aggregation directly as numeric JSON."
+      },
+      {
+        "seconds": 12.314,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 13.532,
+        "kind": "decision",
+        "text": "totals \u2192 execute"
+      },
+      {
+        "seconds": 13.532,
+        "kind": "tool",
+        "text": "query_table \u00b7 Calculate numeric net totals for settled transactions."
+      },
+      {
+        "seconds": 13.879,
+        "kind": "done",
+        "text": "totals \u00b7 completed"
+      },
+      {
+        "seconds": 14.049,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 14.549,
+        "kind": "decision",
+        "text": "save \u2192 execute"
+      },
+      {
+        "seconds": 14.549,
+        "kind": "tool",
+        "text": "write_file \u00b7 Save the aggregation directly as numeric JSON."
+      },
+      {
+        "seconds": 14.95,
+        "kind": "done",
+        "text": "save \u00b7 completed"
+      },
+      {
+        "seconds": 15.087,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 15.535,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 19.444,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 20.252,
+        "kind": "usage",
+        "text": "20.1s \u00b7 codex 2 calls \u00b7 Jev 5 calls"
+      }
+    ],
+    "artifacts": {
+      "transactions.csv": "team,net,state\nA,3,settled\nB,-1,settled\nA,4,settled\nB,90,pending\n",
+      "totals.json": "{\"A\":7,\"B\":-1}"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "table_write_variant",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "transactions.csv": "team,net,state\nA,3,settled\nB,-1,settled\nA,4,settled\nB,90,pending\n"
+    },
+    "prompt": "Read transactions.csv. Sum net by team for state settled only, then write totals.json with the numeric totals. Reply exactly SAVED after the file is written.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=20224, input_tokens=20676, output_tokens=6, reasoning_output_tokens=0, total_tokens=20682) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=63488, input_tokens=74809, output_tokens=336, reasoning_output_tokens=0, total_tokens=75145)",
+    "seconds": 20.713,
+    "answer": "SAVED",
+    "passed": true,
+    "grading": {
+      "saved_json": {
+        "A": 7,
+        "B": -1
+      }
+    },
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read transactions.csv. Sum net by team for state settled only, then write totals.json with the numeric totals. Reply exactly SAVED after the file is written.', text_elements=[], type='text'))], id='01a0bda7-aa79-7d23-b792-96b52e6b9e83', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0066199101e04ea7016aaf87178ae487d09126bc3e8b7ed94d', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read transactions.csv and save the settled net totals by team to totals.json.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-codex\\ntransactions.csv\\n', command='/bin/zsh -lc \"pwd && rg --files -g \\'transactions.csv\\' -g \\'AGENTS.md\\'\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"pwd && rg --files -g 'transactions.csv' -g 'AGENTS.md'\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-b6fc17ce-dc60-41dd-b24c-85a44cb0c054', plugin_id=None, process_id='34474', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='---\\nname: \"Spreadsheets\"\\ndescription: \"Use skill when user requests to create, modify, analyze, visualize, or work with spreadsheet files (`.xlsx`, `.xls`, `.csv`, `.tsv`) or Google Sheets with formulas, formatting, charts, tables, and recalculation. Do not use for live controlling Microsoft Excel app or a live Excel session.\"\\n---\\n\\n# Spreadsheets skill\\nRead entirely for spreadsheet creation, editing, analysis, or visualization.\\n\\n## Decision Boundary\\n- Google Sheets targeted outputs also require `routing/google_sheets.md`. Otherwise, author local files with artifact tool.\\n\\n## Important Instructions\\n- For new workbooks or authorized redesigns, plan the simplest correct workbook that meets the task, audience, actual data and domain. If formulas become hard to read, first reconsider whether the workbook\u2019s structure, layout, or logic is overcomplicated before simplifying individual formulas. Remove unnecessary or duplicated logic while preserving calculation correctness, required business relationships, and financial reconciliation\\n- Instruction precedence for workbook content, layout, and formatting is: user request > reference/template > domain defaults/conventions > general defaults.\\n\\n## Tools + Contract Requirements\\n- Author spreadsheet with `@oai/artifact-tool` JS and only `load_workspace_dependencies` executables/dependencies, never repo-local deps. If unavailable, check `~/.cache/codex-runtimes/codex-primary-runtime/dependencies/`. Never modify dependency directories.\\n- In a writable, conversation-specific or tmp directory, create a `node_modules` symlink or Windows junction to the loader `node_modules`.\\n- Prefer to patch/rerun one `.mjs` builder. No heredocs or duplicate builders.\\n- Use the provided API reference for supported syntax. Its examples do not set workbook structure, formatting or formula defaults. Do not inspect package internals or prototypes. If blocked, run at most one targeted `workbook.help(\"<api_or_feature>\")` query.\\n- No `openpyxl`, `xlsxwriter`, or `pandas.ExcelWriter` authoring unless asked, or  `@oai/artifact-tool` is unavailable.\\n- Analyze with JS/formulas, else bundled Python (libraries) and JSON/CSV intermediates; other libraries only for missing capabilities.\\n- Use `update_plan` for complex work.\\n- In your final response, omit builders, previews, or other support files unless requested.\\n- Immediately before the first create/edit authoring command, run `mark_artifact_operation_started.mjs` successfully exactly once using the command below. Do not run it for read-only work. For edits, replace `create` with `edit`; adjust the expected count and output format to match the requested outputs.\\n  ```bash\\n  node container_tools/mark_artifact_operation_started.mjs --operation-kind create --expected-output-count 1 --output-format xlsx\\n  ```\\n\\n## Spreadsheet (Workbook) Complexity: Workbook Structure & Formulas\\n\\nKeep the workbook simple, especially for focused tasks. A focused task produces a simple analysis, report or tracker for a specific question or workflow. It needs one main output, supported by the necessary inputs and calculations. \u201cFocused\u201d describes the scope of the task, not the number of source records.\\n\\nDesign the structure and formulas together so a reader can follow the inputs, useful calculation steps and final answer. Put summaries and main outputs first, show the work behind them, and avoid tabs or formulas that only repeat finished results. Keep separate schedules and output views when they serve distinct needs. Preserve required detail, the supplied template and the requested edit scope.\\n\\n## Workbook Structure\\n\\n### Tab Types & Relationships\\n\\nTab types describe the role each part of the workbook plays. They do not require separate tabs. A simple workbook can combine inputs, assumptions, builds and outputs in clearly labeled sections on one worksheet.\\n\\n**Inputs/Sources and Assumptions feed Builds; Builds calculate results and feed Outputs.** These relationships describe how calculations flow, not the physical tab order. The same rules apply when roles share a tab.\\n\\n**Input / Sources** contain the data the workbook starts from. Keep dedicated raw source or Actuals areas intact, with original values and source meaning separate from prepared calculations. Cleaning, mapping and source summaries may have their own labeled areas with clear provenance. Put business calculations, including historical calibration from actuals, in the build. Raw source data does not read results back from downstream areas.\\n\\n**Assumptions** hold the editable drivers and controls used by the builds. When cases are needed, keep one authoritative Case selector on Cover or Assumptions. Group each driver with its `Active Selection` row first, followed by its labeled case inputs, such as Base and Downside, sharing the same period columns. Prefer these driver groups to separate whole-case blocks for new designs. The build links directly to each period\\'s active input. Preserve a supplied layout during narrow edits, and do not add cases or a separate tab when the task does not need them.\\n\\nChanging the Case selector updates the active forecast assumptions for each period. The same build keeps linking to those active cells and recalculates with the selected values. Outputs update from the build results while historical actuals remain unchanged.\\n\\nWhen cases are used, display the selected case on each worksheet by linking to the authoritative selector. Keep only one editable selector; distinguish source actuals and separately labeled comparison cases from the active forecast.\\n\\nIn historical periods, the active assumption row may link to ratios or other measures calculated from actuals in a build. Show that history once, aligned with the build\\'s historical period columns, to help the user set forecast assumptions. The forecast active row selects the chosen case\\'s assumptions and feeds the build. Forecast results must not feed back into the assumptions driving that same forecast. Historical calibration is a business calculation, not a terminal Check/Audit result.\\n\\n**Build** tabs pull source inputs and assumptions to combine historical analysis, current results and/or a forecast. Bring the relevant inputs and applicable assumptions into clearly labeled rows or columns, then calculate the results on the build. Keep periods aligned and chronological. Show meaningful steps, subtotals and totals so readers can follow the logic\u2014for example, headcount and compensation driving personnel cost, or revenue less COGS producing gross profit. Each step should do useful work. Do not hide the whole calculation in one dense formula or make the build merely repeat finished results from elsewhere.\\n\\nFor a simple calculation, a small labeled assumption block can sit beside it. For a larger build, link important drivers from their control area and show the useful calculation steps. Use one set of forecast schedules driven by the active assumptions, organized by the business sequence, such as revenue, headcount, vendors and cash. Do not mirror the Assumptions grid, add Case columns or parallel named-case forecasts, or apply the selector only to finished results.\\n\\nA requested case comparison still needs each case\\'s correctly evaluated results. If the requested simultaneous current results cannot be produced with the supported single-build design, explain the limitation and agree on the calculation or refresh method before building the comparison. Do not omit it, link both cases to the active result, or silently substitute snapshots, `TABLE`, arrays, dense formulas or a hidden second build. Preserve explicit user/template requirements and the separately authorized native-feature and capture workflows below.\\n\\n**Output / Summary** tabs consolidate the builds and tell the main story. These might be named \u201cOverview,\u201d \u201cSummary,\u201d \u201cExec Summary\u201d or \u201cDashboard,\u201d depending on the task. Bring across finished build results, show how matching totals roll into higher-level totals and put the main summary above the detail. Readers should be able to trace a headline result to its supporting build without finding the same calculation repeated elsewhere. Keep input retrieval, case selection and detailed business logic in the owning build/control area. Do not route forecast results through Assumptions before presenting them. Historical references used to set drivers and linked case/period displays remain allowed.\\n\\n**Check / Audit** tabs review source data and builds for completeness, consistency and reconciliation. They may calculate their own diagnostics, but do not own business calculations or feed assumptions, builds or outputs. Nothing outside the check/audit area should depend on its results.\\n\\n**Cover, if useful** gives a complex workbook a simple front page, especially for recurring or shared workflows. Include the company/project name or available logo, workbook title and relevant period or as-of date, with generous whitespace and restrained branding. Place it first. Keep analysis and methodology off the cover. Skip it for focused tasks or when the main output provides enough context.\\n\\nFor complex workbooks, use a separate `ReadMe` only when source choices, joins, scoring or refresh steps need more explanation than nearby notes. Explain the method and material limitations without repeating outputs or giving a tab tour. Put it last. Multiple sources alone do not require one.\\n\\nApply [Style guidance](style_guidelines.md) to these tab and section roles, so formatting helps readers distinguish the main answer, editable inputs and supporting calculations.\\n\\n### Tab Names\\n\\nUse concise names that describe each tab\\'s purpose, such as `Check` or `Audit` for a reconciliation tab. Preserve established names during unrelated edits. For new forecast work, use `Forecast review` for review checks, `Forecast variance` for comparisons with a prior forecast, or `Sensitivity` for assumption tests. Do not label these tabs or views `Movement` or `Forecast movement`.\\n\\n### Tab Order & Progression\\n\\nFor a new workbook or authorized redesign, start with one clear primary view that answers the task. Start with one tab, or two when the original source needs to stay separate, for focused tasks such as a department budget versus actuals report, a peer-company valuation comparison, a weekly marketing campaign report, an appointment-capacity tracker or a research measurement log with unit conversions. Preserve required source tabs and dependencies. Put the requested summary above the supporting detail and calculations. Add another tab only for a distinct source, calculation, reader or workflow need; do not create a separate tab for every role. Keep review commentary, refresh instructions and documentation beside the relevant work when they do not need a separate workflow.\\n\\nKeep separate schedules when the work requires them, such as revenue, payroll, depreciation and debt builds in a financial model. One or two tabs is a starting point for the examples above, not a limit on every workbook. Do not shrink text, hide necessary calculations or discard records to meet a tab count or fit one printed page. Preserve the supplied template and existing architecture during narrow edits.\\n\\n| Domain and task | Do: one output tab | Don\\'t: create extra output/build tabs by default |\\n| --- | --- | --- |\\n| Finance / FP&A: one department\\'s monthly budget versus actuals | On `Budget vs Actuals`, tab name `BvA`, show total spend and variance at the top, with category-level budget, actuals and variance calculations below. | Separate Summary, Dashboard, Scenarios and Assumptions tabs for this report. |\\n| Financial modeling: peer-company valuation comparison from supplied data | On `Comparable Companies`, tab name `Comps`, show the requested multiple summaries at the top, with peer-company inputs and calculated multiples below. | A DCF, debt schedule or full three-statement model when the task only asks for comparable-company analysis. |\\n| Marketing: weekly campaign spend and cost per lead | On `Campaigns`, show total spend, leads and overall cost per lead at the top, with campaign detail below. Calculate overall cost per lead from the matching totals. | One output tab per campaign, a duplicate dashboard or an attribution model that wasn\\'t requested. |\\n| Healthcare administration: appointment capacity by clinic | On `Appointments`, tab name `Appts`, show available slots, bookings and overall utilization at the top, with clinic and period detail below. Calculate overall utilization from the matching totals. | A separate dashboard, clinical alerts or a payroll schedule for an appointment report. |\\n| Scientific research: measurement log with required unit conversions and a requested summary | On `Measurements`, show the requested results at the top, with original observations, units and required conversions below. | Separate Protocol, Processing, Calculations and Checks tabs, or statistical tests that the task does not require. |\\n\\nOne output worksheet can contain several useful sections. Keep original sources and substantial builds separate when needed; do not create multiple output tabs for the same answer.\\n\\nFor a file with multiple tabs, the physical left-to-right order is **Outputs \u2192 Builds \u2192 Inputs/Sources/Internal**, with a separate **Assumptions** control panel kept easy to reach, usually just after the primary output and before build tabs. Covers, key outputs (executive summary, financial statements, etc.) belong toward the left; working builds sit in the middle when needed; data, sources, inputs and internal documentation sit toward the right. A two-tab workbook has Output on the left and Input on the right. The logical calculation flow is Source/Input and Assumptions \u2192 Build \u2192 Output; a visible control panel may sit to the left of its builds. Do not confuse tab position with calculation sequence. Within a horizontal build, factors may feed intermediate results from left to right; preserve chronological period columns. Within a single worksheet, inputs and supporting calculations below can feed the main answer above. Preserve an intentional user/reference layout; do not reorganize a narrow edit to enforce this default.\\n\\n#### Checks and Audit\\n\\nChecks/Audit are terminal review areas and are not required for focused tasks. They read source/build evidence and may calculate or summarize their own diagnostics within that area. No formula outside a terminal check/audit area may use its results, directly or through helpers, names or dynamic references. This includes assumptions, business calculations, summaries, presented outputs, displayed statuses and output gates. Keep necessary input validation in the owning input/build logic; checks observe it independently. When separate tabs are useful, keep Checks/Audit and internal documentation toward the right. In complex workbooks, a divider such as `Internal >>` can group them with source data; follow [Style guidance](style_guidelines.md) for divider and child-tab colors. Preserve useful supplied controls and notes, but do not add separate tabs for a few lines.\\n\\n\\n### Build Structure and Formula Flow\\n\\nArrange labeled rows and columns so a reader can follow starting data, assumptions, useful calculation steps, subtotals and results. Follow the physical layout above; the logical sequence of inputs to results does not require every build to run from top to bottom.\\n\\n- **Row progression:** make the useful business steps visible, such as quantity \u00d7 rate, capacity used \u00f7 capacity available, or a balance plus its movements. Link the clean input and applicable assumption into their own labeled rows, then calculate the result on that build. Do not add trivial steps just to create more rows.\\n- **Active assumptions:** select the active assumptions once in the control area and link each period\\'s cells directly into the same build. Do not bypass the active row, repeat case selection across schedules, put a forecast inside Assumptions or maintain parallel case builds. Resolve a required comparison\\'s calculation and refresh method as described in [Tab Types & Relationships](#tab-types--relationships).\\n- **Historical reference:** Assumptions may link to historical ratios calculated from actuals in a build to help set forecast drivers. Trace the cells: this actuals-only reference must not create a feedback loop from the forecast into its own assumptions.\\n- **Column progression:** keep comparable items, scenarios and periods aligned. Use the shared headers and controls described in [Anchoring](#anchoring) and [Dates and Time Periods](#dates-and-time-periods), rather than repeating them beside each calculation.\\n- **Roll-forwards:** show opening balance, relevant movements and closing balance. Normally link each new period\\'s opening balance to the prior period\\'s closing balance, preserving the model\\'s actual timing and conventions.\\n- **Reuse:** keep one place that owns each calculation, then link matching results into summaries and useful output views. Apply the matching-input, period, unit, rounding and override conditions in [Formula Construction](#formula-construction).\\n\\nA tab that only repeats linked values from another tab or workbook is a red flag. Build tabs should perform useful calculations and show the steps. Output tabs should bring results together and calculate relevant subtotals or totals where needed. A useful output may link directly to completed build results without adding new calculations. Keep a linking-only tab when it serves a clear source, import or reporting need; otherwise, combine or remove it within the authorized scope. Do not invent calculations merely to justify a distinct reader view.\\n\\n### Workbook Structure Examples\\n\\n| Example | Do | Don\\'t |\\n| --- | --- | --- |\\n| A1. Simple action tracker | Use one `Actions` tab with owner, due date, status and the requested totals above the table. | Add Cover, Readme, Inputs, Dashboard and Checks tabs around a small task list. |\\n| A2. Newly designed monthly activity report | Keep Month as a column in one activity table; use that table directly or add a linked summary tab to its left. | Copy the same layout into Jan, Feb and Mar tabs when separate monthly sheets are not required. |\\n| A3. Compare several teams or campaigns | Keep the comparison in one table with a team/campaign field and the requested measures. | Create a separate nearly identical report tab for each team and make the reader assemble the comparison. |\\n| A4. A few shared assumptions | Put a short labeled rate/assumption block to the left of the working calculation, or below the results on one worksheet. | Create Setup and Assumptions tabs for three cells, or duplicate editable copies of the same rate. |\\n| A5. A requested scenario comparison | Group each driver\\'s Active Selection and case inputs together. Keep one active build. Agree on any required comparison\\'s calculation and refresh method, and label retained results accurately. | Maintain parallel case forecasts, omit the comparison or affected dependencies, link both cases to the active result, or use `TABLE` or snapshots as an ordinary shortcut. Do not add unneeded scenarios. Preserve explicitly required native sensitivity or [capture workflows](#circular-references-and-iterative-calculation). |\\n| A6. Explain a one-page operating calculation | Put People needed at the top, the work/capacity calculation beneath it, and Requests and Minutes per request below. Let the lower inputs feed the answer above. | Scatter each step across a different tab, bury the answer at the bottom, or show only an unexplained staffing result. |\\n| A7. Present an existing calculation | In a new multi-tab workbook, put Outputs on the left, Builds in the middle and Sources/Inputs on the right. Link the output to the completed build; on one worksheet, show that output above its build. Keep each editable control authoritative in one place; preserve an intentional front-end selector. | Put the primary output after internal source tabs, duplicate the same editable control in several places, create an unintended circular calculation, or rebuild the same calculation in the summary. |\\n| A8. Reconcile a small import | Put an independent comparison near the relevant table. Use a Checks/Audit tab only if needed, and keep it a terminal reader of sources and builds. | Add a full control dashboard for one useful tie-out, or make the build, summary or output gate read a Checks/Audit result. |\\n| A9. Keep source context usable | Document each source once alongside the relevant input data, following [Citation Requirements](#citation-requirements). Retain essential period/unit labels, required row-level source columns and intact source tabs. | Repeat filenames and source explanations across builds and outputs, hide essential context in cell notes, or create Sources, Notes, Methodology and Version History tabs for a one-off analysis with one source. |\\n| A10. Summarize a long source table | Keep all required records intact and make the primary view compact. Use a separate source tab when it improves use or preserves the import. | Drop rows, hide needed calculations or make text tiny so all the evidence fits on one page. |\\n| A11. A production plan with distinct schedules | Keep materials, line-capacity and staffing schedules separate when their inputs, time grains or update owners differ; place the primary output plan to the left of those builds, with supporting data/inputs farther right. | Merge incompatible schedules just to stay within two tabs, or repeat their calculations in the summary. |\\n| A12. A narrow edit to an existing workbook | Change the requested cells and affected dependencies, preserving established tabs, native features and layout. | Normalize, merge, rename or remove existing tabs just because a new workbook could be simpler. |\\n| A13. Several thin tabs around one calculation | For a new capacity plan, keep the input factors, meaningful work/capacity calculation and requested result together in one view or two useful tabs. A Build should contribute the steps shown in F13. | Create seven tabs that mostly repeat the same central range, with nominal Build tabs doing no distinct work. Putting that central calculation on Checks/Audit is also a dependency failure. |\\n| A14. More than one output view | Keep an operator detail view and a manager summary when their fields, level of detail or workflow differ. Both may link to the same owning build, as in F14. | Copy the same table into Summary, Dashboard, Report and Executive tabs without a distinct reader need, or invent new calculations just to make each tab look different. |\\n\\n\\n## Formulas\\n\\nApply these rules to newly added or edited formulas and their affected dependencies. Follow the user\\'s preferences and supplied template; preserve unrelated formulas and layout during narrow edits. Design formulas to support the workbook structure above: the reader should be able to follow the inputs, useful calculation steps and final answer.\\n\\n### Formula Construction\\n\\n- Use direct references, familiar functions and meaningful intermediate calculations. Follow [Build Structure and Formula Flow](#build-structure-and-formula-flow) to show the work; do not hide an entire build in one dense formula or add trivial helpers just to make formulas shorter.\\n- Keep raw data, editable assumptions, mappings and business rules in labeled cells or tables. Mathematical, index and control constants may remain in formulas. Keep calculated results as formulas so they update with their inputs.\\n- Fixed cutoffs or categories from the user\\'s request can appear directly in formulas when result labels state the rule. For example, label `COUNTIFS(B2:B100,\">1000\")` as `Invoices over $1,000`, without adding an input cell for `1000`. Use one labeled input cell when the cutoff is user-adjustable or serves as a shared assumption across different calculations.\\n- Calculate a shared result once and reuse it when the inputs, period, units, rounding and overrides match. Keep independent reconciliations independent.\\n- Use consistent formulas across comparable rows and periods, while preserving intentional differences such as [historical versus forecast logic](domain_guidance/financial_models.md#periods-assumptions-and-scenarios), one-off adjustments and overrides.\\n- Keep business calculations in the owning build and necessary input guards with their inputs or dependent build logic, following the [terminal Checks/Audit rule](#checks-and-audit). Do not invent business restrictions or wrap ordinary calculations in repeated workbook-wide validation gates. For example, use `=SUM(I11:I12)` for a valid total; do not add an `IF` that rejects a negative result unless the business rule requires it.\\n\\n### Anchoring\\n\\nUse `$` to fix only the part of a reference that must stay in place when a formula is copied. Anchor shared **rows, columns or individual cells** so the workbook can reuse one period header, assumption block, item column or Case selector instead of repeating it beside every calculation.\\n\\n| Reference | What stays fixed | Useful pattern |\\n| --- | --- | --- |\\n| `C8` | Neither row nor column | A quantity that moves with the calculation when copied across or down. |\\n| `C$4` | Row 4 | Read each column\\'s period from one shared header row; copying across advances the period, copying down keeps that header. |\\n| `$A8` | Column A | Read each row\\'s item or category from one shared column; copying down advances the item, copying across keeps its label. |\\n| `$B$3` | Cell B3 | Reuse one fixed conversion rate or Case selector throughout the applicable calculation. |\\n\\nFor example, `=SUMIFS(Amount,Month,C$4,Item,$A8)` reads the period above and the item at the left. Copied one column right it uses `D$4`; copied one row down it uses `$A9`. The aligned named ranges represent the source columns; they do not require named ranges in the delivered workbook.\\n\\nA period-specific assumption should move with its period: `=C8*C$3` becomes `=D8*D$3` when copied across. A single assumption shared by every period should stay fixed: `=C8*$B$3` becomes `=D8*$B$3`. Choose between them from the model\\'s meaning, not by adding `$` everywhere. Use keyed lookups when source and destination orders differ; anchoring cannot make mismatched row positions equivalent. Quote cross-sheet names, for example `=\\'Build\\'!E14`.\\n\\n### Dates and Time Periods\\n\\n- When calculations depend on a reporting date, use the date specified by the task or source. Use TODAY() only when calculations should update with the current date. Use a fixed reporting date when results should remain tied to a particular date. Label any assumed date. Preserve source deadlines and flag conflicts with derived deadlines.\\n- Review the template\\'s calendar, period layout and source grain before building formulas. Use real dates where the source supports them, with number formats for display; do not invent a missing reporting year. Derive period filters and labels from the shared header rather than hardcoding months in individual formulas.\\n- For a new `Week of` label, use the week\\'s first business day as the underlying date: Monday by default, moved forward for holidays only when a holiday calendar is supplied. Follow an explicit source/template week convention. Do not invent holidays or relabel a week-ending date as a week start.\\n- When several time scales are needed and the template does not prescribe a layout, place the broader summaries to the left and finer detail to the right: **Annual | Quarterly | Monthly | Weekly**. Include only the time scales needed for the task. Keep periods chronological from left to right within each group; use the supplied fiscal calendar and week convention.\\n- Separate different time scales with narrow, blank, unfilled spacer columns; do not extend formatting down the entire column. Do not add a spacer merely between actual and forecast months in one continuous schedule. Align matching period columns across Assumptions, builds and summaries where practical. When recent actuals help set drivers, include that historical reference on Assumptions in the same period column as the build, followed by the matching forecast periods. Within a continuous schedule, use one shared period header rather than repeating identical date rows above every subsection. Keep it visible when useful; separate tables with different column meanings may need their own headers, and print titles can repeat headers on printed pages.\\n- Match each period to its own assumptions and data. Roll detail into summaries using the right calculation: sum additive amounts, use the appropriate ending balance for stocks, and calculate ratios or weighted averages from the relevant components. Do not sum monthly percentages or double-count weeks that cross month boundaries.\\n\\nFor a monthly summary of daily dates, with `C4` holding the first day of the month and aligned source ranges, use `=SUMIFS(Amount,Date,\">=\"&C$4,Date,\"<\"&EDATE(C$4,1),Item,$A8)`. The next-month exclusive upper bound includes the full last day, including timestamps. Equality to `C$4` is appropriate only when the source already stores that same monthly key.\\n\\n### Choosing Formulas and Excel Tools\\n\\n- **Totals and products:** use `SUM` over the relevant detail for total rows. Use `PRODUCT` for a result built by multiplying a range of numeric factors, or direct multiplication for a simple two-cell calculation. Use `SUMPRODUCT` for a sum of matching quantity \u00d7 rate pairs or a weighted calculation. Keep ranges aligned and bounded; do not include both subtotals and their detail. Check required factors first: `PRODUCT` ignores blank/text cells in a referenced range, which can make missing inputs look like a valid result.\\n- **Conditional counts, sums and averages:** prefer `COUNTIFS`, `SUMIFS` and `AVERAGEIFS` for new formulas, even with one criterion, so another condition can be added consistently. Avoid choosing `COUNTIF`, `SUMIF` or `AVERAGEIF` for new work by default; preserve a valid existing/template convention during a narrow edit. This preference does not prohibit an ordinary `IF` condition.\\n- **Lookups:** `INDEX/MATCH`, `VLOOKUP` and `XLOOKUP` are all useful. Follow the user\\'s preference and the workbook\\'s established approach where it works. Make exact versus approximate matching intentional, handle missing keys explicitly and confirm whether duplicate keys should be rejected, matched once or aggregated. Do not substitute a first-match lookup for a required sum.\\n- **Conditional logic:** use a short `IF` for a simple choice. Nested `IF` formulas are appropriate when they express necessary, understandable logic, including advanced Finance calculations. For a long list of categories or editable rules, prefer a mapping table or labeled steps. Preserve rule order, boundaries, gaps and the unmatched case; do not replace useful business logic merely to reduce nesting.\\n- **Formula choices to avoid:** do not introduce `LET`, array/spill formulas, `MAP`, `REDUCE` or `LAMBDA`. Use familiar formulas and labeled intermediate steps. Normal range arguments in functions such as `SUMIFS` and `SUMPRODUCT` remain appropriate, as do the lookup, `INDIRECT`, `OFFSET` and `CHOOSE` patterns below. Preserve required existing/template behavior and do not rewrite unrelated formulas during a narrow edit. Formula length alone is not the test: the reader must be able to understand and extend the calculation.\\n- **Sensitivity analysis:** use a native What-If Data Table only for an explicitly requested native sensitivity analysis or required existing/template behavior, when supported. Do not introduce `TABLE` into an ordinary forecast or case comparison, or manufacture a second varying input with a metric selector. Excel supports one or two varying inputs; the current Artifact Tool supports only two-variable tables, with both input cells on the table\u2019s worksheet. Read [Data Tables](artifact_tool_docs/DATA_TABLES.md) before creating one. Two inputs test one output across their combinations; use separate tables for additional outputs. If the requested native design is unsupported, explain the limitation before agreeing on a formula-based design or change-input/recalculate/restore process. Label captured results and their refresh method. Ordinary case comparisons follow the single-build and comparison boundary above.\\n\\nAn Excel Table, PivotTable and What-If Data Table are different features. Check the chosen tool and destination\\'s support. If a requested native feature cannot be created or preserved, explain the limitation before substituting a formula or static result. Keep API setup and feature-specific execution details in the relevant tool reference.\\n\\n### Scalable Formulas and Brief Explanations\\n\\nUse the patterns below when they make recurring updates easier without hiding the calculation. Choose the simplest approach that supports the actual update workflow, not just the current snapshot.\\n- **Assumption and Case selection:** prefer one numeric Case selector with labeled case names and `CHOOSE` or `OFFSET` to select the active assumptions. `INDEX/MATCH` or `XLOOKUP` remain valid when they fit the layout. In each driver group, put Active Selection above its case inputs, sharing the same period header. For example, with Case in B3 and two case values in I22:I23, active I21 can be `=CHOOSE($B$3,I22,I23)`; the matching build input is simply `=\\'Assumptions\\'!I21`. Anchor and validate the selector. Do not repeat the choice in the build or maintain a second editable copy of the drivers. The simple CHOOSE example assumes validated numeric case inputs. Otherwise, test the selected source value before a reference can turn a blank into zero. Preserve a valid zero. A missing unselected case must not block the active case. In an agreed comparison, mark only the affected case and dependent deltas unavailable. Keep necessary validation local to the driver and reuse it. OFFSET and INDIRECT are volatile, so keep references bounded and consider recalculation cost.\\n- **New monthly source tabs:** if the workflow receives a separate tab in the same format each month, a visible month-to-tab registry and bounded `INDIRECT` references can support new periods without rewriting the reference pattern. Register the new tab and extend the summary periods or bounded ranges when needed. Validate the expected layout, tab names and source coverage; quote and escape sheet names correctly. For a new workflow without that constraint, one source table with a Month column may be simpler.\\n- **Explain recurring updates:** when a less familiar formula materially improves the workbook, add a short explanation near its control or in the existing guide: why it helps, what the user can change and how to extend it safely. For example: \u201cAdd the new month tab in the same layout and register its name in Setup. Extend the summary period and ranges if needed; the formulas keep the same reference pattern.\u201d Keep this brief; do not add comments to every formula or create a new instruction tab for one note.\\n\\n### Missing Inputs, Errors and Overrides\\n\\n- Do not invent missing source data or substitute a different metric. If required data is absent, leave the result unavailable and state the specific missing input beside its data or setting and briefly in the response. For a rate, preserve the requested numerator, denominator, population and period; do not substitute another available denominator.\\n- Distinguish a real zero from missing data, an unavailable result and something that is not applicable. Use `\"n.a.\"`, a deliberate `\"\"` blank, or an exposed error according to the user\\'s preference and the calculation\\'s meaning. Right-align `n.a.` and similar placeholders when they sit among numeric results; do not turn them into numeric zero for appearance.\\n- `IFERROR` can be useful for a deliberate, understood fallback, but must not hide unexpected failures. Prefer testing the expected condition directly, or `IFNA`/a lookup\\'s not-found result when only a missing match is expected. Do not blanket-wrap formulas in `IFERROR(...,0)` or `IFERROR(...,\"\")` to make broken references and bad inputs disappear. Text `\"n.a.\"` and the `#N/A` error are different; choose intentionally and ensure downstream formulas handle the result correctly.\\n- Guards such as `ISNUMBER` must not turn a failed prerequisite into a healthy zero or an understated issue count. Keep unexpected failures visible in the affected results, even when an intermediate formula returns text or a blank instead of an error.\\n- Handle necessary validation in the input/build that owns it, affecting only the relevant outputs. A SUMIFS result of zero does not prove matching records exist; retain a source-coverage test when no match must remain blank or unavailable. Keep the issue visible without spreading the same long guard through every summary formula or pulling a global status from Checks/Audit.\\n- A matched lookup key does not prove its value is populated. Check required source values before a lookup or reference can turn a blank into zero; preserve a permitted numeric zero.\\n- Add manual overrides only when the task, template or established workflow needs them. Otherwise, calculate directly from the relevant drivers; do not add an optional override row to every result.\\n- Preserve deliberate zero overrides, blanks, one-off adjustments and rounding. A blank optional override may mean \u201cuse the base\u201d; a zero override may mean \u201cuse zero.\u201d Do not treat those as the same condition.\\n\\n### Circular References and Iterative Calculation\\n\\nAvoid unintended circular references. Use intentional circular logic only when the requested model needs it and the selected tool and target engine support it. Document the loop and its purpose; preserve or deliberately configure iteration, maximum iterations and maximum change. Verify convergence after representative input changes and save/reopen. Do not silently enable iteration, change application-wide settings, or treat cached values, a successful export or an error-free scan as proof. If calculation or setting preservation cannot be verified, report the limitation and use a verified workflow or a mathematically equivalent non-circular approach within scope. Keep Checks/Audit outside the loop.\\n\\nAn explicit/template case-capture workflow may use a self-retaining `IF` in an output area to store a selected case\\'s result while the same model calculates the other cases. This is a snapshot, not a live recalculation of every case; assumptions and business calculations must not depend on it. Define initialization and capture/refresh steps, show the captured case and stale-state warning, and verify each case is captured and retained correctly in the intended engine. Convergence alone does not prove capture correctness. Do not introduce this pattern as a default scenario comparison.\\n\\nPresent case results as a compact `Case comparison`, with each case named above comparable metric rows and period columns. Keep capture/refresh instructions secondary and label saved snapshots clearly; a new label or layout does not make them live.\\n\\n### Formula Examples\\n\\nThese examples assume the inputs, ranges and units described. Named ranges stand for labeled source ranges, not a requirement to add names. Preserve the task\\'s missing-data policy and material rounding.\\n\\n| Example | Do | Don\\'t |\\n| --- | --- | --- |\\n| F1. Reuse an editable assumption | With one fixed conversion rate in B3, use `=C8*$B$3`. With a different rate in each period of row 3, use `=C8*C$3` and fill across. | Hardcode the rate in every formula, or let a shared rate drift to a neighboring cell when copied. |\\n| F2. Show a build on one worksheet | Put Requests in B10 and Minutes per request in B9; calculate Work minutes in B8 as `=PRODUCT(B9:B10)`. With positive Available minutes per person in B7, put People needed in B6 as `=B8/B7`, with required whole-person rounding. All factors must be present and numeric. | Hide input retrieval, unit conversion and staffing logic inside one unexplained output, or treat a missing factor as zero workload. |\\n| F3. Reuse the matching subtotal | If B12 is the eligible-volume subtotal for the required period, calculate `=B12*$B$3`. | Re-sum the detail in every output, or reuse a subtotal with different eligibility, units, period or rounding. |\\n| F4. Link a period rollforward | Link this month\\'s Beginning inventory to the prior month\\'s Ending inventory; calculate Ending as Beginning + Receipts \u2212 Usage. | Rebuild cumulative history from the first month in every period when the prior ending balance already represents the same quantity. |\\n| F5. Resolve a shared lookup once | With unique validated keys and matched ranges, put the rate in D8 with `=INDEX(\\'Rates\\'!$C$5:$C$12,MATCH($A8,\\'Rates\\'!$A$5:$A$12,0))`; reuse D8 for that same rate. An established VLOOKUP or XLOOKUP pattern is also valid. | Repeat the same lookup in each output, silently select an ambiguous duplicate, or add a helper for an already simple one-use expression. |\\n| F6. Replace a long category decision tree | Keep the category-to-owner mapping in a table; with unique keys, use `=XLOOKUP($A8,Categories,Owners,\"Unmapped\",0)`. | Repeat a long category `IF` chain in every row, or remove necessary conditional model logic merely because it uses nested IFs. |\\n| F7. Preserve rule boundaries | For supplied bands `0 \u2264 x < 100`, `100 \u2264 x < 500`, and `x \u2265 500`, preserve those boundaries and test the thresholds and values on either side. | Turn `<100` into `\u2264100`, reorder overlapping tests, fill an intentional gap or invent a default category. |\\n| F8. Guard the expected exception | With validated numeric B8 and C8 and a not-applicable policy for a zero denominator, use `=IF(C8=0,\"n.a.\",B8/C8)`. A deliberate blank may be appropriate under a different display policy. | Use `IFERROR(...,0)` so missing data or a broken reference appears to be a real zero rate. |\\n| F9. Preserve a zero override | With base B8 and validated optional override C8, use `=IF(C8=\"\",B8,C8)`. | Use `=IF(C8=0,B8,C8)` and erase a valid zero override, or overwrite the base to apply an adjustment. |\\n| F10. Fill using shared headers and labels | Use `=SUMIFS(Amount,Month,C$4,Item,$A8)` for matching monthly keys. Row 4 supplies periods across the table; column A supplies items down it. Use the date-bounds pattern above for daily source dates. | Repeat the same date header in every subsection, hardcode January across the year, or assume differently ordered source tabs have matching row positions. |\\n| F11. Choose the aggregate that matches the math | Use `=SUM(C8:C11)` for a total, `=PRODUCT(C8:C10)` for three required numeric factors, or `=SUMPRODUCT(B8:B11,C8:C11)` for matching quantity \u00d7 rate pairs. Use SUMIFS for an ordinary conditional sum. | Replace these with a custom array pipeline, double-count subtotal rows, or let PRODUCT silently skip a missing required factor. |\\n| F12. Keep checks independent and one-way | If a Checks tab is warranted, compare the build with an independent source control there, such as `=\\'Build\\'!E14-\\'Source\\'!D20`. | Use `=\\'Checks\\'!C8` in a build, summary or output gate, compare a total with itself, or treat a cached PASS as a newly executed check. |\\n| F13. Show progression within a build | For A13\\'s capacity plan, use numeric Runs in C8 and kWh per run in D8 to calculate Energy needed in E8 as `=C8*D8`. With positive Available kWh in F8 for the same period, calculate Capacity share in G8 as `=E8/F8`. | Label a linked copy \u201cBuild,\u201d hide all factors in one long formula, or add relay tabs without useful work. |\\n| F14. Share a result across useful views | For A14\\'s distinct output views, let both read the owning result, such as `=\\'Build\\'!E14`, and present the detail their readers need. | Recompute the same result in every output, or copy the same table into several tabs without a distinct reader or workflow need. |\\n\\n\\n## Writing Quality and Authored Content\\nApply these defaults to text you write, including titles, labels and messages returned by formulas. User instructions and preferences, reference/template conventions and domain guidance take precedence, in that order. For edits, do not change unrelated content outside of the user\\'s request and follow the workbook\u2019s existing writing style.\\n\\n- Write for the intended audience. Never include internal file paths, authoring commentary, planning notes, or requester instructions in the artifact unless explicitly requested. Do not repeat audience or style directives such as \u201cexecutive-friendly\u201d in headings, content, or comments.\\n  - Omit: `Discussion support only. This workbook does not make final rating or promotion decisions.` just because the user asked for a workbook for discussion.\\n  - Omit: `Supports discussion and consistency checks. Human reviewers remain responsible.` unless that limitation is explicitly required.\\n\\n- Include text only when it helps the reader understand the data or use the workbook. Keep clear text unchanged. Rewrite useful text that is unclear. Delete unnecessary text instead of replacing it with a cleaner version of the same filler.\\n\\n- Use concise, plain-language titles and labels. Name the specific subject, issue or action and avoid internal jargon and vague status labels. Preserve what each label measures, including the population, period, units, comparison, and uncertainty. Do not shorten a label by removing a distinction the reader needs.\\n  - Good: `Weekly metrics`. Bad: `Follow the weekly trends`\\n  - Use `Metric` for a general metric column and `Revenue driver` for a revenue assumption explanation. Avoid invented labels such as `Planning measure`, `Movement explanation` or `Planning basis`. Retain specific labels when they add necessary meaning.\\n  - Bad: `Requisition blockers`. Good: `Hiring requests awaiting approval` when approval is the issue.\\n  - Bad: `Two-band rating movement`. Choose a descriptive, clear phrase that represents the underlying event, e.g.:\\n    - Promotion: `Promoted by two job levels`\\n    - Rating change: `Performance rating increased by two levels`\\n  - Good: `Monthly results`. Bad: `Decision-ready monthly impact analysis`\\n  - Good: `Income and household assumptions`. Bad: `Same paycheck. Different purchasing power.`\\n  - Use `Retained employees` only for employees who remained over a defined period. Otherwise, name the population counted, such as `Total employees` or `Employees reviewed`.\\n\\n- Avoid decorative bullets, icons, emoji, arrows and pipe-delimited titles. Omit filler suffixes; keep terms such as `review`, `analysis` or `dashboard` when they identify the content.\\n  - Bad: `$ in USD \u2022 monthly \u2022 forecast`\\n  - Good: `Monthly forecast (USD)`\\n\\n- Prefer direct, specific human wording. Avoid slogans, buzzwords, invented terminology, vague framing and formulaic claims.\\n  - Good (when supported by the data): `Most revenue growth comes from data centers.` Bad: `Data centers are doing the heavy lifting.`\\n  - Good: `Contributions decreased`. Bad: `Contributions waned`\\n  - Good: `Revenue metrics`. Bad: `Strategic Value Drivers`\\n  - Bad formulaic phrasing: `The tool not only saves time, but also transforms how teams collaborate.` or `Faster, smarter, and more intuitive.`\\n  - Bad: `While remote work offers flexibility, it also presents unique challenges.` (synthetic balance without a real tradeoff)\\n  - Bad: `Operating evidence improved`. Operating evidence is unclear and not a common term used.\\n\\n- Avoid AI-like sentence constructions. Use direct sentences with clear meaning and avoid vague explanations and forced contrasts. Prefer periods between sentences. Do not use semicolons, pipes, bullets, or dashes to assemble several labels into a slogan.\\n  - Semicolons and vague explanations: Use `Travel demand and employment fell from Jan to Feb.`, not `Travel demand and employment fell from Jan to Feb; persistent behavior shifts are shaping the path back.`.\\n  - Passive voice when active is clearer e.g. Use `The team approved the proposal.` not `The proposal was approved by the team.`\\n  - Contrast slogans like `It\u2019s not X, it\u2019s Y`: For a title, use `Humidity exposure over time` not `Humidity is an exposure trajectory, not a setpoint.`\\n  - Unnecessary em-dashes: Bad: `Purpose: isolate what changed \u2013 and what deliberately stayed in place \u2013 under Osaka Prefecture\u2019s Red Stage emergency response.`\\n\\n- Keep wording factual, parseable and supported by the workbook.\\n  - Good: `Transit use is 79% of pre-pandemic levels.`\\n  - Bad: `79% Transit use back to pre-pandemic`\\n\\n- Omit repeated information, obvious purpose statements and generic disclaimers. Subtitles are optional. State critical definitions and material assumptions once beside the relevant data or setting. Preserve task-required limits and warnings, such as a review supporting discussion rather than making final personnel decisions.\\n\\n- Do not include motivational wording or self-assessment. Omit decorative badges and self-evaluation banners. Preserve task-required business statuses, risk flags, uncertainty labels and specific warnings as ordinary data. Do not invent scoring systems or confidence scales merely to decorate the workbook.\\n  - Omit: `This workbook is source-backed and ready for review`.\\n\\n- For checks and logic, be specific:\\n  - Bad: `Signal integrity: BLOCKED`. Good: `Missing input: forecast rate` (a specific functional warning)\\n\\n- For a requested workflow, provide an obvious editable field for required human input, separate from original source notes. Short calculated statuses or actions should reflect all required prerequisites. Do not imply completion while another required action is still open.\\n\\n\\n## Workflows\\nRequired:\\n- `workflows/edit_workflows.md` for existing files/follow-ups.\\n- `workflows/create_workflows.md` for new files\\n\\n## Resources\\nRead the following BEFORE starting the task:\\n\\nRequired:\\n- `artifact_tool_docs/API_QUICK_START.md` for `artifact_tool` JS API documentation. Read entirely.\\n- `style_guidelines.md` for formatting.\\n\\nAs applicable:\\n- `references/template-elicitation.md`: if user has not provided a template, reference, or visual direction.\\n- `references/image-references.md`: if a reference image or screenshot is provided.\\n- `references/read_only_qna.md`: for Q&/audits\\n- `features/charts.md`: for creating or editing charts.\\n\\n<a id=\"domain-requirements\"></a>\\n\\n## Role and Domain Guidance\\nBefore authoring, identify the user\\'s **task/function**, **role**, **audience** and **industry** separately, then read the relevant guides below. Apply the professional conventions of the work being done; a role or industry label alone does not determine the workbook\\'s structure or formatting.\\n- Use function guidance for the work being done. Financial forecasts, budgets, cash models and valuations use Finance guidance in any industry.\\n- Add industry requirements only when they affect definitions, units, source handling or the workflow. A healthcare company\\'s financial forecast uses Finance guidance; an appointment tracker does not inherit financial-model structure or colors.\\n- Use the user\\'s role and audience to choose useful detail, terminology and outputs, and to resolve ambiguity in the task. Do not apply Finance conventions to an unrelated task just because the user works in Finance. Explicit instructions and templates retain precedence; relevant domain conventions override generic defaults.\\n\\nGuides:\\n- Finance, corporate finance and FP&A, financial modeling, valuation and investment banking: `domain_guidance/financial_models.md`. Read the relevant financial requirements below the shared structure, formula and style rules.\\n- Healthcare: `domain_guidance/healthcare.md`\\n- Marketing and advertising: `domain_guidance/marketing_advertising.md`\\n- Scientific research: `domain_guidance/scientific_research.md`\\n\\n## Create and Edits\\nFor any task that requires modifying or creating a workbook:\\n\\n### Data Formatting Rules\\n- Store numbers, percentages, currency, and dates as typed spreadsheet values, not preformatted strings. Use text only for true identifiers such as ZIP codes, account IDs, SKUs, or labels.\\n- Use Excel-invariant number/date format codes, not locale-specific display strings. Generic numeric examples include `#,##0`, `#,##0.0`, `0.0%`, `0.00%`, `\"$\"#,##0`, `\"$\"#,##0.00`. Preserve source dates and unrelated existing formats.\\n- Percentages: Follow the domain or reference\\'s precision. Otherwise, use 1 decimal for most analytical cells, 0 decimals for dashboard outputs, and 2 decimals where small rate differences matter.\\n- Do not swap `.` and `,` in format codes to mimic locale separators; separators are controlled by spreadsheet/render locale. Use `0.0%`, not `0,0%`, and `#,##0`, not `#.##0`.\\n- Choose the appropriate format for readability. Match precision to meaning: counts use `#,##0`; rates usually use `0.0%` or `0.00%`; currency uses whole units unless cents matter.\\n\\n- For dates in data columns, default to a short date format appropriate to the workbook\\'s language/location, such as `mm/dd/yy` for the US. Follow explicit user preferences and reference/template or domain conventions.\\n\\nKeep underlying dates numeric and sortable. A display format does not change the period represented or authorize aggregation. Fit the final display so dates do not truncate or show `####`.\\n\\n### Verification Rules\\nUse Artifact Tool to verify requested features and results within the authorized changes and their affected dependencies. Match coverage to the scope, complexity and risk. Report unrelated pre-existing defects without repairing them. Reuse checks for unchanged content and keep authoring-only tests out of the delivered workbook.\\n\\nAfter completing all edits, call `workbook.recalculate()` once before the final checks below and export. If you make further edits, recalculate again before repeating affected checks and exporting.\\n```js\\nworkbook.recalculate();\\n```\\n\\n1. Inspect labels, values and formulas in key ranges:\\n```js\\nconst check = await workbook.inspect({\\n  kind: \"table\",\\n  range: \"Dashboard!A1:H20\",\\n  include: \"values,formulas\",\\n  tableMaxRows: 20,\\n  tableMaxCols: 12,\\n});\\nconsole.log(check.ndjson);\\n```\\n\\nCheck what each source row represents, units, reporting periods, and numerators and denominators for rates. Spot-check representative metrics against source data or an independent calculation. Trace headline results through the build to inputs, including named and dynamic references. Confirm the build does useful calculations and does not depend on terminal Checks/Audit. When cases are used, trace each period to its active assumptions. Summary should link to finished results without repeating the build or routing results through Assumptions. An actuals-only historical calibration reference is allowed.\\n\\nCheck formula copying across and down at first, middle and later rows/periods. When the workflow promises extensions, test the next record, period or requested case. Keep notes and overrides tied to stable record IDs after supported sorts or refreshes. Reconcile key totals to independent source controls using the right period aggregation. Apply tolerances appropriate to the units and precision, but compare identifiers, counts and categories exactly. Investigate double-counting or conflicting data and fix confirmed errors within scope.\\n\\n2. Scan formula errors:\\n```js\\nconst errors = await workbook.inspect({\\n  kind: \"match\",\\n  searchTerm: \"#REF!|#DIV/0!|#VALUE!|#NAME\\\\\\\\?|#N/A|#NUM!|#NULL!|#SPILL!|#CALC!\",\\n  options: { useRegex: true, maxResults: 300 },\\n  summary: \"final formula error scan\",\\n});\\nconsole.log(errors.ndjson);\\n```\\n\\nCheck wrong or shifted references and unintended cycles as well as reported errors. Distinguish deliberate missing-data markers from unexpected failures. Trace unavailable results and zero issue counts through their prerequisites: a failed detail calculation must not disappear into a healthy zero or an understated summary.\\n\\n3. Verify applicable recalculation in the intended engine. Test representative input changes and boundaries in a disposable copy or restore every temporary edit before delivery. Include blank versus zero, missing/duplicate keys, period cutoffs, overrides and rounding. For cases, change the selector and a later-period driver. Confirm the same build and linked outputs update while actuals remain unchanged. A blank unselected input must not block a valid active case; selecting that case must expose the missing input. Verify any agreed comparison refresh and stale-state behavior separately. Report any engine checks that could not be performed.\\n\\nFor workflows, check that required human inputs have editable fields and that completion guidance accounts for every prerequisite. Complete one prerequisite while leaving another open and confirm the remaining action stays visible. For input-driven rankings and action lists, change an input that should alter the order or included records and verify the list updates. Verify affected charts, status text, validation and conditional formatting react to edits. A saved value, static matrix or unchanged PASS cell is not recalculation proof.\\n\\n4. Render sheets/ranges to verify visual output. Skip only when the rendered view and its data/formula dependencies are unchanged:\\n```js\\nconst blob = await workbook.render({ sheetName: \"Sheet1\", range: \"A1:H20\", scale: 2 });\\n```\\nFor creation or broad authorized restructuring, visually review every sheet. For a narrow edit, review the changed view and affected dependencies, then compare all tabs with the source for unintended value, formula, object, validation or style changes. Do not repeatedly render unchanged tabs; investigate any scope-preservation failure.\\n\\nInspect at normal zoom with cells unselected. Fix blank/broken charts, low-contrast text, unreadable fonts, clipped headers/numbers, `####`, awkward wrapping, truncated chart labels, default blank sheets and content outside the working area. Check effective cell/chart fonts, fitted row heights and widths, pane boundaries and conditional-format ranges. Logical titles and labels should appear once with a clear layout. Valid check values should stay neutral, with errors and missing inputs visibly distinct. Do not shrink content to force a fit.\\n\\nKeep output compact: avoid arbitrary formula-count checks, assumptions about file storage and huge NDJSON dumps.\\n\\n5. Export:\\n```js\\nawait fs.mkdir(outputDir, { recursive: true });\\nconst output = await SpreadsheetFile.exportXlsx(workbook);\\nawait output.save(`${outputDir}/output.xlsx`);\\n```\\n\\n6. Inspect the saved file when an affected feature or export concern requires it. Verify requested or preserved native features in the intended engine, including any explicitly required Data Table input/output behavior. Check iteration and capture behavior separately when used.\\n\\nFinalize only after successful export and the applicable checks. Report what was performed and any remaining limitations. Formula text, a preview and a successful export do not establish native-application behavior.\\n- Do not export extra `.xlsx` variants unless asked.\\n\\n### Citation Requirements\\nThese are defaults for new workbooks: user instructions, reference/template conventions and domain guidance take precedence. For edits, follow the workbook\u2019s existing citation practices.\\n- Cite real sources when they exist.\\n- Keep citations and sources in one place: an existing input tab (sources or data tab) or in the correct input section in a tab, alongside the input data.\\n- There are two ways to cite a source: \\n  1. (Preferred) Inline in the input tab when the tab exists.\\n    - If there are multiple unique sources (different pages/lines don\\'t count), inline them in an adjacent cell at the table\\'s end, with one column as a buffer, when a table exists\\n    - If there is a single source, just have a single cell above the data, left aligned.\\n  2. (Fallback) Cell note, not a comment/thread, with the citation\\n    Only do this for hardcoded inputs not on a separate input tab, such as an input area on a build sheet. For adjacent cells in the same row or column that come from the same source, do not add duplicate cell notes. Never add citation notes to titles or headers.\\n- If there is no clear place for sources, return sources in chat. Do not add a tab just for citations.\\n- Citation format should follow best practice for domain, default to `(Source: Company 10-K, FY2026, Page 20, Revenue Note, [URL LINK])`\\n- Do not add citations, comments or notes to cover/presentation tabs or output regions unless requested. On a mixed-use sheet, citations may sit beside the input data, outside the output region.\\n- When comments are requested, keep them succinct, minimal and easy to read.\\n- Do not add a different annotation type to a cell that already has one. Update an existing note/comment/thread rather than layering another system over it.\\n- Do not add cell comments unless the user requests them. Preserve existing annotations.\\n\\n## Completion Criteria\\n### Criteria for Question / Read only requests\\n- Answer from the available workbook context. Do not edit or overwrite unless the user asks for a workbook change.\\n\\n### Criteria for all create and edit requests\\nComplete only when:\\n- Content is populated, addresses the user\\'s request, and formulas compute, with no obvious formula errors in key scanned ranges (including bad-reference, off-by-one or circular errors).\\n- `.xlsx` saved to `outputs/<unique_thread_id>/`.\\n- Visual verification passes: organized, legible layout matches requested style or default/existing edit baseline; all important numbers/callouts are visible; numbers, text, charts and content are unclipped without awkward wrapping.\\n- Required controls, charts, panes and requested features exist.\\n\\n## Error Recovery\\nOn first tool or API error:\\n1. Read error text.\\n2. Consult the selected workflow\\'s targeted help or schema discovery only if needed.\\n3. Retry with minimal patch (not full rewrite).\\n4. Continue from existing workbook state.\\n\\nDo not loop indefinitely on similar failures.\\n\\n## Final response citations\\n\\nPlace :codex-file-citation{...} inline in prose without wrapping it in backticks or a code block, not in a trailing list. Use `purpose=\"source\"` for Q&A/no-op and `purpose=\"output\"` for create/edit.\\n\\n- [HARD REQUIREMENT] Create/edit: cite each final workbook exactly once with a plain output citation. Summarize representative changes; do not cite every sheet/range or add a separate filename, path, or Markdown link. Example: `Created :codex-file-citation{path=\"/abs/path/inventory.xlsx\" purpose=\"output\"} with formula-driven status and a summary.`\\n- Q&A: cite whole-workbook claims plainly; otherwise use the narrowest reliable `sheet` + `range` (the exact cell for a discrete value). Cite discontiguous cells separately. For objects, use `sheet` + exact inspected `object_id`; add `object_kind`/`label` only when useful. Never cite a sheet alone or guess locators.\\n- Calculations: cite only distinct inputs, drivers, formulas, or results the answer needs.\\n\\n:codex-file-citation{path=\"/abs/path/book.xlsx\" purpose=\"source\" artifact_kind=\"workbook\" sheet=\"Revenue Model\" range=\"C27\"}\\n\\nNever cite intermediates unless asked.\\n\\n## Comment Author\\n- If the authenticated/user profile or env context provides a user display name, use it as the threaded comment display name unless the user requests another name. Default to `User`.\\n\\n## Source, PDF, and Attachment Processing\\n- For attachment references, include only the file/section/table details needed to locate supporting data. Do not paste large PDF excerpts unless requested.\\n- Bundled Python libraries available in the bundled runtime environment for extraction/analysis include `pandas`, `numpy`, `pypdf`, `python-docx`, and `reportlab`. You may read/extract in separate scripts if needed.\\n- Bundled JS libraries available for document/PDF work include `docx`, `pdf-lib`, and `pdfjs-dist`.\\n', command=\"/bin/zsh -lc 'cat /Users/arhaandesai/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/SKILL.md'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat /Users/arhaandesai/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/SKILL.md', name='SKILL.md', path=LegacyAppPathString(root='/Users/arhaandesai/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/SKILL.md'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-db2276c7-f774-4f04-bfda-a47c79c83fde', plugin_id=None, process_id='6079', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='team,net,state\\nA,3,settled\\nB,-1,settled\\nA,4,settled\\nB,90,pending\\n', command=\"/bin/zsh -lc 'cat transactions.csv'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat transactions.csv', name='transactions.csv', path=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-codex/transactions.csv'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-644a073e-7ea7-4068-9c35-42e0b2afdf3f', plugin_id=None, process_id='18852', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='{\\n  \"A\": 7,\\n  \"B\": -1\\n}\\n\\n', command='/bin/zsh -lc \"python3 -c \\'import csv,json; from decimal import Decimal; from pathlib import Path; totals={}; f=open(\\\\\"transactions.csv\\\\\",newline=\\\\\"\\\\\"); rows=csv.DictReader(f); [(totals.__setitem__(r[\\\\\"team\\\\\"],totals.get(r[\\\\\"team\\\\\"],Decimal(0))+Decimal(r[\\\\\"net\\\\\"]))) for r in rows if r[\\\\\"state\\\\\"]==\\\\\"settled\\\\\"]; f.close(); output=\\\\\"{\\\\\\\\n\\\\\"+\\\\\",\\\\\\\\n\\\\\".join(\\\\\"  \\\\\"+json.dumps(k)+\\\\\": \\\\\"+str(v) for k,v in totals.items())+\\\\\"\\\\\\\\n}\\\\\\\\n\\\\\"; Path(\\\\\"totals.json\\\\\").write_text(output); print(Path(\\\\\"totals.json\\\\\").read_text())\\'\"', command_actions=[CommandAction(root=UnknownCommandAction(command='python3 -c \\'import csv,json; from decimal import Decimal; from pathlib import Path; totals={}; f=open(\"transactions.csv\",newline=\"\"); rows=csv.DictReader(f); [(totals.__setitem__(r[\"team\"],totals.get(r[\"team\"],Decimal(0))+Decimal(r[\"net\"]))) for r in rows if r[\"state\"]==\"settled\"]; f.close(); output=\"{\\\\n\"+\",\\\\n\".join(\"  \"+json.dumps(k)+\": \"+str(v) for k,v in totals.items())+\"\\\\n}\\\\n\"; Path(\"totals.json\").write_text(output); print(Path(\"totals.json\").read_text())\\'', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/table_write_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-600a4c3a-f6fd-474d-9f3b-ee63419979ef', plugin_id=None, process_id='48682', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0066199101e04ea7016aaf8727a58c87d0a3ca64b2ffffcf14', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='SAVED', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "transactions.csv": "team,net,state\nA,3,settled\nB,-1,settled\nA,4,settled\nB,90,pending\n",
+      "totals.json": "{\n  \"A\": 7,\n  \"B\": -1\n}\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "multi_file_variant",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "rules.md": "Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\n",
+      "purchases.json": "[{\"code\": \"A1\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-01-04\"}, {\"code\": \"B2\", \"reviewed\": false, \"risk\": \"low\", \"amount\": 200, \"date\": \"2026-08-01\"}, {\"code\": \"C3\", \"reviewed\": true, \"risk\": \"high\", \"amount\": 100, \"date\": \"2026-09-01\"}, {\"code\": \"D4\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-02-17\"}]"
+    },
+    "prompt": "Read rules.md and purchases.json. Apply every eligibility and ranking rule, and reply with only the winning code.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=13704, output_tokens=6, reasoning_output_tokens=0, total_tokens=13710) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=27111, output_tokens=58, reasoning_output_tokens=0, total_tokens=27169)",
+    "seconds": 10.899,
+    "answer": "D4",
+    "passed": true,
+    "grading": {},
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read rules.md and purchases.json. Apply every eligibility and ranking rule, and reply with only the winning code.', text_elements=[], type='text'))], id='01a0bda7-fdca-7550-be65-a68c6fd510f0', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_03e7b1577e8310d6016aaf872cf80887d0a40af86bdd903176', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read the two files and apply the eligibility and ranking rules.', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\\n[{\"code\": \"A1\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-01-04\"}, {\"code\": \"B2\", \"reviewed\": false, \"risk\": \"low\", \"amount\": 200, \"date\": \"2026-08-01\"}, {\"code\": \"C3\", \"reviewed\": true, \"risk\": \"high\", \"amount\": 100, \"date\": \"2026-09-01\"}, {\"code\": \"D4\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-02-17\"}]', command=\"/bin/zsh -lc 'cat rules.md purchases.json'\", command_actions=[CommandAction(root=UnknownCommandAction(command='cat rules.md purchases.json', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/multi_file_variant-1-codex'), duration_ms=0, exit_code=0, id='exec-9d0ec39c-d7c0-4c75-bd4a-12b2ad20b87a', plugin_id=None, process_id='53206', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_03e7b1577e8310d6016aaf873288e487d0b6e37406a7763517', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='D4', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "purchases.json": "[{\"code\": \"A1\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-01-04\"}, {\"code\": \"B2\", \"reviewed\": false, \"risk\": \"low\", \"amount\": 200, \"date\": \"2026-08-01\"}, {\"code\": \"C3\", \"reviewed\": true, \"risk\": \"high\", \"amount\": 100, \"date\": \"2026-09-01\"}, {\"code\": \"D4\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-02-17\"}]",
+      "rules.md": "Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\n"
+    },
+    "scope_passed": true
+  },
+  {
+    "task": "multi_file_variant",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "696668a812abc5e2f932aee42b87e76c0f426b7b80aaf2bbf8bef42b72aa6134",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "input_files": {
+      "rules.md": "Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\n",
+      "purchases.json": "[{\"code\": \"A1\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-01-04\"}, {\"code\": \"B2\", \"reviewed\": false, \"risk\": \"low\", \"amount\": 200, \"date\": \"2026-08-01\"}, {\"code\": \"C3\", \"reviewed\": true, \"risk\": \"high\", \"amount\": 100, \"date\": \"2026-09-01\"}, {\"code\": \"D4\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-02-17\"}]"
+    },
+    "prompt": "Read rules.md and purchases.json. Apply every eligibility and ranking rule, and reply with only the winning code.",
+    "elapsed_seconds": 8.52,
+    "codex_calls": 1,
+    "jev_calls": 2,
+    "codex_input_tokens": 17617,
+    "codex_output_tokens": 34,
+    "jev_input_tokens": 1910,
+    "provider": "codex",
+    "generation_calls": 1,
+    "generation_input_tokens": 17617,
+    "generation_output_tokens": 34,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read rules.md and purchases.json. Apply every eligibility and ranking rule, and reply with only the winning code.\""
+      },
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"context\", \"confidence\": 0.19, \"probabilities\": {\"context\": 0.59, \"model\": 0.41}}}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/multi_file_variant-1-kestrel/rules.md\", \"evidence_id\": \"f6f0befc11d94d2f\"}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-vrb659ly/multi_file_variant-1-kestrel/purchases.json\", \"evidence_id\": \"c75985d58ea541d8\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"answer\", \"message\": \"D4\", \"actions\": [], \"success_criteria\": [], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "completion_guard",
+        "body": "{\"original_task\": {\"choice\": \"met\", \"confidence\": 0.93, \"probabilities\": {\"not_met\": 0.04, \"unclear\": 0.0, \"met\": 0.96}}, \"answer_support\": {\"choice\": \"supported\", \"confidence\": 0.8, \"probabilities\": {\"unsupported\": 0.1, \"supported\": 0.9}}}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"D4\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 8.52, \"codex_calls\": 1, \"jev_calls\": 2, \"codex_input_tokens\": 17617, \"codex_output_tokens\": 34, \"jev_input_tokens\": 1910, \"provider\": \"codex\", \"generation_calls\": 1, \"generation_input_tokens\": 17617, \"generation_output_tokens\": 34}"
+      }
+    ],
+    "seconds": 8.701,
+    "answer": "D4",
+    "passed": true,
+    "grading": {},
+    "events": [
+      {
+        "seconds": 0.17,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.08,
+        "kind": "decision",
+        "text": "Jev route \u2192 context"
+      },
+      {
+        "seconds": 2.253,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 7.569,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 8.701,
+        "kind": "usage",
+        "text": "8.5s \u00b7 codex 1 calls \u00b7 Jev 2 calls"
+      }
+    ],
+    "artifacts": {
+      "purchases.json": "[{\"code\": \"A1\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-01-04\"}, {\"code\": \"B2\", \"reviewed\": false, \"risk\": \"low\", \"amount\": 200, \"date\": \"2026-08-01\"}, {\"code\": \"C3\", \"reviewed\": true, \"risk\": \"high\", \"amount\": 100, \"date\": \"2026-09-01\"}, {\"code\": \"D4\", \"reviewed\": true, \"risk\": \"low\", \"amount\": 300, \"date\": \"2026-02-17\"}]",
+      "rules.md": "Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\n"
+    },
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  }
+]
