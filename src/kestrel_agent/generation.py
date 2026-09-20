@@ -65,7 +65,8 @@ class HTTPGenerator:
             if key:
                 headers['x-api-key'] = key
         elif key:
-            headers['Authorization'] = 'Bearer ' + key
+            header = self.settings.provider_auth_header
+            headers[header] = 'Bearer ' + key if header == 'authorization' else key
         if self.client is None:
             self.client = httpx.AsyncClient(timeout=self.settings.provider_timeout_seconds, follow_redirects=False)
         response = await self.client.request(method, base + path, headers=headers, json=body)

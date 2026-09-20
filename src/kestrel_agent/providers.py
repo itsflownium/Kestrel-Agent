@@ -13,6 +13,7 @@ from typesafe_sdk import AsyncTypeSafeClient, Choice, RetryPolicy
 
 from .config import Settings, load_secrets, redact
 from .generation import HTTPGenerator
+from .provider_presets import credential_envs
 
 Emit = Callable[[str, str], None]
 
@@ -27,7 +28,7 @@ class Runtime:
     def __init__(self, settings: Settings, workspace: Path, emit: Emit, confirm=None):
         self.settings, self.workspace, self.emit = settings, workspace, emit
         self.generator = HTTPGenerator(settings)
-        self.codex = AsyncCodex(CodexConfig(cwd=str(workspace), env={key: "" for key in {"TYPESAFE_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", settings.provider_api_key_env}}, client_name="kestrel", client_title="Kestrel", client_version="0.1.0"))
+        self.codex = AsyncCodex(CodexConfig(cwd=str(workspace), env={key: "" for key in credential_envs(settings)}, client_name="kestrel", client_title="Kestrel", client_version="0.1.0"))
         self.started = False
         self.confirm = confirm
         self.loop = None
@@ -178,7 +179,7 @@ class Runtime:
                 "sandboxPolicy": self.sandbox_policy(),
                 "timeoutMs": self.settings.command_timeout_seconds * 1000,
                 "outputBytesCap": 64000,
-                "env": {key: None for key in {"TYPESAFE_API_KEY", "OPENAI_API_KEY", "CODEX_API_KEY", "ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", self.settings.provider_api_key_env}},
+                "env": {key: None for key in credential_envs(self.settings)},
             })
         except asyncio.CancelledError:
             await asyncio.shield(self.rpc("command/exec/terminate", {"processId": process_id}))
