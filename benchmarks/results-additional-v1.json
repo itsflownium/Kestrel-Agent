@@ -1,0 +1,301 @@
+[
+  {
+    "task": "decimal",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=4992, input_tokens=13022, output_tokens=5, reasoning_output_tokens=0, total_tokens=13027) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=4992, input_tokens=13022, output_tokens=5, reasoning_output_tokens=0, total_tokens=13027)",
+    "answer": "100",
+    "passed": true,
+    "seconds": 4.241,
+    "events": []
+  },
+  {
+    "task": "decimal",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.24,
+    "codex_calls": 0,
+    "jev_calls": 1,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 434,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"arithmetic\", \"confidence\": 1.0, \"probabilities\": {\"context\": 0.0, \"model\": 0.0, \"arithmetic\": 1.0}}}"
+      }
+    ],
+    "answer": "100",
+    "passed": true,
+    "seconds": 1.401,
+    "events": [
+      {
+        "seconds": 0.194,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.08,
+        "kind": "decision",
+        "text": "Jev route \u2192 arithmetic"
+      },
+      {
+        "seconds": 1.401,
+        "kind": "usage",
+        "text": "1.2s \u00b7 Codex 0 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection_alternative",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.64,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1405,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.0, \"selection\": 1.0, \"context\": 0.0}}, \"candidate\": {\"choice\": \"item_2\", \"confidence\": 0.97, \"probabilities\": {\"item_1\": 0.0, \"item_0\": 0.0, \"NONE\": 0.02, \"item_2\": 0.98, \"item_3\": 0.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.98, \"probabilities\": {\"no\": 0.01, \"yes\": 0.99}}}"
+      }
+    ],
+    "answer": "Selected record:\n\n```json\n{\n  \"name\": \"Maple\",\n  \"storage_gb\": 50,\n  \"users\": 10,\n  \"monthly_price\": 20\n}\n```\n\nSource: /private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-benchmark-_rxbbe7f/selection_alternative-kestrel/candidates.json",
+    "passed": true,
+    "seconds": 1.794,
+    "events": [
+      {
+        "seconds": 0.243,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 0.987,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 0.987,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.794,
+        "kind": "usage",
+        "text": "1.6s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection_alternative",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13259, output_tokens=12, reasoning_output_tokens=0, total_tokens=13271) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=22784, input_tokens=26298, output_tokens=60, reasoning_output_tokens=0, total_tokens=26358)",
+    "answer": "Maple \u2014 $20 per month.",
+    "passed": true,
+    "seconds": 7.999,
+    "events": []
+  },
+  {
+    "task": "no_match",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13259, output_tokens=5, reasoning_output_tokens=0, total_tokens=13264) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=22784, input_tokens=26291, output_tokens=59, reasoning_output_tokens=0, total_tokens=26350)",
+    "answer": "NONE",
+    "passed": true,
+    "seconds": 8.193,
+    "events": []
+  },
+  {
+    "task": "no_match",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 21.61,
+    "codex_calls": 2,
+    "jev_calls": 6,
+    "codex_input_tokens": 30208,
+    "codex_output_tokens": 162,
+    "jev_input_tokens": 4992,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.92, \"probabilities\": {\"context\": 0.02, \"model\": 0.03, \"selection\": 0.95}}, \"candidate\": {\"choice\": \"NONE\", \"confidence\": 1.0, \"probabilities\": {\"NONE\": 1.0, \"item_0\": 0.0, \"item_3\": 0.0, \"item_1\": 0.0, \"item_2\": 0.0}}}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.0, \"met\": 1.0}}}"
+      }
+    ],
+    "answer": "NONE",
+    "passed": true,
+    "seconds": 21.766,
+    "events": [
+      {
+        "seconds": 0.233,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 1.075,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.638,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 14.404,
+        "kind": "plan",
+        "text": "Plan ready"
+      },
+      {
+        "seconds": 14.404,
+        "kind": "planned",
+        "text": "read \u00b7 Read the available plans and their storage capacities."
+      },
+      {
+        "seconds": 14.404,
+        "kind": "planned",
+        "text": "select \u00b7 Select a qualifying plan or determine that none qualify."
+      },
+      {
+        "seconds": 14.487,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 15.373,
+        "kind": "decision",
+        "text": "read \u2192 execute"
+      },
+      {
+        "seconds": 15.373,
+        "kind": "tool",
+        "text": "read_file \u00b7 Read the available plans and their storage capacities."
+      },
+      {
+        "seconds": 15.536,
+        "kind": "output",
+        "text": "1: [{\"name\": \"Birch\", \"storage_gb\": 10, \"users\": 8, \"monthly_price\": 5}, {\"name\": \"Cedar\", \"storage_gb\": 25, \"users\": 5, \"monthly_price\": 12}, {\"name\": \"Maple\", \"storage_gb\": 50, \"users\": 10, \"monthly_price\": 20}, {\"name\": \"Pine\", \"storage_gb\": 30, \"users\": 2, \"monthly_price\": 8}]"
+      },
+      {
+        "seconds": 15.699,
+        "kind": "done",
+        "text": "read \u00b7 completed"
+      },
+      {
+        "seconds": 15.856,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.251,
+        "kind": "decision",
+        "text": "select \u2192 execute"
+      },
+      {
+        "seconds": 16.251,
+        "kind": "tool",
+        "text": "choose \u00b7 Select a qualifying plan or determine that none qualify."
+      },
+      {
+        "seconds": 16.414,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.848,
+        "kind": "done",
+        "text": "select \u00b7 completed"
+      },
+      {
+        "seconds": 17.01,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 17.467,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 21.145,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 21.766,
+        "kind": "usage",
+        "text": "21.6s \u00b7 Codex 2 calls \u00b7 Jev 6 calls"
+      }
+    ]
+  },
+  {
+    "task": "open_ended",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 8.33,
+    "codex_calls": 1,
+    "jev_calls": 1,
+    "codex_input_tokens": 16627,
+    "codex_output_tokens": 78,
+    "jev_input_tokens": 402,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"model\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.99, \"context\": 0.01}}}"
+      }
+    ],
+    "answer": "A list is mutable, so you can add, remove, or replace its elements, while a tuple is immutable after creation. Lists use square brackets, like `[1, 2]`, while tuples typically use parentheses, like `(1, 2)`.",
+    "passed": true,
+    "seconds": 8.487,
+    "events": [
+      {
+        "seconds": 0.154,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 0.914,
+        "kind": "decision",
+        "text": "Jev route \u2192 model"
+      },
+      {
+        "seconds": 1.763,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 8.487,
+        "kind": "usage",
+        "text": "8.3s \u00b7 Codex 1 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "open_ended",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12288, input_tokens=13025, output_tokens=69, reasoning_output_tokens=0, total_tokens=13094) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12288, input_tokens=13025, output_tokens=69, reasoning_output_tokens=0, total_tokens=13094)",
+    "answer": "A list is mutable, meaning you can add, remove, or replace its elements, while a tuple is immutable, so its elements cannot be changed after creation. Lists use square brackets, like `[1, 2, 3]`, while tuples typically use parentheses, like `(1, 2, 3)`.",
+    "passed": true,
+    "seconds": 7.173,
+    "events": []
+  }
+]

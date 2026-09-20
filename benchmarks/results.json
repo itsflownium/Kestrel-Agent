@@ -1,0 +1,217 @@
+[
+  {
+    "task": "arithmetic",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13023, output_tokens=5, reasoning_output_tokens=0, total_tokens=13028) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13023, output_tokens=5, reasoning_output_tokens=0, total_tokens=13028)",
+    "answer": "391",
+    "passed": true,
+    "seconds": 4.645,
+    "events": []
+  },
+  {
+    "task": "arithmetic",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "elapsed_seconds": 1.26,
+    "codex_calls": 0,
+    "jev_calls": 1,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 434,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"arithmetic\", \"confidence\": 1.0, \"probabilities\": {\"model\": 0.0, \"context\": 0.0, \"arithmetic\": 1.0}}}"
+      }
+    ],
+    "answer": "391",
+    "passed": true,
+    "seconds": 1.42,
+    "events": [
+      {
+        "seconds": 0.198,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.111,
+        "kind": "decision",
+        "text": "Jev route \u2192 arithmetic"
+      },
+      {
+        "seconds": 1.42,
+        "kind": "usage",
+        "text": "1.3s \u00b7 Codex 0 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "elapsed_seconds": 1.71,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1808,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.0, \"selection\": 1.0, \"context\": 0.0}}, \"first_field\": {\"choice\": \"field_1\", \"confidence\": 0.99, \"probabilities\": {\"field_0\": 0.0, \"field_3\": 0.0, \"NONE\": 0.0, \"field_1\": 1.0, \"field_2\": 0.0}}, \"second_field\": {\"choice\": \"field_0\", \"confidence\": 0.99, \"probabilities\": {\"field_0\": 1.0, \"field_3\": 0.0, \"NONE\": 0.0, \"field_1\": 0.0, \"field_2\": 0.0}}, \"candidate\": {\"choice\": \"item_1\", \"confidence\": 1.0, \"probabilities\": {\"item_0\": 0.0, \"item_3\": 0.0, \"NONE\": 0.0, \"item_1\": 1.0, \"item_2\": 0.0}}, \"format\": {\"choice\": \"two_fields\", \"confidence\": 1.0, \"probabilities\": {\"model\": 0.0, \"one_field\": 0.0, \"record\": 0.0, \"two_fields\": 1.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.98, \"probabilities\": {\"no\": 0.01, \"yes\": 0.99}}}"
+      }
+    ],
+    "answer": "name: Cedar \u00b7 monthly_price: 12",
+    "passed": true,
+    "seconds": 1.876,
+    "events": [
+      {
+        "seconds": 0.24,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 1.08,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.08,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.876,
+        "kind": "usage",
+        "text": "1.7s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "source_sha256": "bb7f66d4fe4dcd4fd9f41ffa127b91b72769154334d7994fe39c12a1c6a2af8c",
+    "input_records": [
+      {
+        "name": "Birch",
+        "storage_gb": 10,
+        "users": 8,
+        "monthly_price": 5
+      },
+      {
+        "name": "Cedar",
+        "storage_gb": 25,
+        "users": 5,
+        "monthly_price": 12
+      },
+      {
+        "name": "Maple",
+        "storage_gb": 50,
+        "users": 10,
+        "monthly_price": 20
+      },
+      {
+        "name": "Pine",
+        "storage_gb": 30,
+        "users": 2,
+        "monthly_price": 8
+      }
+    ],
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12928, input_tokens=13285, output_tokens=11, reasoning_output_tokens=0, total_tokens=13296) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=25216, input_tokens=26352, output_tokens=56, reasoning_output_tokens=0, total_tokens=26408)",
+    "answer": "Cedar \u2014 $12/month.",
+    "passed": true,
+    "seconds": 8.191,
+    "events": []
+  }
+]

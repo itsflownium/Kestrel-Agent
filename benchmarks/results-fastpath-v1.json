@@ -1,0 +1,93 @@
+[
+  {
+    "task": "arithmetic",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=9984, input_tokens=13686, output_tokens=5, reasoning_output_tokens=0, total_tokens=13691) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=9984, input_tokens=13686, output_tokens=5, reasoning_output_tokens=0, total_tokens=13691)",
+    "answer": "391",
+    "passed": true,
+    "seconds": 4.705,
+    "events": []
+  },
+  {
+    "task": "arithmetic",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.35,
+    "codex_calls": 0,
+    "jev_calls": 1,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 434,
+    "answer": "391",
+    "passed": true,
+    "seconds": 1.503,
+    "events": [
+      {
+        "seconds": 0.211,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.189,
+        "kind": "decision",
+        "text": "Jev route \u2192 arithmetic"
+      },
+      {
+        "seconds": 1.503,
+        "kind": "usage",
+        "text": "1.3s \u00b7 Codex 0 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.71,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1410,
+    "answer": "Selected record:\n\n```json\n{\n  \"name\": \"Cedar\",\n  \"storage_gb\": 25,\n  \"users\": 5,\n  \"monthly_price\": 12\n}\n```\n\nSource: /private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-benchmark-ca5v8iti/selection-kestrel/candidates.json",
+    "passed": true,
+    "seconds": 1.859,
+    "events": [
+      {
+        "seconds": 0.245,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 1.086,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.086,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.859,
+        "kind": "usage",
+        "text": "1.7s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13252, output_tokens=12, reasoning_output_tokens=0, total_tokens=13264) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=17792, input_tokens=26288, output_tokens=57, reasoning_output_tokens=0, total_tokens=26345)",
+    "answer": "Cedar \u2014 $12 per month.",
+    "passed": true,
+    "seconds": 7.925,
+    "events": []
+  }
+]

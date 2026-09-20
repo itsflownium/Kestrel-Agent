@@ -1,0 +1,273 @@
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+import time
+import webbrowser
+from pathlib import Path
+
+import typer
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+
+from . import __version__
+from .config import Settings, atomic_write, check_storage, home, load_secrets, redact
+from .providers import Runtime
+from .store import Store
+
+app = typer.Typer(help="Kestrel · a general-purpose terminal agent", no_args_is_help=False, pretty_exceptions_enable=False)
+auth_app = typer.Typer(help="Manage Codex OAuth and your Jev key.")
+config_app = typer.Typer(help="Configure access, models, budgets, and network settings.")
+workflows_app = typer.Typer(help="Review and manage reusable procedures.")
+app.add_typer(auth_app, name="auth")
+app.add_typer(config_app, name="config")
+app.add_typer(workflows_app, name="workflows")
+console = Console(highlight=False)
+
+
+def emit(kind: str, message: str):
+    console.print(Text(f"  {kind} · {redact(message)}", style="dim"))
+
+
+def launch(workspace: Path, session: str | None = None):
+    from .ui import Terminal
+    load_secrets()
+    settings = Settings.load()
+    store = Store(settings)
+    try:
+        if session:
+            workspace = Path(store.session(session)["workspace"])
+        else:
+            session = store.create(workspace.resolve())
+        asyncio.run(Terminal(settings, workspace.resolve(), store, session).chat())
+    except KeyboardInterrupt:
+        console.print("\nStopped.", style="dim")
+    except Exception as error:
+        console.print(Text(redact(str(error)), style="red"))
+        raise typer.Exit(1)
+    finally:
+        store.close()
+
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context, workspace: Path = typer.Option(Path.cwd(), "--workspace", "-C", exists=True, file_okay=False), version: bool = typer.Option(False, "--version")):
+    if version:
+        console.print(f"Kestrel {__version__}")
+        raise typer.Exit()
+    if ctx.invoked_subcommand is None:
+        launch(workspace)
+
+
+@app.command()
+def chat(workspace: Path = typer.Option(Path.cwd(), "--workspace", "-C", exists=True, file_okay=False)):
+    """Open the interactive terminal interface."""
+    launch(workspace)
+
+
+@app.command()
+def resume(session: str):
+    """Reopen a saved conversation; /continue resumes interrupted work."""
+    launch(Path.cwd(), session)
+
+
+@app.command()
+def sessions():
+    """List saved sessions without contacting a model."""
+    store = Store(Settings.load())
+    try:
+        table = Table("Session", "Created", "Workspace", "Title", box=None)
+        for record in store.sessions():
+            table.add_row(record["id"], time.strftime("%b %d %H:%M", time.localtime(record["created"])), record["workspace"], record["title"])
+        console.print(table)
+    finally:
+        store.close()
+
+
+@app.command()
+def doctor(online: bool = typer.Option(False, "--online", help="Explicitly contact Codex account and Jev model-list endpoints; no generation.")):
+    """Inspect setup. Network checks run only with --online."""
+    load_secrets()
+    settings = Settings.load()
+    used = check_storage(settings)
+    console.print(f"Kestrel {__version__}\nManaged storage: {used / 1_000_000:.1f} MB / {settings.max_storage_bytes / 1_000_000:.0f} MB")
+    console.print(f"Data: {home()}\nAccess: {settings.permission}\nJev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}")
+    if online:
+        async def check():
+            runtime = Runtime(settings, Path.cwd(), emit)
+            try:
+                account = await runtime.account()
+                console.print("Codex: signed in" if account.get("account") else "Codex: run kestrel auth login")
+            finally:
+                await runtime.close()
+            from typesafe_sdk import AsyncTypeSafeClient
+            async with AsyncTypeSafeClient(timeout=20) as client:
+                await client.models.list()
+                console.print("Jev: authenticated")
+        asyncio.run(check())
+
+
+@auth_app.command("login")
+def login():
+    """Sign in using Codex-managed ChatGPT OAuth."""
+    async def run():
+        runtime = Runtime(Settings.load(), Path.cwd(), emit)
+        try:
+            await runtime.start()
+            if (await runtime.account()).get("account"):
+                console.print("Codex is already signed in.")
+                return
+            handle = await runtime.codex.login_chatgpt()
+            console.print(Text("Open this URL to sign in:\n" + handle.auth_url))
+            webbrowser.open(handle.auth_url)
+            result = await handle.wait()
+            if not result.success:
+                raise RuntimeError(result.error or "Sign-in did not complete.")
+            console.print("Codex sign-in complete.", style="green")
+        finally:
+            await runtime.close()
+    asyncio.run(run())
+
+
+@auth_app.command("jev")
+def configure_jev():
+    """Save your Jev key locally using hidden input."""
+    key = typer.prompt("Jev API key", hide_input=True).strip()
+    if not key.startswith("apikey_") or any(c.isspace() for c in key):
+        raise typer.BadParameter("Expected a Jev apikey_ value without whitespace.")
+    home().mkdir(parents=True, exist_ok=True, mode=0o700)
+    atomic_write(home() / "secrets.env", f"TYPESAFE_API_KEY={key}\n")
+    console.print("Jev key saved locally with owner-only file permissions. It was not tested.")
+
+
+@config_app.command("show")
+def config_show():
+    console.print_json(Settings.load().model_dump_json())
+
+
+@config_app.command("set")
+def config_set(key: str, value: str):
+    """Set a configuration value. Lists and booleans use JSON syntax."""
+    settings = Settings.load()
+    if key not in Settings.model_fields:
+        raise typer.BadParameter("Unknown setting. Run kestrel config show.")
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError:
+        parsed = value
+    try:
+        setattr(settings, key, parsed)
+    except Exception as error:
+        raise typer.BadParameter(str(error)) from error
+    settings.save()
+    console.print(Text(f"Saved {key} = {parsed}"))
+
+
+@workflows_app.command("list")
+def workflows_list():
+    store = Store(Settings.load())
+    try:
+        for row in store.db.execute("SELECT id,name,active FROM workflows ORDER BY created DESC"):
+            console.print(Text(f"{row['id']}  {'active' if row['active'] else 'candidate'}  {row['name']}"))
+    finally:
+        store.close()
+
+
+@workflows_app.command("show")
+def workflows_show(workflow: str):
+    store = Store(Settings.load())
+    try:
+        row = store.db.execute("SELECT body FROM workflows WHERE id=?", (workflow,)).fetchone()
+        if not row:
+            raise typer.BadParameter("Unknown workflow ID.")
+        console.print(Text(row[0]))
+    finally:
+        store.close()
+
+
+@workflows_app.command("learn")
+def workflows_learn(session: str):
+    """Use one Codex call to propose a reusable recipe from a completed session."""
+    from .learning import learn_workflow
+    settings = Settings.load()
+    store = Store(settings)
+    try:
+        wid = asyncio.run(learn_workflow(store, settings, session, emit))
+        console.print(f"Candidate saved: {wid}. Review with kestrel workflows show {wid}; activate after testing.")
+    finally:
+        store.close()
+
+
+@workflows_app.command("activate")
+def workflows_activate(workflow: str):
+    """Activate a recipe you have reviewed and tested."""
+    store = Store(Settings.load())
+    try:
+        store.activate(workflow)
+        console.print(f"Activated {workflow}.")
+    finally:
+        store.close()
+
+
+@workflows_app.command("disable")
+def workflows_disable(workflow: str):
+    store = Store(Settings.load())
+    try:
+        store.activate(workflow, False)
+        console.print(f"Disabled {workflow}.")
+    finally:
+        store.close()
+
+
+@app.command("eval")
+def eval_command(dataset: Path = typer.Argument(..., exists=True, dir_okay=False), component: str = typer.Option("verify")):
+    """Explicitly run labeled Jev evaluations. This makes billable Jev requests."""
+    from .engine import GATE_PROMPT, VERIFY_PROMPT
+    from .learning import evaluate, load_examples
+    load_secrets()
+    if component not in {"gate", "verify"}:
+        raise typer.BadParameter("Choose gate or verify.")
+    settings = Settings.load()
+    store = Store(settings)
+    try:
+        template = store.template(component, GATE_PROMPT if component == "gate" else VERIFY_PROMPT)
+        result = asyncio.run(evaluate(settings, load_examples(dataset), template, emit))
+        console.print_json(json.dumps(result))
+    finally:
+        store.close()
+
+
+@app.command("optimize")
+def optimize_command(train: Path = typer.Option(..., exists=True, dir_okay=False), validation: Path = typer.Option(..., exists=True, dir_okay=False), component: str = typer.Option("verify"), budget: int = typer.Option(30, min=1, max=100)):
+    """Explicitly run offline GEPA optimization. Uses Jev and Codex; no task tools."""
+    from .learning import optimize
+    load_secrets()
+    path = optimize(Settings.load(), train, validation, component, budget, emit)
+    console.print(Text(f"Candidate saved for review: {path}\nUse a separate held-out dataset before activation."))
+
+
+@app.command("promote-prompt")
+def promote_prompt(candidate: Path = typer.Argument(..., exists=True, dir_okay=False)):
+    """Activate a reviewed prompt candidate after your own held-out evaluation."""
+    from .engine import GATE_PROMPT, VERIFY_PROMPT
+    data = json.loads(candidate.read_text())
+    if data.get("component") not in {"gate", "verify"} or not isinstance(data.get("instructions"), str):
+        raise typer.BadParameter("Invalid prompt candidate.")
+    if data.get("validation_accuracy", 0) < data.get("baseline_accuracy", 1):
+        raise typer.BadParameter("Candidate regressed on validation and cannot be promoted.")
+    store = Store(Settings.load())
+    try:
+        previous = store.template(data["component"], GATE_PROMPT if data["component"] == "gate" else VERIFY_PROMPT)
+        backup = home() / "candidates" / f"{data['component']}-backup-{int(time.time())}.json"
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write(backup, json.dumps({"component": data["component"], "instructions": previous, "validation_accuracy": 1, "baseline_accuracy": 0}))
+        store.db.execute("INSERT OR REPLACE INTO templates VALUES(?,?,?)", (data["component"], data["instructions"], time.time()))
+        store.db.commit()
+        console.print(Text(f"Activated {data['component']}. Previous version: {backup}"))
+    finally:
+        store.close()
+
+
+if __name__ == "__main__":
+    app()

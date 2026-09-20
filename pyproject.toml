@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kestrel-agent"
+version = "0.1.0"
+description = "A terminal agent combining Codex, Jev, and reusable workflows."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+  "openai-codex==0.154.0",
+  "typesafe-sdk==0.7.0",
+  "rich>=14,<16",
+  "prompt-toolkit>=3.0.50,<4",
+  "typer>=0.16,<1",
+  "pydantic>=2.11,<3",
+  "httpx>=0.28,<1",
+  "python-dotenv>=1.1,<2",
+  "pypdf>=6,<7",
+  "python-docx>=1.2,<2",
+  "openpyxl>=3.1,<4",
+]
+
+[project.optional-dependencies]
+learning = ["gepa==0.1.4"]
+dev = ["pytest>=8,<10", "pytest-asyncio>=1,<2"]
+
+[project.scripts]
+kestrel = "kestrel_agent.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kestrel_agent"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

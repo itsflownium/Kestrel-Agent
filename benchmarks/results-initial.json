@@ -1,0 +1,243 @@
+[
+  {
+    "task": "arithmetic",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=9984, input_tokens=13688, output_tokens=5, reasoning_output_tokens=0, total_tokens=13693) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=9984, input_tokens=13688, output_tokens=5, reasoning_output_tokens=0, total_tokens=13693)",
+    "answer": "391",
+    "passed": true,
+    "seconds": 5.81,
+    "events": []
+  },
+  {
+    "task": "arithmetic",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 6.01,
+    "codex_calls": 1,
+    "jev_calls": 0,
+    "codex_input_tokens": 16584,
+    "codex_output_tokens": 27,
+    "jev_input_tokens": 0,
+    "answer": "391",
+    "passed": true,
+    "seconds": 6.192,
+    "events": [
+      {
+        "seconds": 0.725,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 6.192,
+        "kind": "usage",
+        "text": "6.0s \u00b7 Codex 1 calls \u00b7 Jev 0 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 46.27,
+    "codex_calls": 4,
+    "jev_calls": 8,
+    "codex_input_tokens": 60748,
+    "codex_output_tokens": 722,
+    "jev_input_tokens": 7312,
+    "answer": "Cedar \u2014 12/month, the cheapest qualifying plan (25 GB storage, 5 users) in [candidates.json](/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-benchmark-r7x0dc98/selection-kestrel/candidates.json). The corrected selection succeeded after an initial error. Currency was not specified.",
+    "passed": true,
+    "seconds": 46.433,
+    "events": [
+      {
+        "seconds": 0.851,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 12.848,
+        "kind": "plan",
+        "text": "Read the candidates and select the cheapest plan meeting both requirements."
+      },
+      {
+        "seconds": 12.848,
+        "kind": "planned",
+        "text": "read \u00b7 Read plan names, storage, user limits, and monthly prices."
+      },
+      {
+        "seconds": 12.848,
+        "kind": "planned",
+        "text": "select \u00b7 Select the cheapest qualifying plan from the file."
+      },
+      {
+        "seconds": 12.848,
+        "kind": "planned",
+        "text": "reply \u00b7 Return the selected plan name and monthly price."
+      },
+      {
+        "seconds": 12.987,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 13.952,
+        "kind": "decision",
+        "text": "read \u2192 execute"
+      },
+      {
+        "seconds": 13.952,
+        "kind": "tool",
+        "text": "read_file \u00b7 Read plan names, storage, user limits, and monthly prices."
+      },
+      {
+        "seconds": 14.12,
+        "kind": "output",
+        "text": "1: [{\"name\": \"Birch\", \"storage_gb\": 10, \"users\": 8, \"monthly_price\": 5}, {\"name\": \"Cedar\", \"storage_gb\": 25, \"users\": 5, \"monthly_price\": 12}, {\"name\": \"Maple\", \"storage_gb\": 50, \"users\": 10, \"monthly_price\": 20}, {\"name\": \"Pine\", \"storage_gb\": 30, \"users\": 2, \"monthly_price\": 8}]"
+      },
+      {
+        "seconds": 14.272,
+        "kind": "done",
+        "text": "read \u00b7 completed"
+      },
+      {
+        "seconds": 14.433,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 14.938,
+        "kind": "decision",
+        "text": "select \u2192 execute"
+      },
+      {
+        "seconds": 14.938,
+        "kind": "tool",
+        "text": "choose \u00b7 Select the cheapest qualifying plan from the file."
+      },
+      {
+        "seconds": 15.273,
+        "kind": "warning",
+        "text": "select \u00b7 error \u00b7 choose requires 1\u201364 explicit candidates."
+      },
+      {
+        "seconds": 15.442,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 16.07,
+        "kind": "warning",
+        "text": "More work needed \u00b7 revising the plan"
+      },
+      {
+        "seconds": 16.08,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 30.941,
+        "kind": "plan",
+        "text": "Retry selection with explicit candidates; the previous call supplied text instead of a candidate list."
+      },
+      {
+        "seconds": 30.941,
+        "kind": "planned",
+        "text": "select_fixed \u00b7 Correct the observed candidate-format error and select the cheapest qualifying plan."
+      },
+      {
+        "seconds": 30.941,
+        "kind": "planned",
+        "text": "reply_fixed \u00b7 Return the selected name and monthly price."
+      },
+      {
+        "seconds": 31.029,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 31.835,
+        "kind": "decision",
+        "text": "select_fixed \u2192 execute"
+      },
+      {
+        "seconds": 31.836,
+        "kind": "tool",
+        "text": "choose \u00b7 Correct the observed candidate-format error and select the cheapest qualifying plan."
+      },
+      {
+        "seconds": 31.982,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 32.434,
+        "kind": "done",
+        "text": "select_fixed \u00b7 completed"
+      },
+      {
+        "seconds": 32.583,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 33.021,
+        "kind": "decision",
+        "text": "reply_fixed \u2192 execute"
+      },
+      {
+        "seconds": 33.021,
+        "kind": "tool",
+        "text": "generate \u00b7 Return the selected name and monthly price."
+      },
+      {
+        "seconds": 33.179,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 38.076,
+        "kind": "output",
+        "text": "Cedar \u2014 12/month"
+      },
+      {
+        "seconds": 38.251,
+        "kind": "done",
+        "text": "reply_fixed \u00b7 completed"
+      },
+      {
+        "seconds": 38.411,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 39.161,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 45.412,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 46.433,
+        "kind": "usage",
+        "text": "46.3s \u00b7 Codex 4 calls \u00b7 Jev 8 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=12800, input_tokens=13259, output_tokens=12, reasoning_output_tokens=0, total_tokens=13271) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=17792, input_tokens=26297, output_tokens=61, reasoning_output_tokens=0, total_tokens=26358)",
+    "answer": "Cedar \u2014 $12 per month.",
+    "passed": true,
+    "seconds": 12.56,
+    "events": []
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "task": "arithmetic",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=3968, input_tokens=13690, output_tokens=5, reasoning_output_tokens=0, total_tokens=13695) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=3968, input_tokens=13690, output_tokens=5, reasoning_output_tokens=0, total_tokens=13695)",
+    "answer": "391",
+    "passed": true,
+    "seconds": 6.654,
+    "events": []
+  },
+  {
+    "task": "arithmetic",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.24,
+    "codex_calls": 0,
+    "jev_calls": 1,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 434,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"arithmetic\", \"confidence\": 1.0, \"probabilities\": {\"arithmetic\": 1.0, \"context\": 0.0, \"model\": 0.0}}}"
+      }
+    ],
+    "answer": "391",
+    "passed": true,
+    "seconds": 1.411,
+    "events": [
+      {
+        "seconds": 0.201,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.073,
+        "kind": "decision",
+        "text": "Jev route \u2192 arithmetic"
+      },
+      {
+        "seconds": 1.411,
+        "kind": "usage",
+        "text": "1.2s \u00b7 Codex 0 calls \u00b7 Jev 1 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 1.72,
+    "codex_calls": 0,
+    "jev_calls": 2,
+    "codex_input_tokens": 0,
+    "codex_output_tokens": 0,
+    "jev_input_tokens": 1538,
+    "decisions": [
+      {
+        "kind": "fastpath_decisions",
+        "body": "{\"route\": {\"choice\": \"selection\", \"confidence\": 0.99, \"probabilities\": {\"model\": 0.0, \"selection\": 1.0, \"context\": 0.0}}, \"candidate\": {\"choice\": \"item_1\", \"confidence\": 1.0, \"probabilities\": {\"item_0\": 0.0, \"item_3\": 0.0, \"NONE\": 0.0, \"item_2\": 0.0, \"item_1\": 1.0}}, \"format\": {\"choice\": \"name_price\", \"confidence\": 1.0, \"probabilities\": {\"model\": 0.0, \"name_price\": 1.0, \"name\": 0.0, \"record\": 0.0}}}"
+      },
+      {
+        "kind": "fastpath_verification",
+        "body": "{\"sufficient\": {\"choice\": \"yes\", \"confidence\": 0.95, \"probabilities\": {\"no\": 0.03, \"yes\": 0.97}}}"
+      }
+    ],
+    "answer": "Cedar \u2014 12 per month.",
+    "passed": true,
+    "seconds": 1.89,
+    "events": [
+      {
+        "seconds": 0.247,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 1.105,
+        "kind": "decision",
+        "text": "Jev route \u2192 selection"
+      },
+      {
+        "seconds": 1.106,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 1.89,
+        "kind": "usage",
+        "text": "1.7s \u00b7 Codex 0 calls \u00b7 Jev 2 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13261, output_tokens=12, reasoning_output_tokens=0, total_tokens=13273) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=9984, input_tokens=26301, output_tokens=60, reasoning_output_tokens=0, total_tokens=26361)",
+    "answer": "Cedar \u2014 $12 per month.",
+    "passed": true,
+    "seconds": 9.716,
+    "events": []
+  }
+]
