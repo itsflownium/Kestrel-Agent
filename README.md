@@ -21,7 +21,7 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** initial implementation with limited owner-authorized testing. 71 offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [general-task improvements](benchmarks/INITIAL-CONTEXT.md), [Jev table benchmarks](benchmarks/JEV-TABLES.md), [latest controller tests](benchmarks/RESULT-REUSE.md), [broader workload report](benchmarks/WORKLOADS.md), [next improvements](benchmarks/NEXT-STEPS.md), and [initial comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
+**Status:** initial implementation with limited owner-authorized testing. 100 offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [compact recovery results](benchmarks/COMPACT-RECOVERY.md), [provider setup](docs/PROVIDERS.md), [general-task improvements](benchmarks/INITIAL-CONTEXT.md), [Jev table benchmarks](benchmarks/JEV-TABLES.md), [latest controller tests](benchmarks/RESULT-REUSE.md), [broader workload report](benchmarks/WORKLOADS.md), [next improvements](benchmarks/NEXT-STEPS.md), and [initial comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
@@ -49,7 +49,7 @@ kestrel resume SESSION_ID
 
 ## Providers and per-user sign-in
 
-Inside Kestrel, use `/provider` to select `codex`, `openai-compatible`, or `anthropic`, then enter an endpoint and model ID where applicable. Model IDs are not hardcoded. `/model` shows the active provider/model and Jev key status; missing Jev credentials prompt for hidden input (Enter skips). `/model jev-key` replaces the Jev key, and `/model provider-key` saves the generation provider key.
+Inside Kestrel, use `/provider` or `/provider NAME` to select Codex, OpenAI, DeepSeek, Xiaomi MiMo, Anthropic, Moonshot/Kimi, GLM, Poolside, Groq, Mistral, OpenRouter, or a custom compatible server. Enter an endpoint and model ID where applicable. Startup and provider setup ask for missing provider and Jev keys with hidden input (Enter skips); saved keys are reused. Model IDs are not hardcoded. `/model` shows the active provider/model and Jev key status; missing Jev credentials prompt for hidden input (Enter skips). `/model jev-key` replaces the Jev key, and `/model provider-key` saves the generation provider key.
 
 Each person uses their own credentials:
 
@@ -58,7 +58,7 @@ Each person uses their own credentials:
 - **Anthropic:** select `anthropic`, a model ID available to your account, and your API key. This adapter uses the Messages API, not Claude consumer-account OAuth.
 - **Jev:** each person supplies their own key through `/model` or `kestrel auth jev`.
 
-For example, DeepSeek documents an OpenAI-compatible endpoint at `https://api.deepseek.com`. Choose `openai-compatible` in `/provider`, enter that URL, and use a model ID from your provider account. Custom gateways and local compatible servers use the same adapter. APIs with a different protocol or authentication scheme still need a separate adapter; support for every service/model is not claimed.
+For example, run `kestrel provider deepseek --model YOUR_MODEL_ID`, or use `/provider deepseek` inside Kestrel. `kestrel auth poolside` saves a Poolside key without changing your model. See [all provider presets, endpoints, and key setup](docs/PROVIDERS.md). Custom gateways and local compatible servers use the same adapter. APIs with a different protocol still need a separate adapter; support for every service/model is not claimed.
 
 Provider keys are stored with owner-only permissions in `providers.json` under Kestrel's private data directory, scoped to provider and endpoint. The configured `provider_api_key_env` (default `KESTREL_MODEL_API_KEY`) can override a saved key. Never put an API key directly into `/model MODEL_ID` or a configuration value.
 
@@ -134,7 +134,7 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/sessions`, `/resume ID` | List/reopen sessions |
 | `/continue` | Continue interrupted work |
 | `/model`, `/model ID` | Model selection and Jev credential status |
-| `/provider` | Configure provider, endpoint, and model |
+| `/provider [NAME]` | Configure provider, endpoint, model, and missing keys |
 | `/model jev-key`, `/model provider-key` | Hidden key entry |
 | `/permissions [PROFILE]` | Inspect/change access |
 | `/config` | Inspect settings |

@@ -18,7 +18,7 @@ from .providers import Runtime
 from .store import Store
 
 app = typer.Typer(help="Kestrel · a general-purpose terminal agent", no_args_is_help=False, pretty_exceptions_enable=False)
-auth_app = typer.Typer(help="Manage Codex OAuth and your Jev key.")
+auth_app = typer.Typer(help="Manage Codex OAuth, provider API keys, and your Jev key.")
 config_app = typer.Typer(help="Configure access, models, budgets, and network settings.")
 workflows_app = typer.Typer(help="Review and manage reusable procedures.")
 app.add_typer(auth_app, name="auth")
@@ -132,6 +132,7 @@ def login():
         finally:
             await runtime.close()
     asyncio.run(run())
+    prompt_jev_if_missing()
 
 
 @auth_app.command("jev")
@@ -145,20 +146,86 @@ def configure_jev():
     console.print("Jev key saved locally with owner-only file permissions. It was not tested.")
 
 
-@auth_app.command("provider")
-def configure_provider():
-    """Save an API key for the current provider and endpoint using hidden input."""
-    from .generation import endpoint, save_key
-    settings = Settings.load()
+def prompt_jev_if_missing():
+    load_secrets()
+    if os.environ.get("TYPESAFE_API_KEY"):
+        return
+    key = typer.prompt("Jev API key (Enter skips)", hide_input=True, default="", show_default=False).strip()
+    if not key:
+        return
+    import re
+    if not re.fullmatch(r"apikey_[A-Za-z0-9_]+", key):
+        raise typer.BadParameter("Expected a Jev apikey_ value without whitespace.")
+    home().mkdir(parents=True, exist_ok=True, mode=0o700)
+    atomic_write(home() / "secrets.env", f"TYPESAFE_API_KEY={key}\n")
+    os.environ["TYPESAFE_API_KEY"] = key
+    console.print("Jev key saved privately. No API request was made.")
+
+
+def prompt_provider_key(settings: Settings, *, replace: bool = False):
+    from .generation import api_key, endpoint, save_key
+    from .provider_presets import label
     if settings.provider == "codex":
         console.print("Codex uses OAuth: run kestrel auth login.")
         return
-    console.print(Text(f"Provider: {settings.provider}\nEndpoint: {endpoint(settings)}"))
-    key = typer.prompt("Provider API key", hide_input=True).strip()
-    if not key or any(char.isspace() for char in key):
-        raise typer.BadParameter("Expected a nonempty API key without whitespace.")
+    if not replace and api_key(settings):
+        return
+    console.print(Text(f"Provider: {label(settings)}\nEndpoint: {endpoint(settings)}"))
+    key = typer.prompt("Provider API key (Enter skips)", hide_input=True, default="", show_default=False).strip()
+    if not key:
+        return
+    if any(char.isspace() for char in key):
+        raise typer.BadParameter("Expected an API key without whitespace.")
     save_key(settings, key)
     console.print("Saved privately for this provider and endpoint. No API request was made.")
+
+
+@app.command("providers")
+def list_providers():
+    """List named provider setups; model IDs are chosen by you."""
+    from .provider_presets import PRESETS
+    table = Table("Name", "Provider", "Default endpoint", box=None)
+    for name, preset in PRESETS.items():
+        table.add_row(name, preset.label, preset.base_url or "Codex-managed OAuth")
+    console.print(table)
+
+
+@app.command("provider")
+def select_provider(name: str, model: str | None = typer.Option(None), base_url: str | None = typer.Option(None)):
+    """Select a provider/model and enter missing provider and Jev keys privately."""
+    from .provider_presets import select, label
+    try:
+        candidate = select(Settings.load(), name, base_url=base_url, model=model)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    if candidate.provider != "codex" and not candidate.model:
+        candidate.model = typer.prompt("Model ID").strip()
+        if not candidate.model:
+            raise typer.BadParameter("A model ID is required.")
+    candidate.save()
+    console.print(Text(f"Selected {label(candidate)} / {candidate.model or 'default'}."))
+    prompt_provider_key(candidate)
+    prompt_jev_if_missing()
+
+
+@auth_app.command("provider")
+def configure_provider(name: str | None = typer.Argument(None), base_url: str | None = typer.Option(None)):
+    """Save a named (or current) provider key, then ask for a missing Jev key."""
+    from .provider_presets import select
+    try:
+        settings = select(Settings.load(), name, base_url=base_url) if name else Settings.load()
+        if base_url and not name:
+            settings.provider_base_url = base_url
+        prompt_provider_key(settings, replace=True)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    prompt_jev_if_missing()
+
+
+@auth_app.command("poolside")
+def configure_poolside(base_url: str | None = typer.Option(None)):
+    """Save a Poolside API key without changing the active model."""
+    configure_provider("poolside", base_url)
 
 
 @config_app.command("show")

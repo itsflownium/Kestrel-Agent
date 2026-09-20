@@ -25,6 +25,7 @@ search_files: {path: '.', query, limit: 30}. Literal text search across small te
 query_table: {path, operation: 'sum'|'mean'|'count'|'min'|'max', group_by: column_or_null, value_column: column_or_null, filters: [{column, op: 'eq'|'ne'|'gt'|'gte'|'lt'|'lte', value}]}. Deterministically aggregate CSV or JSON records. Filters are ANDed; eq/ne use exact text, ordered comparisons are numeric. Numeric operations skip invalid amounts and report skipped counts. Returns results mapping groups to decimal strings, plus json_content with numeric JSON values for exact answer reuse. Inspect unknown headers first. Prefer this over generating code for supported table operations.
 write_file: {path, content, expected_sha256: null}. Writes UTF-8 text. Supply prior hash to protect existing files.
 shell: {command: ['executable', 'arg'], cwd: '.'}. An argv array, not shell text; zsh -lc is possible with permission. Exit code is authoritative.
+repair_command: {command: original_argv, failure: '${run}', cwd: '.'}. After a definite command failure, inspects bounded local source/input evidence and prepares minimal corrected arguments using the selected model and stored original request. Returns {ready, command, cwd, reason}; DOES NOT execute a retry. Use after=failure on the failed action, then a separate shell action bound to ${repair.command}, conditional on repair.ready. Prefer this compact preparation over separate discovery/read/generate-wrapper actions for argument errors. Unresolved repairs require clarification or general planning.
 fetch_url: {url}. Fetch a public HTTP(S) page. Private/loopback endpoints excluded.
 mcp: {server, tool, arguments: {}}. Use only tools present in the connected MCP catalog.
 generate: {prompt}. Ask Codex for NEW code, prose, or analysis using task evidence. Returns {content}. Does not execute tools.
@@ -96,6 +97,11 @@ class ToolExecutor:
         if tool == "query_table":
             from .tables import query
             return await asyncio.to_thread(query, self.path(args["path"]), args)
+        if tool == "repair_command":
+            if not self.settings.shell:
+                raise PermissionError("Terminal execution is disabled in configuration.")
+            from .recovery import prepare
+            return await prepare(self, args)
         if tool == "search_files":
             return await asyncio.to_thread(self.search_files, args)
         if tool == "write_file":

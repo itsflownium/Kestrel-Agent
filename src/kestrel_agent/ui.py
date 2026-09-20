@@ -24,6 +24,7 @@ from . import __version__
 from .config import Settings, redact, load_secrets, home, atomic_write
 from .engine import Engine
 from .store import Store
+from .provider_presets import PRESETS, select, label as provider_label
 
 COMMANDS = ["/help", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
@@ -104,7 +105,7 @@ class Terminal:
         info.add_column(style="#8993a7")
         info.add_column(style="#d8dee9", overflow="fold")
         info.add_row("Workspace", workspace)
-        info.add_row("Provider", self.settings.provider)
+        info.add_row("Provider", provider_label(self.settings))
         info.add_row("Models", f"{self.settings.model or 'default'}  +  Jev")
         info.add_row("Access", self.settings.permission)
         self.console.print(Panel(info, title="[bold #8bd5ca]Your workspace[/]", title_align="left",
@@ -169,6 +170,7 @@ class Terminal:
     async def chat(self):
         self.welcome()
         with patch_stdout(raw=True):
+            await self.ensure_keys()
             while True:
                 try:
                     message = (await self.prompt.prompt_async(self.input_prompt)).strip()
@@ -209,7 +211,7 @@ class Terminal:
             for command, meaning in [
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
                 ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List/select model and configure Jev key"),
-                ("/provider", "Choose provider, endpoint, and model"),
+                ("/provider [NAME]", "Choose provider, endpoint, model, and keys"),
                 ("/model jev-key · /model provider-key", "Enter or replace keys privately"),
                 ("/permissions [read-only|workspace|full]", "View or change access profile"),
                 ("/config", "Inspect settings; use kestrel config set KEY VALUE to edit"),
@@ -248,13 +250,13 @@ class Terminal:
                 self.settings.save()
             self.console.print(Text(f"  Profile: {self.settings.permission} · shell confirmation: {self.settings.confirm_shell} · network: {self.settings.network}"))
         elif name == "/provider":
-            await self.configure_provider()
+            await self.configure_provider(argument)
         elif name == "/model":
             if argument in {"jev-key", "provider-key"}:
                 await self.configure_key(argument == "jev-key")
                 return
             load_secrets()
-            self.console.print(Text(f"  Provider: {self.settings.provider} · Model: {self.settings.model or 'default'} · Jev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}"))
+            self.console.print(Text(f"  Provider: {provider_label(self.settings)} · Model: {self.settings.model or 'default'} · Jev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}"))
             self.console.print("  /model jev-key replaces the Jev key; /model provider-key sets the generation API key.", style="dim")
             if not os.environ.get('TYPESAFE_API_KEY'):
                 await self.configure_key(True)
@@ -318,20 +320,27 @@ class Terminal:
             os.environ.pop(self.settings.provider_api_key_env, None)
         self.emit('done', f'{"Jev" if jev else "Provider"} key saved privately. No API request was made.')
 
-    async def configure_provider(self):
+    async def ensure_keys(self):
+        from .generation import api_key
+        load_secrets()
+        if self.settings.provider != "codex" and not api_key(self.settings):
+            await self.configure_key(False)
+        if not os.environ.get("TYPESAFE_API_KEY"):
+            await self.configure_key(True)
+
+    async def configure_provider(self, name: str = ""):
         from .generation import endpoint
-        self.console.print('  Providers: codex (OAuth), openai-compatible (API key/local), anthropic (API key)')
+        self.console.print(Text('  Providers: ' + ', '.join(PRESETS)))
         prompt = PromptSession(history=DummyHistory())
         try:
-            provider = (await prompt.prompt_async('  Provider (Enter cancels): ')).strip()
+            provider = name or (await prompt.prompt_async('  Provider (Enter cancels): ')).strip()
             if not provider:
                 return
-            values = self.settings.model_dump()
-            values.update(provider=provider, provider_base_url=None, model=None)
-            candidate = Settings.model_validate(values)
-            if provider != 'codex':
+            candidate = select(self.settings, provider)
+            if candidate.provider != 'codex':
                 base = (await prompt.prompt_async(f'  Base URL [{endpoint(candidate)}]: ')).strip()
-                candidate.provider_base_url = base or None
+                if base:
+                    candidate.provider_base_url = base
                 endpoint(candidate)
                 candidate.model = (await prompt.prompt_async('  Model ID: ')).strip()
                 if not candidate.model:
@@ -340,6 +349,7 @@ class Terminal:
             candidate.save()
             self.settings = candidate
             self.engine = Engine(candidate, self.workspace, self.store, self.sid, self.emit, self.confirm)
-            self.emit('done', f'Provider set to {provider}. Use /model to configure keys and select models.')
+            self.emit('done', f'Provider set to {provider_label(candidate)}.')
+            await self.ensure_keys()
         except (EOFError, KeyboardInterrupt):
             return

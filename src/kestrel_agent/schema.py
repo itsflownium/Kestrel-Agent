@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-ToolName = Literal["list_files", "read_file", "search_files", "write_file", "shell", "fetch_url", "mcp", "generate", "research", "choose", "read_evidence", "query_table"]
+ToolName = Literal["list_files", "read_file", "search_files", "write_file", "shell", "fetch_url", "mcp", "generate", "research", "choose", "read_evidence", "query_table", "repair_command"]
 
 
 class Action(BaseModel):
@@ -53,7 +53,7 @@ class Plan(BaseModel):
             action.arguments()
             if any(d not in ids or d == action.id for d in action.depends_on):
                 raise ValueError("Invalid dependency.")
-            refs = re.findall(r"\$\{([a-z][a-z0-9_]*)\.", action.arguments_json)
+            refs = re.findall(r"\$\{([a-z][a-z0-9_]*)(?:\.|\})", action.arguments_json)
             if any(ref not in action.depends_on for ref in refs):
                 raise ValueError("Argument references must name a declared dependency.")
         remaining = {a.id: set(a.depends_on) for a in self.actions}

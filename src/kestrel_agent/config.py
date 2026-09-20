@@ -29,7 +29,9 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
     model: str | None = None
     provider: Literal["codex", "openai-compatible", "anthropic"] = "codex"
+    provider_profile: str | None = None
     provider_base_url: str | None = None
+    provider_auth_header: Literal["authorization", "api-key", "x-api-key"] = "authorization"
     provider_api_key_env: str = Field(default="KESTREL_MODEL_API_KEY", pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
     provider_json_mode: Literal["prompt", "json_object", "json_schema"] = "prompt"
     provider_max_tokens: int = Field(default=4096, ge=256, le=65536)

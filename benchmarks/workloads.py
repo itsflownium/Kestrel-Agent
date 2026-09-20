@@ -49,6 +49,8 @@ CASES = [
     {'id':'multi_file_variant','prompt':'Read rules.md and purchases.json. Apply every eligibility and ranking rule, and reply with only the winning code.',
      'files':{'rules.md':'Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\n',
               'purchases.json':json.dumps([{'code':'A1','reviewed':True,'risk':'low','amount':300,'date':'2026-01-04'}, {'code':'B2','reviewed':False,'risk':'low','amount':200,'date':'2026-08-01'}, {'code':'C3','reviewed':True,'risk':'high','amount':100,'date':'2026-09-01'}, {'code':'D4','reviewed':True,'risk':'low','amount':300,'date':'2026-02-17'}])}},
+    {'id':'recovery_two_arguments','prompt':'Run python3 scale.py. If it fails, inspect the program and existing input files, correct the arguments using a factor of 4, and run it successfully. Do not edit files. Report the actual emitted result.',
+     'files':{'scale.py':'import argparse,csv\np=argparse.ArgumentParser()\np.add_argument("--records",required=True)\np.add_argument("--factor",required=True,type=int)\na=p.parse_args()\nwith open(a.records) as f: total=sum(int(r["units"]) for r in csv.DictReader(f))\nprint("VALUE="+str(total*a.factor))\n', 'units.csv':'units\n2\n3\n4\n', 'metadata.json':'{"description":"Not tabular input"}\n'}},
 ]
 
 async def allow(_): return True
@@ -97,6 +99,9 @@ async def grade(case,answer,workspace,runtime,events):
         if case=='recovery_variant':
             output=json.dumps(events)
             return '17' in answer and 'RESULT=17' in output, {'observed_success':'RESULT=17' in output}
+        if case=='recovery_two_arguments':
+            output=json.dumps(events)
+            return '36' in answer and 'VALUE=36' in output, {'observed_success':'VALUE=36' in output}
     except Exception as error:
         return False, {'grader_error':redact(str(error))}
 
