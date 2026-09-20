@@ -18,7 +18,9 @@ from kestrel_agent.store import Store
 
 CASES = [
     {'id':'code_edit', 'prompt':'Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.',
-     'files':{'stats.py':'def mean(values):\n    return sum(values) / len(values)\n'}},
+     'files':{'stats.py':'def mean(values):\n    return sum(values) / len(values)\n'}, 'editable_files':['stats.py']},
+    {'id':'code_edit_variant','prompt':'Fix labels.py: normalize(items) must accept any iterable of strings, trim whitespace, lowercase values, remove empty values, and keep only the first occurrence of each normalized value in original order. Do not mutate the input collection. Edit only labels.py.',
+     'files':{'labels.py':'def normalize(items):\n    return [value.lower() for value in items]\n'}, 'editable_files':['labels.py']},
     {'id':'multi_file', 'prompt':'Read policy.md and releases.json. As of 2026-09-15, which release may be deployed to production? Return only JSON with keys release and reason. Respect every policy requirement.',
      'files':{'policy.md':'Production requires signed=true, channel=stable, and release_date no later than the as-of date. Choose the newest eligible release; use release=null if none.\n',
               'releases.json':json.dumps([{'id':'r21','signed':True,'channel':'stable','release_date':'2026-09-10'}, {'id':'r22','signed':False,'channel':'stable','release_date':'2026-09-14'}, {'id':'r23','signed':True,'channel':'beta','release_date':'2026-09-15'}, {'id':'r24','signed':True,'channel':'stable','release_date':'2026-09-18'}])}},
@@ -44,6 +46,9 @@ CASES = [
     {'id':'table_write_variant','prompt':'Read transactions.csv. Sum net by team for state settled only, then write totals.json with the numeric totals. Reply exactly SAVED after the file is written.',
      'files':{'transactions.csv':'team,net,state\nA,3,settled\nB,-1,settled\nA,4,settled\nB,90,pending\n'},
      'created_files':['totals.json']},
+    {'id':'multi_file_variant','prompt':'Read rules.md and purchases.json. Apply every eligibility and ranking rule, and reply with only the winning code.',
+     'files':{'rules.md':'Eligible purchases must be reviewed=true, risk=low, and amount <= 1000. Among eligible purchases choose the smallest amount. Break equal-amount ties by the latest date.\n',
+              'purchases.json':json.dumps([{'code':'A1','reviewed':True,'risk':'low','amount':300,'date':'2026-01-04'}, {'code':'B2','reviewed':False,'risk':'low','amount':200,'date':'2026-08-01'}, {'code':'C3','reviewed':True,'risk':'high','amount':100,'date':'2026-09-01'}, {'code':'D4','reviewed':True,'risk':'low','amount':300,'date':'2026-02-17'}])}},
 ]
 
 async def allow(_): return True
@@ -63,9 +68,15 @@ async def grade(case,answer,workspace,runtime,events):
             code='import sys; sys.path.insert(0,"."); from stats import mean; assert mean([]) is None; assert mean(iter([])) is None; assert mean((v for v in [2,4,9])) == 5; assert mean([-2,2]) == 0; assert mean([1.5,2.5]) == 2; print("PASS")'
             result=await runtime.command([sys.executable,'-I','-c',code],str(workspace),'grade-code')
             return result.get('exitCode')==0, {'grader':result}
+        if case=='code_edit_variant':
+            code='import sys; sys.path.insert(0,"."); from labels import normalize; xs=[" Aa ","aa","\\t","BB"]; before=xs.copy(); assert normalize(xs)==["aa","bb"]; assert xs==before; assert normalize(iter([" X","y ","X "]))==["x","y"]; assert normalize(iter([]))==[]; print("PASS")'
+            result=await runtime.command([sys.executable,'-I','-c',code],str(workspace),'grade-labels')
+            return result.get('exitCode')==0, {'grader':result}
         if case=='multi_file':
             value=json_answer(answer)
             return value.get('release')=='r21' and bool(value.get('reason')), {'parsed':value}
+        if case=='multi_file_variant':
+            return answer.strip()=='D4', {}
         if case=='csv_totals':
             value=json_answer(answer)
             return numeric_mapping(value,{'EU':41.5,'US':7.0}), {'parsed':value}
@@ -150,7 +161,7 @@ async def main():
                 record['events']=events
                 record['artifacts']={p.name:p.read_text() for p in workspace.iterdir() if p.is_file() and p.stat().st_size<100000}
                 # Scope is part of task quality, independently of answer correctness.
-                unchanged=all(record['artifacts'].get(name)==body for name,body in case['files'].items() if not (case['id']=='code_edit' and name=='stats.py'))
+                unchanged=all(record['artifacts'].get(name)==body for name,body in case['files'].items() if name not in case.get('editable_files',[]))
                 no_extra_files=set(record['artifacts'])==set(case['files']) | set(case.get('created_files',[]))
                 record['scope_passed']=unchanged and no_extra_files
                 record['passed']=record['passed'] and record['scope_passed']

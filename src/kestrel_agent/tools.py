@@ -114,9 +114,17 @@ class ToolExecutor:
             path.parent.mkdir(parents=True, exist_ok=True)
             # Re-resolve immediately before writing to reject changed symlink targets.
             self.path(str(path), write=True)
+            # Approval can take time; a file may have appeared or changed meanwhile.
+            previous_sha256 = None
+            if path.exists():
+                previous_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+                if not args.get("expected_sha256") or previous_sha256 != args["expected_sha256"]:
+                    raise ValueError("File changed before writing. Read it again and supply its current expected_sha256.")
             from .config import atomic_write
             atomic_write(path, content, mode=(path.stat().st_mode & 0o777) if path.exists() else 0o600)
-            return {"path": str(path), "bytes": len(content.encode()), "sha256": hashlib.sha256(content.encode()).hexdigest()}
+            return {"path": str(path), "bytes": len(content.encode()), "sha256": hashlib.sha256(content.encode()).hexdigest(),
+                    "previous_sha256": previous_sha256,
+                    "precondition": "existing content matched expected_sha256" if previous_sha256 else "target did not exist"}
         if tool == "shell":
             if not self.settings.shell:
                 raise PermissionError("Terminal execution is disabled in configuration.")
