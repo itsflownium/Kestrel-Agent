@@ -5,12 +5,13 @@ import json
 import time
 from pathlib import Path
 
-from prompt_toolkit import HTML, PromptSession
+from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.styles import Style
 from rich.console import Console
+from rich import box
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.table import Table
@@ -22,7 +23,12 @@ from .engine import Engine
 from .store import Store
 
 COMMANDS = ["/help", "/new", "/continue", "/sessions", "/resume", "/model", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
-STYLE = Style.from_dict({"prompt": "#8bd5ca bold", "bottom-toolbar": "bg:#20232b #a8acb8", "completion-menu.completion": "bg:#20232b #cdd6f4", "completion-menu.completion.current": "bg:#3a4554 #ffffff"})
+STYLE = Style.from_dict({
+    "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
+    "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
+    "approval": "#f9e2af bold", "completion-menu.completion": "bg:#20232b #cdd6f4",
+    "completion-menu.completion.current": "bg:#3a4554 #ffffff",
+})
 
 
 class Terminal:
@@ -31,6 +37,7 @@ class Terminal:
         self.console = Console(highlight=False)
         self.phase = "ready"
         self.busy = False
+        self.started_at = 0.0
         self.job: asyncio.Task | None = None
         self.pending_approval: asyncio.Future | None = None
         bindings = KeyBindings()
@@ -50,26 +57,68 @@ class Terminal:
         self.prompt = PromptSession(
             completer=WordCompleter(COMMANDS, sentence=True), complete_while_typing=False,
             style=STYLE, key_bindings=bindings,
-            bottom_toolbar=self.toolbar, refresh_interval=0.5,
+            bottom_toolbar=self.toolbar, refresh_interval=0.15,
+            reserve_space_for_menu=4,
         )
         self.engine = Engine(settings, workspace, store, sid, self.emit, self.confirm)
 
     def toolbar(self):
-        return f"  {self.phase}  │  {self.settings.model or 'Codex default'} + Jev  │  {self.settings.permission}  │  Ctrl+C stop · Alt+Enter newline · /help  "
+        if self.pending_approval is not None:
+            status = "◆ Awaiting permission"
+        elif self.busy:
+            spinner = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"[int(time.monotonic() * 8) % 10]
+            elapsed = max(0, int(time.monotonic() - self.started_at))
+            status = f"{spinner} {self.phase} · {elapsed}s"
+        else:
+            status = "● Ready"
+        width = self.console.size.width
+        details = f"  {self.settings.permission}  ·  Ctrl+C stop" if width < 90 else f"  {self.settings.model or 'Codex default'} + Jev  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C stop"
+        return [("class:status", f"  {status}  "), ("", details)]
+
+    def input_prompt(self):
+        width = max(12, min(self.console.size.width - 4, 88))
+        label = "Permission · yes / no" if self.pending_approval is not None else ("Working · Ctrl+C to stop" if self.busy else "Message Kestrel")
+        return [("class:input-border", "\n  " + "─" * width + "\n"),
+                ("class:hint", f"  {label}\n"), ("class:prompt", "  ❯ ")]
 
     def welcome(self):
-        title = Text()
-        title.append("  ◇  K E S T R E L", style="bold #8bd5ca")
-        title.append(f"  v{__version__}\n", style="dim")
-        title.append("     Think deeply. Move lightly.\n\n", style="#a8acb8")
-        title.append("  Codex plans & creates  ·  Jev decides  ·  You control access\n", style="white")
-        title.append(f"  {self.workspace}\n  Session {self.sid}", style="dim")
-        self.console.print(Panel(title, border_style="#374151", padding=(1, 1)))
-        self.console.print("  Ask a question or describe a task. [bold]/help[/bold] for commands.\n", style="dim")
+        width = min(self.console.size.width, 92)
+        self.console.print()
+        brand = Table.grid(padding=(0, 2))
+        brand.add_column(style="bold #8bd5ca", no_wrap=True)
+        brand.add_column()
+        brand.add_row("  ╲  ╱\n   ◇\n  ╱  ╲", Text.assemble(
+            ("KESTREL", "bold #e6edf3"), (f"   v{__version__}\n", "#8993a7"),
+            ("Think deeply. Move lightly.\n", "#a8acb8"),
+            ("Your terminal, with a little more lift.", "#8993a7")))
+        self.console.print(brand)
+        self.console.print()
+        workspace = str(self.workspace)
+        user_home = str(Path.home())
+        if workspace == user_home or workspace.startswith(user_home + "/"):
+            workspace = "~" + workspace[len(user_home):]
+        info = Table.grid(padding=(0, 2))
+        info.add_column(style="#8993a7")
+        info.add_column(style="#d8dee9", overflow="fold")
+        info.add_row("Workspace", workspace)
+        info.add_row("Models", f"{self.settings.model or 'Codex default'}  +  Jev")
+        info.add_row("Access", self.settings.permission)
+        self.console.print(Panel(info, title="[bold #8bd5ca]Your workspace[/]", title_align="left",
+                                 subtitle=f"[dim]session {self.sid}[/dim]", subtitle_align="right",
+                                 width=width, box=box.ROUNDED, border_style="#414b60", padding=(1, 2)))
+        suggestions = Text.assemble(
+            ("  Start anywhere\n", "bold #d8dee9"),
+            ("  Explain a project   ·   Compare documents   ·   Research an idea\n\n", "#8993a7"),
+            ("  /model", "#8bd5ca"), (" choose model    ", "#8993a7"),
+            ("/permissions", "#8bd5ca"), (" access    ", "#8993a7"),
+            ("/help", "#8bd5ca"), (" all commands", "#8993a7"))
+        self.console.print(suggestions)
 
     def emit(self, kind: str, text: str):
         if kind == "output":
-            self.console.print(Panel(Text(redact(text)), border_style="#303642", padding=(0, 1)))
+            self.console.print(Panel(Text(redact(text)), title="[dim]tool output[/dim]", title_align="left",
+                                     width=min(self.console.size.width, 100), box=box.ROUNDED,
+                                     border_style="#303642", padding=(0, 1)))
             return
         symbols = {"model": ("◌", "#a6adc8"), "judge": ("◇", "#8bd5ca"), "plan": ("→", "#c4b5fd"),
                    "planned": ("·", "dim"), "tool": ("↳", "#89b4fa"), "done": ("✓", "#a6e3a1"),
@@ -78,7 +127,7 @@ class Terminal:
             self.console.print(text, end="", markup=False)
             return
         symbol, color = symbols.get(kind, ("·", "white"))
-        if kind in {"model", "judge", "tool"}:
+        if kind in {"model", "judge", "tool", "connecting"}:
             self.phase = text[:65]
         line = Text(f"  {symbol} ", style=color)
         line.append(redact(text))
@@ -96,10 +145,15 @@ class Terminal:
 
     async def work(self, message: str | None):
         self.busy = True
+        self.started_at = time.monotonic()
+        self.phase = "Connecting"
+        self.emit("connecting", "Connecting to Codex · loading available tools")
         try:
             answer = await self.engine.run(message)
             self.console.print()
-            self.console.print(Panel(Markdown(answer), title="Kestrel", title_align="left", border_style="#8bd5ca", padding=(1, 2)))
+            self.console.print(Text("  ◇ Kestrel", style="bold #8bd5ca"))
+            self.console.print(Panel(Markdown(answer), width=min(self.console.size.width, 100),
+                                     box=box.ROUNDED, border_style="#414b60", padding=(1, 2)))
         except asyncio.CancelledError:
             self.emit("warning", "Stopped. /continue resumes the task; /status shows its checkpoint.")
         except Exception as error:
@@ -113,7 +167,7 @@ class Terminal:
         with patch_stdout(raw=True):
             while True:
                 try:
-                    message = (await self.prompt.prompt_async(HTML('<prompt>  ❯ </prompt>'))).strip()
+                    message = (await self.prompt.prompt_async(self.input_prompt)).strip()
                 except (EOFError, KeyboardInterrupt):
                     break
                 if not message:
