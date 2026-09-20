@@ -10,8 +10,8 @@
 4. Resolve `${action_id.field}` in code; enforce access; save in-flight checkpoints.
 5. Parallelize independent reads. Serialize effects and generation.
 6. Store originals with evidence IDs; include bounded excerpts in prompts. Retrieve omitted detail through `read_evidence`.
-7. Check explicit criteria with Jev. Errors override optimistic judgments. Replan when necessary.
-8. Generate a grounded answer and check its claims about execution. Unsupported claims trigger a bounded revision.
+7. Check the original task and explicit criteria with Jev. Unresolved errors require replanning; a definite failure may be considered recovered only when subsequent execution evidence supports it.
+8. If a completed tool result is the entire requested answer, Jev may approve returning it directly. Otherwise generate a grounded answer and check its claims about execution. Unsupported claims trigger a bounded revision.
 
 Arguments are JSON strings inside the strict plan schema because arbitrary tool-specific objects otherwise require enumerating every connected schema. They are decoded as JSON, validated by the selected tool, and never evaluated as code. Commands use argv arrays.
 
@@ -60,3 +60,11 @@ Completion criteria now cover the original user request as well as the latest pl
 Final-answer-only criteria can be deferred until generation, then checked in the final support/format review. Missing tool work cannot be deferred as presentation. The single-record fast path is unavailable when the request names multiple source files.
 
 `query_table` is a permission-checked read tool over bounded CSV/JSON inputs. Operations and comparisons are enumerated; columns and filter values come from the request/plan. It never evaluates code. Decimal values are returned as strings with precision/rounding metadata, and invalid/missing rows are counted. Existing file/size limits and the operation's stricter row/group limits bound execution.
+
+## Verified result reuse and failure branches
+
+Plans can declare `final_response_ref`, a whole-value reference to a declared action. The controller requires successful execution, binds the value without evaluation, and limits the candidate to 12,000 characters. Jev checks the original task, all completion criteria, and exact candidate formatting in one batch. Only a supported candidate can bypass final generation; missing fields, rejection, or incomplete work fall back to the existing generation/replanning path. Table results provide `json_content` with numeric JSON values without converting Decimal totals to binary floats.
+
+Actions default to `after=success`. `after=failure` runs a recovery branch after a definite dependency error, while `after=completion` permits inspection after either outcome. Skipped branches propagate skips instead of creating spurious errors. Uncertain outcomes do not enable an automatic failure retry; completion actions directly dependent on uncertain outcomes are restricted to read tools. Existing uncertain-effect fingerprint checks remain in place.
+
+Evidence now includes the executing tool, bound argument excerpts, and execution status alongside results. Older checkpoints without these fields remain readable. This gives Jev more execution context, but command arguments alone do not prove absence of side effects. The live recovery benchmark still shows unnecessary work, so minimal repair and broader interruption testing remain unfinished.

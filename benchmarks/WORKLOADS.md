@@ -1,5 +1,7 @@
 # Broader workload comparison — September 20, 2026
 
+For the newer result-reuse, failure-branch, and changed-input experiments, see [the follow-up report](RESULT-REUSE.md).
+
 The initial broader suite exposed a completion failure and substantial overhead on several general tasks. Kestrel initially passed 4/5 tasks; direct Codex passed 5/5. After targeted fixes, Kestrel and Codex each passed all four retested tasks. The coding task passed in the initial run and was not rerun after the controller changes. These results do not establish general superiority.
 
 Both arms used GPT-6-Astra with medium reasoning, the same account/SDK, identical isolated workspace fixtures, and workspace-scoped access. Kestrel additionally used Jev. Task execution is timed end-to-end; independent grading and cleanup are excluded. Model API access remained available; task instructions prohibited outside data and network work. Each trial used a fresh workspace, thread, and Kestrel session. Arm order alternated by task.

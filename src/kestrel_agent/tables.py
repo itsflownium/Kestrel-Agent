@@ -97,5 +97,6 @@ def _query(path: Path, args: dict) -> dict:
         # Preserve decimal precision in evidence rather than silently rounding to binary floats.
         results[key]=format(result,'f')
     return {'results':results,'operation':operation,'group_by':group,'value_column':value,
+            'json_content':'{' + ','.join(json.dumps(key) + ':' + val for key,val in results.items()) + '}',
             'source_rows':len(rows),'matched_rows':matched,'invalid_numeric_rows_skipped':invalid,
             'missing_group_rows_skipped':missing_group,'numeric_encoding':'decimal strings','path':str(path)}

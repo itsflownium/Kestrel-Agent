@@ -28,6 +28,17 @@ CASES = [
      'files':{'summarize.py':'import argparse, json\np=argparse.ArgumentParser()\np.add_argument("--input", required=True)\na=p.parse_args()\nprint("TOTAL=" + str(sum(json.load(open(a.input)))))\n', 'numbers.json':'[7, 13, 22]\n'}},
     {'id':'ambiguous_selection','prompt':'Read options.json. Select the cheapest option with capacity at least 20. If two or more eligible options tie for cheapest, reply with exactly TIE. Otherwise reply with only its code.',
      'files':{'options.json':json.dumps([{'code':'P7','capacity':25,'price':9},{'code':'K2','capacity':30,'price':9},{'code':'Z1','capacity':10,'price':2}])}},
+    {'id':'table_mean_variant','prompt':'Read readings.json. For records where accepted is yes and minutes is at least 2, calculate the mean of reading by station. Exclude invalid numeric readings. Return only a JSON object mapping station to numeric mean.',
+     'files':{'readings.json':json.dumps([
+         {'station':'North','reading':'1.2','accepted':'yes','minutes':2},
+         {'station':'North','reading':'2.8','accepted':'yes','minutes':4},
+         {'station':'North','reading':'bad','accepted':'yes','minutes':3},
+         {'station':'South','reading':'-3','accepted':'yes','minutes':2},
+         {'station':'South','reading':'7','accepted':'yes','minutes':5},
+         {'station':'South','reading':'100','accepted':'no','minutes':8},
+         {'station':'North','reading':'80','accepted':'yes','minutes':1}])}},
+    {'id':'recovery_variant','prompt':'Run python3 calculate.py. If it fails, inspect the program and correct the arguments using the existing input file, then run it successfully. Do not edit files. Report the actual emitted result.',
+     'files':{'calculate.py':'import argparse, json\np=argparse.ArgumentParser()\np.add_argument("--source", required=True)\na=p.parse_args()\nprint("RESULT=" + str(sum(json.load(open(a.source))["values"])))\n', 'batch.json':'{"values":[-4, 8, 13]}\n'}},
 ]
 
 async def allow(_): return True
@@ -50,11 +61,17 @@ async def grade(case,answer,workspace,runtime,events):
         if case=='csv_totals':
             value=json_answer(answer)
             return value=={'EU':41.5,'US':7.0}, {'parsed':value}
+        if case=='table_mean_variant':
+            value=json.loads(answer)
+            return value=={'North':2,'South':2}, {'parsed':value}
         if case=='ambiguous_selection':
             return answer.strip()=='TIE', {}
         if case=='tool_recovery':
             output=json.dumps(events)
             return '42' in answer and 'TOTAL=42' in output, {'observed_success':'TOTAL=42' in output}
+        if case=='recovery_variant':
+            output=json.dumps(events)
+            return '17' in answer and 'RESULT=17' in output, {'observed_success':'RESULT=17' in output}
     except Exception as error:
         return False, {'grader_error':redact(str(error))}
 
@@ -116,6 +133,13 @@ async def main():
                     await runtime.close()
                 record['events']=events
                 record['artifacts']={p.name:p.read_text() for p in workspace.iterdir() if p.is_file() and p.stat().st_size<100000}
+                # Scope is part of task quality, independently of answer correctness.
+                unchanged=all(record['artifacts'].get(name)==body for name,body in case['files'].items() if not (case['id']=='code_edit' and name=='stats.py'))
+                no_extra_files=set(record['artifacts'])==set(case['files'])
+                record['scope_passed']=unchanged and no_extra_files
+                record['passed']=record['passed'] and record['scope_passed']
+                if arm=='kestrel':
+                    record['verified_result_reuses']=sum(row['kind']=='verified_result_reuse' for row in record.get('trace',[]))
                 results.append(record)
                 Path(args.output).write_text(json.dumps(results,indent=2))
                 print('RESULT',json.dumps({k:v for k,v in record.items() if k in {'task','arm','seconds','passed','error','generation_calls','jev_calls','answer','grading'}}),flush=True)
