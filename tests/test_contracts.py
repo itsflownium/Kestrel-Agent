@@ -1,4 +1,4 @@
-"""Offline checks prepared for later authorization; not run during build."""
+"""Offline controller, binding, and permission checks."""
 
 import json
 
@@ -63,3 +63,11 @@ def test_storage_cannot_exceed_three_gb():
 
 def test_tokens_are_redacted():
     assert "apikey_" not in redact("example apikey_fake_test_value")
+
+
+def test_json_candidates_bind_as_values(tmp_path):
+    candidates = [{"name": "Cedar", "price": 12}]
+    (tmp_path / "candidates.json").write_text(json.dumps(candidates))
+    tools = ToolExecutor(Settings(), tmp_path, None, None, None, "test", None)
+    observation = tools.read_file({"path": "candidates.json"})
+    assert bind({"options": "${read.data}"}, {"read": observation}) == {"options": candidates}

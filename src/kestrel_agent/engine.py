@@ -118,6 +118,8 @@ Action condition is 'always' unless a single factual condition really changes wh
 Do not invent tool names, credentials, account access, or missing values.
 Use choose when semantic selection among existing candidates is needed: Jev will make the choice.
 Use generate to create arbitrary text/code. Include relevant dependency content in its prompt.
+Do not add a generate action just to summarize results or reply: the controller already generates a final answer.
+For JSON candidate files, read_file returns parsed data. Bind choose.options to ${{read.data}} using the actual read action ID, not to numbered content text.
 For existing-file edits, read first, then write_file with the observed SHA256.
 Tools that modify external state must respect the original user request and current permissions.
 If feedback says an action failed or has unknown outcome, investigate before repeating it.

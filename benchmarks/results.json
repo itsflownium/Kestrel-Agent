@@ -1,0 +1,158 @@
+[
+  {
+    "task": "arithmetic",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13690, output_tokens=5, reasoning_output_tokens=0, total_tokens=13695) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=0, input_tokens=13690, output_tokens=5, reasoning_output_tokens=0, total_tokens=13695)",
+    "answer": "391",
+    "passed": true,
+    "seconds": 4.524,
+    "events": []
+  },
+  {
+    "task": "arithmetic",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 5.17,
+    "codex_calls": 1,
+    "jev_calls": 0,
+    "codex_input_tokens": 17073,
+    "codex_output_tokens": 27,
+    "jev_input_tokens": 0,
+    "answer": "391",
+    "passed": true,
+    "seconds": 5.321,
+    "events": [
+      {
+        "seconds": 0.803,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 5.321,
+        "kind": "usage",
+        "text": "5.2s \u00b7 Codex 1 calls \u00b7 Jev 0 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "kestrel",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "elapsed_seconds": 20.08,
+    "codex_calls": 2,
+    "jev_calls": 4,
+    "codex_input_tokens": 35364,
+    "codex_output_tokens": 241,
+    "jev_input_tokens": 3524,
+    "answer": "Cedar \u2014 12 per month.",
+    "passed": true,
+    "seconds": 20.227,
+    "events": [
+      {
+        "seconds": 0.806,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 11.434,
+        "kind": "plan",
+        "text": "Read the candidates and select the cheapest plan meeting both minimums."
+      },
+      {
+        "seconds": 11.434,
+        "kind": "planned",
+        "text": "read \u00b7 Read available plans and their prices, storage, and user limits."
+      },
+      {
+        "seconds": 11.434,
+        "kind": "planned",
+        "text": "select \u00b7 Select the lowest-priced qualifying plan."
+      },
+      {
+        "seconds": 11.558,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 12.479,
+        "kind": "decision",
+        "text": "read \u2192 execute"
+      },
+      {
+        "seconds": 12.479,
+        "kind": "tool",
+        "text": "read_file \u00b7 Read available plans and their prices, storage, and user limits."
+      },
+      {
+        "seconds": 12.63,
+        "kind": "output",
+        "text": "1: [{\"name\": \"Birch\", \"storage_gb\": 10, \"users\": 8, \"monthly_price\": 5}, {\"name\": \"Cedar\", \"storage_gb\": 25, \"users\": 5, \"monthly_price\": 12}, {\"name\": \"Maple\", \"storage_gb\": 50, \"users\": 10, \"monthly_price\": 20}, {\"name\": \"Pine\", \"storage_gb\": 30, \"users\": 2, \"monthly_price\": 8}]"
+      },
+      {
+        "seconds": 12.776,
+        "kind": "done",
+        "text": "read \u00b7 completed"
+      },
+      {
+        "seconds": 12.928,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 13.302,
+        "kind": "decision",
+        "text": "select \u2192 execute"
+      },
+      {
+        "seconds": 13.302,
+        "kind": "tool",
+        "text": "choose \u00b7 Select the lowest-priced qualifying plan."
+      },
+      {
+        "seconds": 13.454,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 13.933,
+        "kind": "done",
+        "text": "select \u00b7 completed"
+      },
+      {
+        "seconds": 14.084,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 14.617,
+        "kind": "warning",
+        "text": "More work needed \u00b7 revising the plan"
+      },
+      {
+        "seconds": 14.627,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 20.227,
+        "kind": "usage",
+        "text": "20.1s \u00b7 Codex 2 calls \u00b7 Jev 4 calls"
+      }
+    ]
+  },
+  {
+    "task": "selection",
+    "arm": "codex",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=4992, input_tokens=13258, output_tokens=12, reasoning_output_tokens=0, total_tokens=13270) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=9984, input_tokens=26298, output_tokens=57, reasoning_output_tokens=0, total_tokens=26355)",
+    "answer": "Cedar \u2014 $12 per month.",
+    "passed": true,
+    "seconds": 9.241,
+    "events": []
+  }
+]

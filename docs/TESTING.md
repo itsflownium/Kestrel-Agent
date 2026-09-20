@@ -1,6 +1,6 @@
 # Owner-controlled acceptance guide
 
-**Not executed.** These steps are for when the owner authorizes testing. No automatic test workflow is configured.
+The owner authorized testing on September 20, 2026. Nine offline checks pass. Terminal startup, `/help`, and exit were exercised in a PTY with isolated session storage. Live arithmetic and file-selection comparisons ran using GPT-6-Astra medium and Jev. See `benchmarks/README.md` for results and limitations. The remaining checklist below is not yet fully executed. No automatic test workflow is configured.
 
 ## Local checks
 

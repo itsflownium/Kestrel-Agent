@@ -20,7 +20,7 @@ from .store import Store
 
 CATALOG = """
 list_files: {path: '.', pattern: '*', limit: 100}. Returns files relative to workspace. Skips hidden/vendor directories.
-read_file: {path, start_line: 1, max_lines: 200}. Text, PDF, DOCX, XLSX supported. Returns content and source path.
+read_file: {path, start_line: 1, max_lines: 200}. Text, PDF, DOCX, XLSX supported. Returns content and source path. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
 search_files: {path: '.', query, limit: 30}. Literal text search across small text files.
 write_file: {path, content, expected_sha256: null}. Writes UTF-8 text. Supply prior hash to protect existing files.
 shell: {command: ['executable', 'arg'], cwd: '.'}. An argv array, not shell text; zsh -lc is possible with permission. Exit code is authoritative.
@@ -200,7 +200,13 @@ class ToolExecutor:
         start = max(0, int(args.get("start_line", 1)) - 1)
         count = min(max(1, int(args.get("max_lines", 200))), 1000)
         excerpt = "\n".join(f"{i+1}: {line}" for i, line in enumerate(lines[start:start+count], start))[:40000]
-        return {"path": str(path), "content": excerpt, "total_lines": len(lines), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        result = {"path": str(path), "content": excerpt, "total_lines": len(lines), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        if suffix == ".json" and len(text) <= 40000:
+            try:
+                result["data"] = json.loads(text)
+            except json.JSONDecodeError:
+                pass
+        return result
 
     def search_files(self, args: dict) -> dict:
         query = str(args["query"])

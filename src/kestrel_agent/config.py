@@ -29,7 +29,7 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
     model: str | None = None
     effort: Literal["low", "medium", "high"] = "low"
-    jev_model: str = "jev-1.13"
+    jev_model: str = "jev-latest"
     permission: Literal["read-only", "workspace", "full"] = "workspace"
     readable_roots: list[str] = []
     writable_roots: list[str] = []
