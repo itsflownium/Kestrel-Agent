@@ -1,0 +1,17 @@
+# Typed workflow templates
+
+Templates are explicit reusable plans, separate from learned Markdown recipes. They use JSON Schema to validate parameters, typed parameter substitution, the regular tool argument contracts, and the existing dependency scheduler. They do not bypass permissions, completion checks, recovery, or model/Jev review.
+
+```sh
+kestrel workflows install examples/workflows/read-document.json
+kestrel workflows templates
+kestrel workflows preview read-document '{"path":"notes.md"}'
+```
+
+In chat: `/workflow preview read-document {"path":"notes.md"}` or `/workflow run read-document {"path":"notes.md"}`. Run shows the compiled plan and asks for confirmation before executing it. Individual tool permissions still apply. The template hash is recorded with the session. No automatic replay or behavioral certification is implied by installation.
+
+A version-1 template contains `name`, `description`, `parameters`, `actions`, `success_criteria`, optional `completion_checks`, and optional `final_response_ref`. Parameters must use an object JSON Schema with `additionalProperties: false`. External schema references are rejected. In action `arguments`, an object exactly equal to `{"$param":"name"}` is replaced with that typed parameter. No string interpolation, shell evaluation, or generated code is used for substitution. Tools and dependencies are fixed by the template. Standard `${action.field}` references continue to bind prior tool results.
+
+Completion checks accept a typed `expected` value, converted to the existing `expected_json` contract, and may bind a parameter as their source path. The compiled plan is validated before any action runs. Runtime repair can still replan under the original task and retained completion contracts; this is an agent workflow, not a guarantee of executing only a fixed script.
+
+Tests are deferred at the user's request. Structural compilation is not proof of behavioral quality. Templates need review and later evaluation before routine use.

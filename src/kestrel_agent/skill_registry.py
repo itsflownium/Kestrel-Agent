@@ -14,7 +14,7 @@ import yaml
 
 from .config import home, atomic_write
 
-RESERVED = {'help', 'new', 'continue', 'sessions', 'resume', 'model', 'provider', 'permissions', 'config', 'tools', 'status', 'clear', 'exit', 'mode', 'skills', 'details', 'cancel', 'setup', 'connections'}
+RESERVED = {'help', 'new', 'continue', 'sessions', 'resume', 'model', 'provider', 'permissions', 'config', 'tools', 'status', 'clear', 'exit', 'mode', 'skills', 'details', 'cancel', 'setup', 'connections', 'workflow'}
 MAX_FILE = 64000
 
 

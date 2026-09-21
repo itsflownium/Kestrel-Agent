@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "read-document",
+  "description": "Read a document and summarize its main points with source-grounded evidence.",
+  "parameters": {"type": "object", "properties": {"path": {"type": "string", "minLength": 1}}, "required": ["path"], "additionalProperties": false},
+  "actions": [{"id": "source", "tool": "read_file", "arguments": {"path": {"$param": "path"}}, "depends_on": [], "purpose": "Read the requested source document", "condition": "always"}],
+  "success_criteria": ["The requested document was read and the response summarizes only observed content, disclosing truncation."],
+  "completion_checks": []
+}
