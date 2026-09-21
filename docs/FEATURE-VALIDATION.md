@@ -32,3 +32,7 @@ Fixed ignored nonzero cleanup exit codes, retained unresolved container names fo
 ## HTTP provider fault contracts
 
 51 provider/generation tests pass after rejecting malformed response objects, malformed messages/content blocks, explicit refusals and unexpected tool calls, and invalid token counters. HTTP redirects remain disabled even if an injected client enables them, and invalid JSON errors do not echo response bodies. These are protocol fixtures, not live conformance claims for every named provider. Missing usage still maps to zero in the existing adapter and must not be interpreted as a verified zero cost.
+
+## Final regression and standard-mode checkpoint
+
+After provider fault handling, Docker cleanup, and Mac shortcut fixes: **319 tests passed in 73.14 seconds**. Standard Kestrel (zero Jev calls) and native Astra medium both passed two small coding repair repetitions. All four retained implementations passed 500 further randomized cases each. Standard browser smoke passed in 71.867 seconds, compared with the retained native baseline at 66.379 seconds. See `benchmarks/STANDARD-QUALITY-SEP22.md` and `COMPLETION-AUDIT-SEP22.md` for scope and remaining gaps; the overall goal is not declared complete.
