@@ -13,11 +13,16 @@ SIGNATURE = '''el => ({tag: el.tagName.toLowerCase(), role: el.getAttribute('rol
     href: el.getAttribute('href'), disabled: !!el.disabled, readonly: !!el.readOnly})'''
 
 
+class FrameObservationChanged(ValueError):
+    pass
+
+
 class BrowserAdapter:
     def __init__(self, *, headless=False):
         self.headless = headless
         self.driver = self.browser = self.context = None
         self.pages, self.observations = {}, {}
+        self.revisions = {}
         self.lock = asyncio.Lock()
 
     async def start(self):
@@ -48,7 +53,13 @@ class BrowserAdapter:
             return
         key = uuid.uuid4().hex[:10]
         self.pages[key] = page
-        page.on('framenavigated', lambda frame: self.observations.pop(key, None) if frame == page.main_frame else None)
+        self.revisions[key] = 0
+        def invalidate(frame):
+            self.revisions[key] += 1
+            if key in self.observations:
+                self.observations[key]['token'] = None
+        for event in ('frameattached', 'framenavigated', 'framedetached'):
+            page.on(event, invalidate)
         page.on('close', lambda: self.observations.pop(key, None))
         # Dialogs cannot silently block later operations; report via subsequent state.
         page.on('dialog', lambda dialog: dialog.dismiss())
@@ -73,46 +84,97 @@ class BrowserAdapter:
             self.register(page)
             tab = next(key for key, value in self.pages.items() if value == page)
             await page.goto(url, wait_until='domcontentloaded', timeout=30000)
-            return await self._snapshot(tab)
+            return await self._observe(tab)
 
     async def snapshot(self, tab):
         async with self.lock:
-            return await self._snapshot(tab)
+            return await self._observe(tab)
 
     async def screenshot(self, tab):
         async with self.lock:
-            state = await self._snapshot(tab)
+            state = await self._observe(tab)
             data = await self.page(tab).screenshot(type='png', full_page=False, timeout=10000)
             from .vision import validate_image
             image = validate_image(data, 'image/png')
             return state, image
 
+    async def _observe(self, tab):
+        # Read-only retries handle ordinary frame loading without repeating effects.
+        for attempt in range(3):
+            try:
+                return await self._snapshot(tab)
+            except FrameObservationChanged:
+                if attempt == 2:
+                    raise
+
     async def _snapshot(self, tab):
         page = self.page(tab)
         old = self.observations.pop(tab, None)
         if old:
-            for handle, _ in old['targets'].values():
-                await handle.dispose()
-        targets, visible = {}, []
-        handles = await page.query_selector_all('a,button,input,textarea,select,[role="button"],[role="link"],[contenteditable="true"]')
-        for index, handle in enumerate(handles):
-            if len(visible) >= 150:
-                await handle.dispose()
-                continue
-            if not await handle.is_visible():
-                await handle.dispose()
-                continue
-            signature = await handle.evaluate(SIGNATURE)
-            key = 'e' + str(index + 1)
-            targets[key] = (handle, signature)
-            visible.append({'target': key, **signature})
+            await self._dispose(old['targets'])
+        revision = self.revisions[tab]
+        targets, visible, frames, parts = {}, [], [], []
+        truncated, text_truncated, text_size = False, False, 0
+        candidates = list(page.frames)
+        try:
+            async with asyncio.timeout(20):
+                for index, frame in enumerate(candidates[:20]):
+                    if not await self._frame_visible(frame):
+                        continue
+                    fid = 'f' + str(index)
+                    frames.append({'frame': fid, 'url': frame.url, 'name': frame.name})
+                    text = await frame.locator('body').inner_text(timeout=2000)
+                    part = ('' if frame == page.main_frame else f'\n[Frame {fid}: {frame.url}]\n') + text
+                    remaining = max(0, 16000 - text_size)
+                    parts.append(part[:remaining])
+                    text_size += min(len(part), remaining)
+                    text_truncated |= len(part) > remaining
+                    handles = await frame.query_selector_all('a,button,input,textarea,select,[role="button"],[role="link"],[contenteditable="true"]')
+                    try:
+                        for handle in handles:
+                            if len(visible) >= 150:
+                                truncated = True
+                                break
+                            if not await handle.is_visible():
+                                continue
+                            signature = await handle.evaluate(SIGNATURE)
+                            key = 'e' + str(len(visible) + 1)
+                            targets[key] = (handle, signature, frame, frame.url)
+                            visible.append({'target': key, 'frame': fid, **signature})
+                    finally:
+                        retained = {entry[0] for entry in targets.values()}
+                        await asyncio.gather(*(h.dispose() for h in handles if h not in retained), return_exceptions=True)
+                title = await page.title()
+                if self.revisions[tab] != revision:
+                    raise FrameObservationChanged('Page frames changed during observation. Inspect again.')
+        except BaseException as error:
+            await self._dispose(targets)
+            if isinstance(error, Exception) and self.revisions.get(tab) != revision:
+                raise FrameObservationChanged('Page frames changed during observation. Inspect again.') from error
+            raise
         token = uuid.uuid4().hex
         self.observations[tab] = {'token': token, 'url': page.url, 'targets': targets}
-        text = await page.locator('body').inner_text(timeout=10000)
-        return {'tab': tab, 'observation': token, 'url': page.url, 'title': await page.title(),
-                'text': text[:16000], 'text_truncated': len(text) > 16000, 'targets': visible,
-                'targets_may_be_truncated': len(handles) > 150,
-                'scope': 'Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation.'}
+        return {'tab': tab, 'observation': token, 'url': page.url, 'title': title,
+                'text': ''.join(parts), 'text_truncated': text_truncated, 'targets': visible,
+                'frames': frames, 'frames_truncated': len(candidates) > 20,
+                'targets_may_be_truncated': truncated,
+                'scope': 'Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions.'}
+
+    async def _dispose(self, targets):
+        await asyncio.gather(*(entry[0].dispose() for entry in targets.values()), return_exceptions=True)
+
+    async def _frame_visible(self, frame):
+        while frame.parent_frame is not None:
+            if frame.is_detached():
+                return False
+            element = await frame.frame_element()
+            try:
+                if not await element.is_visible():
+                    return False
+            finally:
+                await element.dispose()
+            frame = frame.parent_frame
+        return not frame.is_detached()
 
     async def act(self, tab, observation, target, operation, value=''):
         if operation not in {'click', 'fill', 'select', 'press'}:
@@ -129,9 +191,11 @@ class BrowserAdapter:
             entry = snapshot['targets'].get(target)
             if entry is None:
                 raise ValueError('Target was not in this observation.')
-            handle, signature = entry
-            if not await handle.evaluate('el => el.isConnected') or not await handle.is_visible() or await handle.evaluate(SIGNATURE) != signature:
+            handle, signature, frame, frame_url = entry
+            if frame.is_detached() or frame.url != frame_url or not await self._frame_visible(frame) or not await handle.evaluate('el => el.isConnected') or not await handle.is_visible() or await handle.evaluate(SIGNATURE) != signature:
                 raise ValueError('Target changed. Inspect the current page again.')
+            if snapshot['token'] != observation:
+                raise ValueError('Stale observation. Inspect the current page again.')
             # Consume the observation before dispatch; ambiguous failures must not replay it.
             self.observations.pop(tab, None)
             try:
@@ -144,9 +208,8 @@ class BrowserAdapter:
                 else:
                     await handle.press(value, timeout=10000)
             finally:
-                for old_handle, _ in snapshot['targets'].values():
-                    await old_handle.dispose()
-            return await self._snapshot(tab)
+                await self._dispose(snapshot['targets'])
+            return await self._observe(tab)
 
     async def close(self):
         try:
@@ -158,6 +221,7 @@ class BrowserAdapter:
             self.driver = self.browser = self.context = None
             self.pages.clear()
             self.observations.clear()
+            self.revisions.clear()
 
 
 def create_browser_server(port=8931, headless=False):
@@ -181,7 +245,7 @@ def create_browser_server(port=8931, headless=False):
         return await adapter.tabs()
     @server.tool()
     async def browser_snapshot(tab: str) -> dict[str, Any]:
-        """Read current main-frame text and targets. Old observation IDs become invalid."""
+        """Read current text and targets across visible frames. Old observation IDs become invalid."""
         return await adapter.snapshot(tab)
     @server.tool()
     async def browser_screenshot(tab: str):
