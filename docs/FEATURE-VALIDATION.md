@@ -40,3 +40,7 @@ After provider fault handling, Docker cleanup, and Mac shortcut fixes: **319 tes
 ## Image-input checkpoint
 
 Bounded image validation/cache and the inspect_image tool now send actual pixels through the selected model protocol. Five new tests and an expanded real MCP transport test pass; full suite **324 passed in 70.97 seconds**. A live Astra medium smoke correctly read a random green-button label from the retained `benchmarks/vision-fixture.png`; one generation call, zero Jev calls. The first attempt to run the loopback test under the restricted shell failed at socket binding; it passed under the loopback-enabled test invocation. Native desktop actions and broad visual competence remain unverified.
+
+## Experimental native desktop boundary
+
+App-scoped macOS Accessibility observation/press/fill tools and a bearer-authenticated localhost MCP server are implemented. Nine adapter tests plus general feature checks: 21 passed. The actual macOS permission query returned false; the denial path was tested without changing permissions or inspecting personal apps. Real app interaction remains unvalidated. See DESKTOP.md for limits and setup. The requested deadline elapsed before full native validation; this is not marked as complete or superior.
