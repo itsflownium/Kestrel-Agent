@@ -52,3 +52,9 @@ Nine new cases execute the copy-text template through the actual dependency sche
 The first complete regression invocation omitted the development Chromium path: 331 passed and two browser-launch tests failed because the default cache lacked the executable. With the matching runtime configured, the final complete suite passed **342 tests in 133.28 seconds**, including real Chromium, MCP transport, PTY interaction, native adapter contracts and workflow artifacts. Command: `PLAYWRIGHT_BROWSERS_PATH=/tmp/kestrel-browser-runtime python -m pytest -q`.
 
 `uv build` produced both the source distribution and wheel successfully. Wheel inspection confirmed all 13 bundled skills and the desktop/vision modules. This validates packaging and the covered regression paths; live Docker, live native desktop interaction, external-provider conformance and broad superiority remain unverified.
+
+## Learned-recipe provenance
+
+Learned recipes now record their source session, state/trace/recipe hashes and source completion-check outcomes. Pending/failed checks and unresolved actions prevent learning before a provider call. Manual activation is explicitly unverified planning guidance; source observations are not certification on new inputs. Legacy recipes migrate without losing their content or active state and display missing provenance honestly.
+
+Full suite: **351 passed in 142.47 seconds**. Subsequent focused checks cover a strengthened legacy migration case and an additional real CLI-output test: **10 provenance tests passed**. After updating planner guidance, provenance/evidence checks also passed (20 tests). The extra CLI test was added after full-suite collection and is not included in the 351 count. Independent skill/workflow behavioral certification and automatic promotion remain incomplete.

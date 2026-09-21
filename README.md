@@ -151,6 +151,8 @@ kestrel workflows activate WORKFLOW_ID
 kestrel workflows disable WORKFLOW_ID
 ```
 
+Learned recipes retain their source session, hashes of the captured state and model-visible trace, recipe hash, and recorded completion-check outcomes. Failed/pending checks and unresolved actions prevent learning. These observations do not independently validate a reusable recipe. `show` exposes the provenance; `activate` enables **unverified planning guidance**, not automatic execution or behavioral certification. Older recipes without recorded provenance are explicitly labeled unverified.
+
 The installer includes the learning extra. Minimal installs can use `uv pip install -e .` and add `.[learning]` later.
 
 Datasets use JSONL rows with `state`, `question`, `options` (label-to-description object), and `expected` (one label). See `examples/decisions.jsonl`.

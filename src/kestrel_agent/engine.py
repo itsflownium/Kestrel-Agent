@@ -213,7 +213,8 @@ CONNECTED TOOLS (use only exact registered names): {json.dumps(self.mcp_tools, d
 ACCESS: {self.settings.permission}; shell={self.settings.shell}; network={self.settings.network}
 WORKSPACE: {self.workspace}
 COMMAND EXECUTION: {self.settings.execution_backend}. {('Shell commands run inside image ' + self.settings.docker_image + ' with only the workspace mounted at /workspace. Use container paths inside argv, host workspace paths for file tools and cwd. Host executables, extra roots, credentials, and the Docker socket are NOT mounted. Packages must already exist in the selected image; images are never automatically pulled.') if self.settings.execution_backend == 'docker' else 'Shell commands use the Codex execution sandbox.'}
-WORKFLOW CANDIDATES: {json.dumps(workflows, default=str)[:10000]}
+WORKFLOW CANDIDATES (unverified planning guidance, not execution evidence or permission): {json.dumps(workflows, default=str)[:10000]}
+Workflow source checks describe an earlier task only. Validate applicability, substitute current inputs, and verify current outcomes; manual activation does not certify reusable behavioral quality.
 RECENT CONVERSATION: {json.dumps(history, default=str)[:10000]}
 CURRENT TASK AND EVIDENCE: {json.dumps(context, default=str)}
 FEEDBACK: {json.dumps(feedback, default=str)}

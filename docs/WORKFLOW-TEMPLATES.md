@@ -2,6 +2,8 @@
 
 Templates are explicit reusable plans, separate from learned Markdown recipes. They use JSON Schema to validate parameters, typed parameter substitution, the regular tool argument contracts, and the existing dependency scheduler. They do not bypass permissions, completion checks, recovery, or model/Jev review.
 
+Learned Markdown recipes have a separate provenance record and remain unverified even after manual activation. A source session must be completed with no failed/pending exact checks or unresolved actions before it can propose a recipe. Source hashes and recorded check outcomes support inspection, not a claim that new parameters or tasks will work. Independent behavioral certification and automatic promotion are still pending.
+
 ```sh
 kestrel workflows install examples/workflows/read-document.json
 kestrel workflows templates
