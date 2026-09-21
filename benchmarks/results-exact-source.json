@@ -1,0 +1,947 @@
+[
+  {
+    "task": "stale_write",
+    "fixture_revision": 2,
+    "harness_sha256": "cea333b4d505dd82f3e21b20701abeb390ae30da6270fd73ad914e2f28402c93",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "410663f4805e97940bd05053e3f8c7499a17312fb8435e8734e84cd84439690b",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "memo.txt": "original\n",
+      "refresh.py": "from pathlib import Path\nPath(\"memo.txt\").write_text(\"upstream change\\n\")\nprint(\"UPSTREAM_REFRESH_COMPLETE\")\n"
+    },
+    "prompt": "Read memo.txt, then run python3 refresh.py to simulate an upstream change. After that, append exactly reviewed followed by one newline to the updated memo.txt, without adding a blank line or losing the upstream changes. Edit only memo.txt. Reply exactly DONE.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13952, input_tokens=14383, output_tokens=5, reasoning_output_tokens=0, total_tokens=14388) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13952, input_tokens=28487, output_tokens=152, reasoning_output_tokens=0, total_tokens=28639)",
+    "seconds": 11.385,
+    "answer": "DONE",
+    "passed": true,
+    "grading": {
+      "saved_content": "upstream change\nreviewed\n",
+      "observed_refresh": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "original\n"
+      },
+      {
+        "exit_code": 0,
+        "stdout": "UPSTREAM_REFRESH_COMPLETE\n"
+      },
+      {
+        "exit_code": 0,
+        "stdout": "upstream change\nreviewed\n"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read memo.txt, then run python3 refresh.py to simulate an upstream change. After that, append exactly reviewed followed by one newline to the updated memo.txt, without adding a blank line or losing the upstream changes. Edit only memo.txt. Reply exactly DONE.', text_elements=[], type='text'))], id='01a0c38e-f674-7ae1-90cc-cc158c5273e3', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_05736c23385d5ffd016ab109fba82087d0aba8cac2eec8f334', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read the memo, run the refresh, then append the requested line to the updated file.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='original\\n', command=\"/bin/zsh -lc 'cat memo.txt'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat memo.txt', name='memo.txt', path=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/stale_write-1-codex/memo.txt'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/stale_write-1-codex'), duration_ms=0, exit_code=0, id='exec-7bb094b9-23aa-485b-88ab-9c02e176b1b6', plugin_id=None, process_id='91094', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='UPSTREAM_REFRESH_COMPLETE\\n', command=\"/bin/zsh -lc 'python3 refresh.py'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 refresh.py', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/stale_write-1-codex'), duration_ms=0, exit_code=0, id='exec-242d0914-a6a3-496f-8d5e-cdeabf3f5533', plugin_id=None, process_id='19353', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='upstream change\\nreviewed\\n', command='/bin/zsh -lc \"python3 - <<\\'PY\\'\\nfrom pathlib import Path\\np = Path(\\'memo.txt\\')\\nwith p.open(\\'ab\\') as f:\\n    f.write(b\\'reviewed\\\\\\\\n\\')\\nprint(p.read_text(), end=\\'\\')\\nPY\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"python3 - <<'PY'\\nfrom pathlib import Path\\np = Path('memo.txt')\\nwith p.open('ab') as f:\\n    f.write(b'reviewed\\\\n')\\nprint(p.read_text(), end='')\\nPY\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/stale_write-1-codex'), duration_ms=0, exit_code=0, id='exec-fc66274c-7493-4e4a-a5cc-3d7d9395b7b8', plugin_id=None, process_id='45997', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_05736c23385d5ffd016ab10a01ea1087d0b5f93fcced8a0c68', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='DONE', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "refresh.py": "from pathlib import Path\nPath(\"memo.txt\").write_text(\"upstream change\\n\")\nprint(\"UPSTREAM_REFRESH_COMPLETE\")\n",
+      "memo.txt": "upstream change\nreviewed\n"
+    },
+    "workspace_before": {
+      "memo.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 9,
+        "sha256": "25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218"
+      },
+      "refresh.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 109,
+        "sha256": "4d520120b7118856941d81bff128291a2f01b4047bf5239f280fc765e058cde7"
+      }
+    },
+    "workspace_after": {
+      "memo.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 25,
+        "sha256": "8d4af7371c78a3cef8c89658786cde6d9ee24b028c9a8572c9d942f4aa304943"
+      },
+      "refresh.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 109,
+        "sha256": "4d520120b7118856941d81bff128291a2f01b4047bf5239f280fc765e058cde7"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "stale_write",
+    "fixture_revision": 2,
+    "harness_sha256": "cea333b4d505dd82f3e21b20701abeb390ae30da6270fd73ad914e2f28402c93",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "410663f4805e97940bd05053e3f8c7499a17312fb8435e8734e84cd84439690b",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "memo.txt": "original\n",
+      "refresh.py": "from pathlib import Path\nPath(\"memo.txt\").write_text(\"upstream change\\n\")\nprint(\"UPSTREAM_REFRESH_COMPLETE\")\n"
+    },
+    "prompt": "Read memo.txt, then run python3 refresh.py to simulate an upstream change. After that, append exactly reviewed followed by one newline to the updated memo.txt, without adding a blank line or losing the upstream changes. Edit only memo.txt. Reply exactly DONE.",
+    "elapsed_seconds": 21.49,
+    "codex_calls": 2,
+    "jev_calls": 5,
+    "codex_input_tokens": 33009,
+    "codex_output_tokens": 266,
+    "jev_input_tokens": 12519,
+    "provider": "codex",
+    "generation_calls": 2,
+    "generation_input_tokens": 33009,
+    "generation_output_tokens": 266,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.065176
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.006314
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.016289
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.107291
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.012082
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 11.414824,
+          "first_output_seconds": 3.938365
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 22535,
+          "schema_bytes": 1532,
+          "queue_seconds": 3.8e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 18264,
+            "output_tokens": 261,
+            "cached_input_tokens": 11776,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 11.557033
+        },
+        {
+          "stage": "tool",
+          "tool": "shell",
+          "action": "refresh",
+          "status": "completed",
+          "seconds": 0.209753
+        },
+        {
+          "stage": "tool",
+          "tool": "read_file",
+          "action": "updated",
+          "status": "completed",
+          "seconds": 0.078189
+        },
+        {
+          "stage": "tool",
+          "tool": "write_file",
+          "action": "append",
+          "status": "completed",
+          "seconds": 0.103013
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.096911
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010024
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 3.790536,
+          "first_output_seconds": 3.651452
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 6400,
+          "schema_bytes": 0,
+          "queue_seconds": 1.6e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 14745,
+            "output_tokens": 5,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 3.897678
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 2804,
+          "question_bytes": 750,
+          "status": "completed",
+          "seconds": 1.043219
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 3904,
+          "question_bytes": 750,
+          "status": "completed",
+          "seconds": 0.302228
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 5384,
+          "question_bytes": 748,
+          "status": "completed",
+          "seconds": 0.264849
+        },
+        {
+          "stage": "jev",
+          "questions": 4,
+          "state_bytes": 6350,
+          "question_bytes": 2804,
+          "status": "completed",
+          "seconds": 0.307239
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 6100,
+          "question_bytes": 412,
+          "status": "completed",
+          "seconds": 0.276228
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 11776,
+    "generation_cache_write_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read memo.txt, then run python3 refresh.py to simulate an upstream change. After that, append exactly reviewed followed by one newline to the updated memo.txt, without adding a blank line or losing the upstream changes. Edit only memo.txt. Reply exactly DONE.\""
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"read_file\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/stale_write-1-kestrel/memo.txt\", \"evidence_id\": \"429cb59dd8f1486d\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Refresh memo.txt, then append the exact requested text while preserving its updated contents. Reply exactly DONE after success.\", \"actions\": [{\"id\": \"refresh\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"refresh.py\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Run the requested upstream change after the initial read already observed.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"updated\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"memo.txt\\\"}\", \"depends_on\": [\"refresh\"], \"purpose\": \"Read the updated memo and its current SHA256.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"append\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"memo.txt\\\",\\\"content\\\":\\\"${updated.raw_text}reviewed\\\\n\\\",\\\"expected_sha256\\\":\\\"${updated.sha256}\\\"}\", \"depends_on\": [\"updated\"], \"purpose\": \"Preserve updated contents and append reviewed followed by exactly one newline.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"python3 refresh.py exits successfully.\", \"memo.txt is written using the freshly observed SHA256 with its updated raw text followed immediately by reviewed\\\\n.\", \"No other file is directly edited.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"refresh\": {\"choice\": \"execute\", \"confidence\": 0.98, \"probabilities\": {\"execute\": 0.99, \"skip\": 0.0, \"need_context\": 0.01}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"refresh\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"2d196fa41893406f\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"updated\": {\"choice\": \"execute\", \"confidence\": 0.92, \"probabilities\": {\"execute\": 0.94, \"skip\": 0.01, \"need_context\": 0.05}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"updated\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"acdb6289598c42c9\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"append\": {\"choice\": \"execute\", \"confidence\": 0.96, \"probabilities\": {\"execute\": 0.97, \"need_context\": 0.01, \"skip\": 0.02}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"append\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"c4cfbcf6f63b4587\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"unclear\": 0.0, \"response_pending\": 0.01, \"met\": 0.99, \"not_met\": 0.0}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.74, \"probabilities\": {\"unclear\": 0.0, \"met\": 0.8, \"response_pending\": 0.03, \"not_met\": 0.17}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.55, \"probabilities\": {\"unclear\": 0.26, \"response_pending\": 0.03, \"met\": 0.67, \"not_met\": 0.04}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.68, \"probabilities\": {\"unclear\": 0.01, \"met\": 0.78, \"not_met\": 0.21}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 0.84, \"probabilities\": {\"unsupported\": 0.1, \"unclear\": 0.01, \"supported\": 0.89}}, \"attempt\": 1}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"DONE\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 21.49, \"codex_calls\": 2, \"jev_calls\": 5, \"codex_input_tokens\": 33009, \"codex_output_tokens\": 266, \"jev_input_tokens\": 12519, \"provider\": \"codex\", \"generation_calls\": 2, \"generation_input_tokens\": 33009, \"generation_output_tokens\": 266, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.065176}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.006314}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.016289}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.107291}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.012082}, {\"stage\": \"turn_stream\", \"seconds\": 11.414824, \"first_output_seconds\": 3.938365}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 22535, \"schema_bytes\": 1532, \"queue_seconds\": 3.8e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 18264, \"output_tokens\": 261, \"cached_input_tokens\": 11776, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 11.557033}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"refresh\", \"status\": \"completed\", \"seconds\": 0.209753}, {\"stage\": \"tool\", \"tool\": \"read_file\", \"action\": \"updated\", \"status\": \"completed\", \"seconds\": 0.078189}, {\"stage\": \"tool\", \"tool\": \"write_file\", \"action\": \"append\", \"status\": \"completed\", \"seconds\": 0.103013}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.096911}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010024}, {\"stage\": \"turn_stream\", \"seconds\": 3.790536, \"first_output_seconds\": 3.651452}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 6400, \"schema_bytes\": 0, \"queue_seconds\": 1.6e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 14745, \"output_tokens\": 5, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 3.897678}], \"decisions\": [{\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 2804, \"question_bytes\": 750, \"status\": \"completed\", \"seconds\": 1.043219}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 3904, \"question_bytes\": 750, \"status\": \"completed\", \"seconds\": 0.302228}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 5384, \"question_bytes\": 748, \"status\": \"completed\", \"seconds\": 0.264849}, {\"stage\": \"jev\", \"questions\": 4, \"state_bytes\": 6350, \"question_bytes\": 2804, \"status\": \"completed\", \"seconds\": 0.307239}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 6100, \"question_bytes\": 412, \"status\": \"completed\", \"seconds\": 0.276228}]}, \"generation_cached_input_tokens\": 11776, \"generation_cache_write_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 21.651,
+    "answer": "DONE",
+    "passed": true,
+    "grading": {
+      "saved_content": "upstream change\nreviewed\n",
+      "observed_refresh": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "UPSTREAM_REFRESH_COMPLETE\n"
+      }
+    ],
+    "events": [
+      {
+        "seconds": 1.068,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 12.691,
+        "kind": "plan",
+        "text": "Refresh memo.txt, then append the exact requested text while preserving its updated contents. Reply exactly DONE after success."
+      },
+      {
+        "seconds": 12.691,
+        "kind": "planned",
+        "text": "refresh \u00b7 Run the requested upstream change after the initial read already observed."
+      },
+      {
+        "seconds": 12.691,
+        "kind": "planned",
+        "text": "updated \u00b7 Read the updated memo and its current SHA256."
+      },
+      {
+        "seconds": 12.691,
+        "kind": "planned",
+        "text": "append \u00b7 Preserve updated contents and append reviewed followed by exactly one newline."
+      },
+      {
+        "seconds": 12.823,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 13.971,
+        "kind": "decision",
+        "text": "refresh \u2192 execute"
+      },
+      {
+        "seconds": 13.971,
+        "kind": "tool",
+        "text": "shell \u00b7 Run the requested upstream change after the initial read already observed."
+      },
+      {
+        "seconds": 14.278,
+        "kind": "output",
+        "text": "UPSTREAM_REFRESH_COMPLETE\n"
+      },
+      {
+        "seconds": 14.481,
+        "kind": "done",
+        "text": "refresh \u00b7 completed"
+      },
+      {
+        "seconds": 14.652,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 15.058,
+        "kind": "decision",
+        "text": "updated \u2192 execute"
+      },
+      {
+        "seconds": 15.148,
+        "kind": "tool",
+        "text": "read_file \u00b7 Read the updated memo and its current SHA256."
+      },
+      {
+        "seconds": 15.306,
+        "kind": "output",
+        "text": "1: upstream change"
+      },
+      {
+        "seconds": 15.455,
+        "kind": "done",
+        "text": "updated \u00b7 completed"
+      },
+      {
+        "seconds": 15.638,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.006,
+        "kind": "decision",
+        "text": "append \u2192 execute"
+      },
+      {
+        "seconds": 16.006,
+        "kind": "tool",
+        "text": "write_file \u00b7 Preserve updated contents and append reviewed followed by exactly one newline."
+      },
+      {
+        "seconds": 16.387,
+        "kind": "done",
+        "text": "append \u00b7 completed"
+      },
+      {
+        "seconds": 16.6,
+        "kind": "judge",
+        "text": "Jev \u00b7 4 decisions"
+      },
+      {
+        "seconds": 17.111,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 21.009,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 21.651,
+        "kind": "usage",
+        "text": "21.5s \u00b7 codex 2 calls \u00b7 Jev 5 calls"
+      }
+    ],
+    "artifacts": {
+      "refresh.py": "from pathlib import Path\nPath(\"memo.txt\").write_text(\"upstream change\\n\")\nprint(\"UPSTREAM_REFRESH_COMPLETE\")\n",
+      "memo.txt": "upstream change\nreviewed\n"
+    },
+    "workspace_before": {
+      "memo.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 9,
+        "sha256": "25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218"
+      },
+      "refresh.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 109,
+        "sha256": "4d520120b7118856941d81bff128291a2f01b4047bf5239f280fc765e058cde7"
+      }
+    },
+    "workspace_after": {
+      "memo.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 25,
+        "sha256": "8d4af7371c78a3cef8c89658786cde6d9ee24b028c9a8572c9d942f4aa304943"
+      },
+      "refresh.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 109,
+        "sha256": "4d520120b7118856941d81bff128291a2f01b4047bf5239f280fc765e058cde7"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "partial_effect",
+    "fixture_revision": 1,
+    "harness_sha256": "cea333b4d505dd82f3e21b20701abeb390ae30da6270fd73ad914e2f28402c93",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "410663f4805e97940bd05053e3f8c7499a17312fb8435e8734e84cd84439690b",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "attempt.py": "from pathlib import Path\np=Path(\"counter.txt\")\nn=int(p.read_text()) if p.exists() else 0\np.write_text(str(n+1))\nraise SystemExit(2)\n"
+    },
+    "prompt": "Run python3 attempt.py exactly once. If it fails, inspect its outcome but do not run the script again or repair it. Return only JSON with keys exit_code and counter, using the actual exit code and the integer stored in counter.txt. Do not edit files yourself.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13312, input_tokens=13636, output_tokens=14, reasoning_output_tokens=0, total_tokens=13650) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=36608, input_tokens=40627, output_tokens=97, reasoning_output_tokens=0, total_tokens=40724)",
+    "seconds": 10.763,
+    "answer": "{\"exit_code\":2,\"counter\":1}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "exit_code": 2,
+        "counter": 1
+      },
+      "counter": 1,
+      "observed_failure": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 2,
+        "stdout": ""
+      },
+      {
+        "exit_code": 0,
+        "stdout": "1"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Run python3 attempt.py exactly once. If it fails, inspect its outcome but do not run the script again or repair it. Return only JSON with keys exit_code and counter, using the actual exit code and the integer stored in counter.txt. Do not edit files yourself.', text_elements=[], type='text'))], id='01a0c38f-759c-7301-99f1-26bbf1dadce5', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0a7d6265ae78da28016ab10a1bf75c87d0b8932d8e64156beb', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll run the script once and read the counter afterward.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output=None, command=\"/bin/zsh -lc 'python3 attempt.py'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 attempt.py', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/partial_effect-1-codex'), duration_ms=0, exit_code=2, id='exec-3ff8d7a6-1e4a-4da4-ab53-b671a4c87d94', plugin_id=None, process_id='72804', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.failed: 'failed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='1', command=\"/bin/zsh -lc 'cat counter.txt'\", command_actions=[CommandAction(root=ReadCommandAction(command='cat counter.txt', name='counter.txt', path=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/partial_effect-1-codex/counter.txt'), type='read'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/partial_effect-1-codex'), duration_ms=0, exit_code=0, id='exec-6addf902-ea4f-45cf-9a4a-65e4bfda7e39', plugin_id=None, process_id='50660', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0a7d6265ae78da28016ab10a221fd087d09845fcc9894c3077', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"exit_code\":2,\"counter\":1}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "attempt.py": "from pathlib import Path\np=Path(\"counter.txt\")\nn=int(p.read_text()) if p.exists() else 0\np.write_text(str(n+1))\nraise SystemExit(2)\n",
+      "counter.txt": "1"
+    },
+    "workspace_before": {
+      "attempt.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 132,
+        "sha256": "60ecd30e86be1f046b14164ad977d58f46dba9cad604b5f27e259596ddaeefa8"
+      }
+    },
+    "workspace_after": {
+      "attempt.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 132,
+        "sha256": "60ecd30e86be1f046b14164ad977d58f46dba9cad604b5f27e259596ddaeefa8"
+      },
+      "counter.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 1,
+        "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "partial_effect",
+    "fixture_revision": 1,
+    "harness_sha256": "cea333b4d505dd82f3e21b20701abeb390ae30da6270fd73ad914e2f28402c93",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "410663f4805e97940bd05053e3f8c7499a17312fb8435e8734e84cd84439690b",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "attempt.py": "from pathlib import Path\np=Path(\"counter.txt\")\nn=int(p.read_text()) if p.exists() else 0\np.write_text(str(n+1))\nraise SystemExit(2)\n"
+    },
+    "prompt": "Run python3 attempt.py exactly once. If it fails, inspect its outcome but do not run the script again or repair it. Return only JSON with keys exit_code and counter, using the actual exit code and the integer stored in counter.txt. Do not edit files yourself.",
+    "elapsed_seconds": 20.8,
+    "codex_calls": 2,
+    "jev_calls": 4,
+    "codex_input_tokens": 32386,
+    "codex_output_tokens": 221,
+    "jev_input_tokens": 8069,
+    "provider": "codex",
+    "generation_calls": 2,
+    "generation_input_tokens": 32386,
+    "generation_output_tokens": 221,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.071772
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.006205
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.010343
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.111971
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.012192
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 10.296126,
+          "first_output_seconds": 4.362516
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 22165,
+          "schema_bytes": 1532,
+          "queue_seconds": 3.6e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 18286,
+            "output_tokens": 207,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 10.437174
+        },
+        {
+          "stage": "tool",
+          "tool": "shell",
+          "action": "run",
+          "status": "completed",
+          "seconds": 0.185932
+        },
+        {
+          "stage": "tool",
+          "tool": "read_file",
+          "action": "counter",
+          "status": "completed",
+          "seconds": 0.094904
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.097137
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010915
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 4.703789,
+          "first_output_seconds": 4.280815
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 4834,
+          "schema_bytes": 0,
+          "queue_seconds": 7e-06,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 14100,
+            "output_tokens": 14,
+            "cached_input_tokens": 11520,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 4.812026
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 2442,
+          "question_bytes": 742,
+          "status": "completed",
+          "seconds": 0.667951
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 3750,
+          "question_bytes": 750,
+          "status": "completed",
+          "seconds": 0.281957
+        },
+        {
+          "stage": "jev",
+          "questions": 5,
+          "state_bytes": 4784,
+          "question_bytes": 3500,
+          "status": "completed",
+          "seconds": 0.65024
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 4561,
+          "question_bytes": 412,
+          "status": "completed",
+          "seconds": 0.697992
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 11520,
+    "generation_cache_write_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Run python3 attempt.py exactly once. If it fails, inspect its outcome but do not run the script again or repair it. Return only JSON with keys exit_code and counter, using the actual exit code and the integer stored in counter.txt. Do not edit files yourself.\""
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"inspect_path\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-r0_fygti/partial_effect-1-kestrel/counter.txt\", \"evidence_id\": \"11e169e5afcd4922\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"\", \"actions\": [{\"id\": \"run\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"attempt.py\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Run the requested script exactly once and retain its actual exit code.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"counter\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"counter.txt\\\",\\\"start_line\\\":1,\\\"max_lines\\\":10}\", \"depends_on\": [\"run\"], \"purpose\": \"Inspect the resulting integer even if the script fails. Return only JSON with exit_code from run and counter from this file; do not retry, repair, or edit files.\", \"condition\": \"always\", \"after\": \"completion\"}], \"success_criteria\": [\"python3 attempt.py was executed exactly once and its actual exit code was captured.\", \"counter.txt was read after execution and its stored integer was obtained.\", \"No retry, repair, or assistant file edit occurred.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"run\": {\"choice\": \"execute\", \"confidence\": 0.95, \"probabilities\": {\"skip\": 0.0, \"need_context\": 0.03, \"execute\": 0.97}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"run\", \"tool\": \"shell\", \"status\": \"error\", \"evidence_id\": \"86984e9e670246c2\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"counter\": {\"choice\": \"execute\", \"confidence\": 0.93, \"probabilities\": {\"skip\": 0.0, \"execute\": 0.95, \"need_context\": 0.05}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"counter\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"45706818847545d3\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.97, \"probabilities\": {\"not_met\": 0.0, \"unclear\": 0.0, \"met\": 0.99, \"response_pending\": 0.01}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"unclear\": 0.0, \"not_met\": 0.0, \"response_pending\": 0.0, \"met\": 1.0}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.6, \"probabilities\": {\"not_met\": 0.13, \"unclear\": 0.13, \"response_pending\": 0.03, \"met\": 0.71}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.83, \"probabilities\": {\"not_met\": 0.11, \"unclear\": 0.0, \"met\": 0.89}}, \"recovery_run\": {\"choice\": \"met\", \"confidence\": 0.78, \"probabilities\": {\"not_met\": 0.11, \"met\": 0.89}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 0.92, \"probabilities\": {\"unsupported\": 0.05, \"unclear\": 0.0, \"supported\": 0.95}}, \"attempt\": 1}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"exit_code\\\":2,\\\"counter\\\":1}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 20.8, \"codex_calls\": 2, \"jev_calls\": 4, \"codex_input_tokens\": 32386, \"codex_output_tokens\": 221, \"jev_input_tokens\": 8069, \"provider\": \"codex\", \"generation_calls\": 2, \"generation_input_tokens\": 32386, \"generation_output_tokens\": 221, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.071772}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.006205}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.010343}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.111971}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.012192}, {\"stage\": \"turn_stream\", \"seconds\": 10.296126, \"first_output_seconds\": 4.362516}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 22165, \"schema_bytes\": 1532, \"queue_seconds\": 3.6e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 18286, \"output_tokens\": 207, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 10.437174}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"run\", \"status\": \"completed\", \"seconds\": 0.185932}, {\"stage\": \"tool\", \"tool\": \"read_file\", \"action\": \"counter\", \"status\": \"completed\", \"seconds\": 0.094904}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.097137}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010915}, {\"stage\": \"turn_stream\", \"seconds\": 4.703789, \"first_output_seconds\": 4.280815}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 4834, \"schema_bytes\": 0, \"queue_seconds\": 7e-06, \"status\": \"completed\", \"usage\": {\"input_tokens\": 14100, \"output_tokens\": 14, \"cached_input_tokens\": 11520, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 4.812026}], \"decisions\": [{\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 2442, \"question_bytes\": 742, \"status\": \"completed\", \"seconds\": 0.667951}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 3750, \"question_bytes\": 750, \"status\": \"completed\", \"seconds\": 0.281957}, {\"stage\": \"jev\", \"questions\": 5, \"state_bytes\": 4784, \"question_bytes\": 3500, \"status\": \"completed\", \"seconds\": 0.65024}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 4561, \"question_bytes\": 412, \"status\": \"completed\", \"seconds\": 0.697992}]}, \"generation_cached_input_tokens\": 11520, \"generation_cache_write_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 20.996,
+    "answer": "{\"exit_code\":2,\"counter\":1}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "exit_code": 2,
+        "counter": 1
+      },
+      "counter": 1,
+      "observed_failure": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 2,
+        "stdout": ""
+      }
+    ],
+    "events": [
+      {
+        "seconds": 1.078,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 11.615,
+        "kind": "plan",
+        "text": "Plan ready"
+      },
+      {
+        "seconds": 11.615,
+        "kind": "planned",
+        "text": "run \u00b7 Run the requested script exactly once and retain its actual exit code."
+      },
+      {
+        "seconds": 11.615,
+        "kind": "planned",
+        "text": "counter \u00b7 Inspect the resulting integer even if the script fails. Return only JSON with exit_code from run and counter from this file; do not retry, repair, or edit files."
+      },
+      {
+        "seconds": 11.713,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 12.474,
+        "kind": "decision",
+        "text": "run \u2192 execute"
+      },
+      {
+        "seconds": 12.475,
+        "kind": "tool",
+        "text": "shell \u00b7 Run the requested script exactly once and retain its actual exit code."
+      },
+      {
+        "seconds": 12.95,
+        "kind": "warning",
+        "text": "run \u00b7 error \u00b7 Command exited with status 2"
+      },
+      {
+        "seconds": 13.145,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 13.526,
+        "kind": "decision",
+        "text": "counter \u2192 execute"
+      },
+      {
+        "seconds": 13.627,
+        "kind": "tool",
+        "text": "read_file \u00b7 Inspect the resulting integer even if the script fails. Return only JSON with exit_code from run and counter from this file; do not retry, repair, or edit files."
+      },
+      {
+        "seconds": 13.829,
+        "kind": "output",
+        "text": "1: 1"
+      },
+      {
+        "seconds": 14.033,
+        "kind": "done",
+        "text": "counter \u00b7 completed"
+      },
+      {
+        "seconds": 14.234,
+        "kind": "judge",
+        "text": "Jev \u00b7 5 decisions"
+      },
+      {
+        "seconds": 15.079,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 19.892,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 20.996,
+        "kind": "usage",
+        "text": "20.8s \u00b7 codex 2 calls \u00b7 Jev 4 calls"
+      }
+    ],
+    "artifacts": {
+      "attempt.py": "from pathlib import Path\np=Path(\"counter.txt\")\nn=int(p.read_text()) if p.exists() else 0\np.write_text(str(n+1))\nraise SystemExit(2)\n",
+      "counter.txt": "1"
+    },
+    "workspace_before": {
+      "attempt.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 132,
+        "sha256": "60ecd30e86be1f046b14164ad977d58f46dba9cad604b5f27e259596ddaeefa8"
+      }
+    },
+    "workspace_after": {
+      "attempt.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 132,
+        "sha256": "60ecd30e86be1f046b14164ad977d58f46dba9cad604b5f27e259596ddaeefa8"
+      },
+      "counter.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 1,
+        "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  }
+]

@@ -146,6 +146,7 @@ Action condition is 'always' unless a single factual condition really changes wh
 Do not invent tool names, credentials, account access, or missing values.
 Use choose when semantic selection among existing candidates is needed: Jev will make the choice.
 When the available evidence is sufficient, include short self-contained new text/code directly in tool arguments. Use generate for longer content or when required evidence will only become available after earlier actions; include relevant dependency content in its prompt.
+For literal copying or appending, bind read_file.raw_text directly with the observed SHA256. raw_text preserves exact whitespace and is present only for complete small plain-text reads. Do not generate text just to copy or concatenate existing evidence.
 Reuse existing tool outputs directly in downstream arguments. For example, query_table.json_content is already valid numeric JSON text for write_file.content; do not generate another serialization of it.
 Do not add a generate action just to summarize results or reply: the controller already generates a final answer.
 If a tool result already provides the ENTIRE requested answer in the exact requested format, set final_response_ref to its whole-value reference, e.g. ${{compute.stdout}}. Otherwise use null. Jev will verify the candidate before returning it. query_table.json_content provides a JSON object with numeric totals; use it for JSON-only aggregation answers.
@@ -251,8 +252,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             errors = {k: v for k, v in self.state["statuses"].items() if v in {"error", "blocked", "need_context", "uncertain"}}
             for action_id, status in errors.items():
                 if status == "error":
-                    questions[f"recovery_{action_id}"] = {"instructions": f"Did later observed work successfully recover from the error in {action_id}, so it no longer prevents the ORIGINAL requested outcome? A proposed correction is insufficient; require execution evidence.",
-                        "options": {"met": "Recovery is proven by subsequent results.", "not_met": "Failure remains unresolved or uncertain."}}
+                    questions[f"recovery_{action_id}"] = {"instructions": f"Does the observed error in {action_id} still prevent the ORIGINAL requested outcome? Choose met only if later execution proves recovery, OR the user explicitly requested observing/reporting a failure without retry and that requested inspection is complete. An expected failed invocation remains a failure, not a successful command. Never infer permission to retry from an error; a proposed correction is not execution evidence.",
+                        "options": {"met": "Recovery is proven, or the explicitly requested failure observation is complete without an unauthorized retry.", "not_met": "Failure still prevents the requested outcome, or handling is uncertain."}}
             candidate = None
             if plan.final_response_ref and self.state["statuses"].get(plan.final_response_ref[2:].split(".")[0]) == "completed":
                 try:

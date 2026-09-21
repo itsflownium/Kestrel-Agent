@@ -21,7 +21,7 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** development build with owner-authorized live testing. The current suite has 160 offline checks. Quality and latency remain workload-dependent; general superiority over Codex is not established. See the [quality comparisons](benchmarks/QUALITY-PROFILES.md), [architecture measurements](benchmarks/ARCHITECTURE-FOUNDATIONS.md), [durable evidence results](benchmarks/DURABLE-EVIDENCE.md), [read scheduling checks](benchmarks/DEPENDENCY-SCHEDULING.md), [remaining architecture scope](docs/ARCHITECTURE-IMPLEMENTATION.md), and [manual acceptance guide](docs/TESTING.md).
+**Status:** development build with owner-authorized live testing. The current suite has 163 offline checks. Quality and latency remain workload-dependent; general superiority over Codex is not established. See the [quality comparisons](benchmarks/QUALITY-PROFILES.md), [architecture measurements](benchmarks/ARCHITECTURE-FOUNDATIONS.md), [durable evidence results](benchmarks/DURABLE-EVIDENCE.md), [read scheduling checks](benchmarks/DEPENDENCY-SCHEDULING.md), [remaining architecture scope](docs/ARCHITECTURE-IMPLEMENTATION.md), and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
