@@ -15,3 +15,7 @@ Docker isolates shell commands only. Model API calls, file tools, and connected 
 ## Validation status
 
 Implementation is untested at the user's request to defer tests. The Docker CLI exists on the development machine, but its configured daemon socket was absent. No container run or UI regression suite was performed for this update.
+
+## Live window resizing
+
+The welcome dashboard is now part of the live prompt render, so it reflows when the terminal changes size before the first message. Fullscreen width is no longer capped at 116 columns. Below 34 rows, a compact header leaves room for input. Response and tool panels use the available terminal width. `/clear` returns to the responsive welcome view. Previously printed transcript lines remain terminal scrollback; Kestrel does not reconstruct historical output on resize.

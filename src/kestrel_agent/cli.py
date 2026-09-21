@@ -20,6 +20,7 @@ from .store import Store
 app = typer.Typer(help="Kestrel · a general-purpose terminal agent", no_args_is_help=False, pretty_exceptions_enable=False)
 auth_app = typer.Typer(help="Manage Codex OAuth, provider API keys, and your Jev key.")
 config_app = typer.Typer(help="Configure access, models, budgets, and network settings.")
+memory_app = typer.Typer(help="Inspect, edit, or forget explicitly saved preferences and project notes.")
 connections_app = typer.Typer(help="Configure provider-independent MCP tool connections.")
 skills_app = typer.Typer(help="Discover, inspect, install, and version portable skills.")
 workflows_app = typer.Typer(help="Review and manage reusable procedures.")
@@ -28,6 +29,7 @@ app.add_typer(config_app, name="config")
 app.add_typer(workflows_app, name="workflows")
 app.add_typer(skills_app, name="skills")
 app.add_typer(connections_app, name="connections")
+app.add_typer(memory_app, name="memory")
 console = Console(highlight=False)
 
 
@@ -514,6 +516,39 @@ def workflow_preview(name: str, parameters: str = '{}'):
     plan, version = compile_workflow(load(name), parse_json(parameters))
     console.print(Text(f'Workflow version: {version}'))
     console.print_json(plan.model_dump_json())
+
+
+@memory_app.command("list")
+def memory_list(workspace: Path = typer.Option(Path.cwd(), "--workspace", "-C")):
+    from .memory import Memory
+    store = Store(Settings.load())
+    try:
+        console.print_json(json.dumps(Memory(store).list(workspace)))
+    finally:
+        store.close()
+
+
+@memory_app.command("set")
+def memory_set(key: str, content: str, kind: str = typer.Option("note"), global_scope: bool = typer.Option(False, "--global"), days: int | None = typer.Option(None), workspace: Path = typer.Option(Path.cwd(), "--workspace", "-C")):
+    """Create or replace an explicit memory entry; --global shares it across projects."""
+    from .memory import Memory
+    store = Store(Settings.load())
+    try:
+        Memory(store).put(key, content, workspace=None if global_scope else workspace, kind=kind, days=days)
+        console.print(Text(f'Saved memory {key}.'))
+    finally:
+        store.close()
+
+
+@memory_app.command("forget")
+def memory_forget(key: str, global_scope: bool = typer.Option(False, "--global"), workspace: Path = typer.Option(Path.cwd(), "--workspace", "-C")):
+    from .memory import Memory
+    store = Store(Settings.load())
+    try:
+        Memory(store).forget(key, workspace=None if global_scope else workspace)
+        console.print(Text(f'Forgot {key} for future retrieval. Existing conversation logs are unchanged.'))
+    finally:
+        store.close()
 
 
 if __name__ == "__main__":
