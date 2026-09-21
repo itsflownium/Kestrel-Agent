@@ -82,6 +82,22 @@ class Store:
             raise ValueError("Evidence is not available in this session.")
         return json.loads(row[0])
 
+    def search_evidence(self, sid: str, query: str, offset: int = 0, limit: int = 10) -> dict:
+        if len(query) > 500:
+            raise ValueError("Evidence search query exceeds 500 characters.")
+        offset, limit = max(0, offset), min(20, max(1, limit))
+        rows = list(self.db.execute(
+            "SELECT id,created,body FROM evidence WHERE session=? AND instr(lower(body), lower(?)) > 0 ORDER BY created,id LIMIT ? OFFSET ?",
+            (sid, query, limit + 1, offset)))
+        results = []
+        for row in rows[:limit]:
+            text = json.dumps(json.loads(row['body']), ensure_ascii=False)
+            start = max(0, text.lower().find(query.lower()) - 100)
+            results.append({'evidence_id': row['id'], 'created': row['created'], 'offset': start,
+                            'excerpt': text[start:start + 800], 'total_chars': len(text)})
+        return {'matches': results, 'next_offset': offset + limit if len(rows) > limit else None,
+                'historical_snapshots': True}
+
     def search_workflows(self, query: str) -> list[dict]:
         words = re.findall(r"[a-zA-Z]{3,}", query)[:12]
         if not words:

@@ -1,0 +1,1338 @@
+[
+  {
+    "task": "command_json",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "ecb0d6d4aa57a9cd426f74fc5e4e9791ec834cd1340e722d4ba460753065f581",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "emit.py": "import json\nprint(json.dumps({\"items\": len(set([\"b\", \"a\", \"b\", \"c\"])), \"ready\": True}))\n"
+    },
+    "prompt": "Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13952, input_tokens=14162, output_tokens=15, reasoning_output_tokens=0, total_tokens=14177) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=18944, input_tokens=28231, output_tokens=74, reasoning_output_tokens=0, total_tokens=28305)",
+    "seconds": 14.047,
+    "answer": "{\"items\": 3, \"ready\": true}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "items": 3,
+        "ready": true
+      },
+      "observed_output": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "{\"items\": 3, \"ready\": true}\n"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.', text_elements=[], type='text'))], id='01a0c378-5cd5-74d1-8642-8589a9229eb9', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_03199ab140f37322016ab10433289c87d0bbd2cc8819401f3d', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll run `python3 emit.py` and return its JSON output exactly.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='{\"items\": 3, \"ready\": true}\\n', command=\"/bin/zsh -lc 'python3 emit.py'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 emit.py', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/command_json-1-codex'), duration_ms=326, exit_code=0, id='exec-9eeae73d-b4eb-4b31-b585-f51dc31197d7', plugin_id=None, process_id='39839', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_03199ab140f37322016ab10438be6887d080991f285046284c', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"items\": 3, \"ready\": true}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "emit.py": "import json\nprint(json.dumps({\"items\": len(set([\"b\", \"a\", \"b\", \"c\"])), \"ready\": True}))\n"
+    },
+    "workspace_before": {
+      "emit.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 88,
+        "sha256": "10032d7ff953647fb27f4b3a158a25d38dbaa2c6bfd515543a0327e744737845"
+      }
+    },
+    "workspace_after": {
+      "emit.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 88,
+        "sha256": "10032d7ff953647fb27f4b3a158a25d38dbaa2c6bfd515543a0327e744737845"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "command_json",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "ecb0d6d4aa57a9cd426f74fc5e4e9791ec834cd1340e722d4ba460753065f581",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "emit.py": "import json\nprint(json.dumps({\"items\": len(set([\"b\", \"a\", \"b\", \"c\"])), \"ready\": True}))\n"
+    },
+    "prompt": "Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.",
+    "elapsed_seconds": 12.08,
+    "codex_calls": 1,
+    "jev_calls": 2,
+    "codex_input_tokens": 17834,
+    "codex_output_tokens": 102,
+    "jev_input_tokens": 1950,
+    "provider": "codex",
+    "generation_calls": 1,
+    "generation_input_tokens": 17834,
+    "generation_output_tokens": 102,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.080061
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.00937
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.021881
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.128544
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.019098
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 8.513109,
+          "first_output_seconds": 5.530516
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 20356,
+          "schema_bytes": 1532,
+          "queue_seconds": 5e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 17834,
+            "output_tokens": 102,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 8.69231
+        },
+        {
+          "stage": "tool",
+          "tool": "shell",
+          "action": "run",
+          "status": "completed",
+          "seconds": 0.156488
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 896,
+          "question_bytes": 742,
+          "status": "completed",
+          "seconds": 0.646732
+        },
+        {
+          "stage": "jev",
+          "questions": 3,
+          "state_bytes": 1815,
+          "question_bytes": 1723,
+          "status": "completed",
+          "seconds": 0.275909
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 0,
+    "generation_cache_write_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.\""
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"\", \"actions\": [{\"id\": \"run\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"emit.py\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Run emit.py and capture its exact JSON output without editing files.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"python3 emit.py exits successfully and stdout contains JSON.\"], \"final_response_ref\": \"${run.stdout}\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"run\": {\"choice\": \"execute\", \"confidence\": 0.98, \"probabilities\": {\"need_context\": 0.01, \"skip\": 0.0, \"execute\": 0.99}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"run\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"3835fa67462d44ab\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"response_pending\": 0.01, \"not_met\": 0.0, \"met\": 0.99, \"unclear\": 0.0}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.95, \"probabilities\": {\"not_met\": 0.03, \"met\": 0.97, \"unclear\": 0.0}}, \"reuse_response\": {\"choice\": \"supported\", \"confidence\": 0.82, \"probabilities\": {\"generate\": 0.09, \"supported\": 0.91}}}"
+      },
+      {
+        "kind": "verified_result_reuse",
+        "body": "{\"reference\": \"${run.stdout}\"}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"items\\\": 3, \\\"ready\\\": true}\\n\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 12.08, \"codex_calls\": 1, \"jev_calls\": 2, \"codex_input_tokens\": 17834, \"codex_output_tokens\": 102, \"jev_input_tokens\": 1950, \"provider\": \"codex\", \"generation_calls\": 1, \"generation_input_tokens\": 17834, \"generation_output_tokens\": 102, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.080061}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.00937}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.021881}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.128544}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.019098}, {\"stage\": \"turn_stream\", \"seconds\": 8.513109, \"first_output_seconds\": 5.530516}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 20356, \"schema_bytes\": 1532, \"queue_seconds\": 5e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 17834, \"output_tokens\": 102, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 8.69231}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"run\", \"status\": \"completed\", \"seconds\": 0.156488}], \"decisions\": [{\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 896, \"question_bytes\": 742, \"status\": \"completed\", \"seconds\": 0.646732}, {\"stage\": \"jev\", \"questions\": 3, \"state_bytes\": 1815, \"question_bytes\": 1723, \"status\": \"completed\", \"seconds\": 0.275909}]}, \"generation_cached_input_tokens\": 0, \"generation_cache_write_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 12.482,
+    "answer": "{\"items\": 3, \"ready\": true}\n",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "items": 3,
+        "ready": true
+      },
+      "observed_output": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "{\"items\": 3, \"ready\": true}\n"
+      }
+    ],
+    "events": [
+      {
+        "seconds": 0.99,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 9.738,
+        "kind": "plan",
+        "text": "Plan ready"
+      },
+      {
+        "seconds": 9.739,
+        "kind": "planned",
+        "text": "run \u00b7 Run emit.py and capture its exact JSON output without editing files."
+      },
+      {
+        "seconds": 9.872,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 10.612,
+        "kind": "decision",
+        "text": "run \u2192 execute"
+      },
+      {
+        "seconds": 10.612,
+        "kind": "tool",
+        "text": "shell \u00b7 Run emit.py and capture its exact JSON output without editing files."
+      },
+      {
+        "seconds": 10.862,
+        "kind": "output",
+        "text": "{\"items\": 3, \"ready\": true}\n"
+      },
+      {
+        "seconds": 11.04,
+        "kind": "done",
+        "text": "run \u00b7 completed"
+      },
+      {
+        "seconds": 11.218,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 11.941,
+        "kind": "done",
+        "text": "Returning verified tool output \u00b7 no final generation call"
+      },
+      {
+        "seconds": 12.482,
+        "kind": "usage",
+        "text": "12.1s \u00b7 codex 1 calls \u00b7 Jev 2 calls"
+      }
+    ],
+    "artifacts": {
+      "emit.py": "import json\nprint(json.dumps({\"items\": len(set([\"b\", \"a\", \"b\", \"c\"])), \"ready\": True}))\n"
+    },
+    "workspace_before": {
+      "emit.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 88,
+        "sha256": "10032d7ff953647fb27f4b3a158a25d38dbaa2c6bfd515543a0327e744737845"
+      }
+    },
+    "workspace_after": {
+      "emit.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 88,
+        "sha256": "10032d7ff953647fb27f4b3a158a25d38dbaa2c6bfd515543a0327e744737845"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 1,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "recovery_two_arguments",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "ecb0d6d4aa57a9cd426f74fc5e4e9791ec834cd1340e722d4ba460753065f581",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "scale.py": "import argparse,csv\np=argparse.ArgumentParser()\np.add_argument(\"--records\",required=True)\np.add_argument(\"--factor\",required=True,type=int)\na=p.parse_args()\nwith open(a.records) as f: total=sum(int(r[\"units\"]) for r in csv.DictReader(f))\nprint(\"VALUE=\"+str(total*a.factor))\n",
+      "units.csv": "units\n2\n3\n4\n",
+      "metadata.json": "{\"description\":\"Not tabular input\"}\n"
+    },
+    "prompt": "Run python3 scale.py. If it fails, inspect the program and existing input files, correct the arguments using a factor of 4, and run it successfully. Do not edit files. Report the actual emitted result.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13696, input_tokens=14015, output_tokens=39, reasoning_output_tokens=0, total_tokens=14054) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=50432, input_tokens=68745, output_tokens=211, reasoning_output_tokens=0, total_tokens=68956)",
+    "seconds": 19.52,
+    "answer": "Ran successfully with `python3 scale.py --records units.csv --factor 4`.\n\nActual emitted result:\n```text\nVALUE=36\n```\n\nNo files were edited.",
+    "passed": true,
+    "grading": {
+      "observed_success": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 2,
+        "stdout": "usage: scale.py [-h] --records RECORDS --factor FACTOR\nscale.py: error: the following arguments are required: --records, --factor\n"
+      },
+      {
+        "exit_code": 0,
+        "stdout": "/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/recovery_two_arguments-1-codex\nscale.py\nmetadata.json\nunits.csv\nimport argparse,csv\np=argparse.ArgumentParser()\np.add_argument(\"--records\",required=True)\np.add_argument(\"--factor\",required=True,type=int)\na=p.parse_args()\nwith open(a.records) as f: total=sum(int(r[\"units\"]) for r in csv.DictReader(f))\nprint(\"VALUE=\"+str(total*a.factor))\n"
+      },
+      {
+        "exit_code": 0,
+        "stdout": "units\n2\n3\n4\n{\"description\":\"Not tabular input\"}\n"
+      },
+      {
+        "exit_code": 0,
+        "stdout": "VALUE=36\n"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Run python3 scale.py. If it fails, inspect the program and existing input files, correct the arguments using a factor of 4, and run it successfully. Do not edit files. Report the actual emitted result.', text_elements=[], type='text'))], id='01a0c378-b966-7671-bf3d-d31a001c753a', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_02adcc37091b2efc016ab1044a317c87d082a00576c0248df3', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll run the script, then inspect its arguments and existing inputs if it fails.', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='usage: scale.py [-h] --records RECORDS --factor FACTOR\\nscale.py: error: the following arguments are required: --records, --factor\\n', command=\"/bin/zsh -lc 'python3 scale.py'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 scale.py', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/recovery_two_arguments-1-codex'), duration_ms=0, exit_code=2, id='exec-92299de5-a783-4cad-b81b-2dcebee8b164', plugin_id=None, process_id='51077', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.failed: 'failed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/recovery_two_arguments-1-codex\\nscale.py\\nmetadata.json\\nunits.csv\\nimport argparse,csv\\np=argparse.ArgumentParser()\\np.add_argument(\"--records\",required=True)\\np.add_argument(\"--factor\",required=True,type=int)\\na=p.parse_args()\\nwith open(a.records) as f: total=sum(int(r[\"units\"]) for r in csv.DictReader(f))\\nprint(\"VALUE=\"+str(total*a.factor))\\n', command='/bin/zsh -lc \"pwd; rg --files -g \\'\"\\'! .git\\'\"\\' -g \\'\"\\'!__pycache__/**\\'\"\\'; cat scale.py\"', command_actions=[CommandAction(root=UnknownCommandAction(command=\"pwd; rg --files -g '! .git' -g '!__pycache__/**'; cat scale.py\", type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/recovery_two_arguments-1-codex'), duration_ms=0, exit_code=0, id='exec-3834ad6b-7b0c-4126-9da9-8a396ae60494', plugin_id=None, process_id='98301', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='units\\n2\\n3\\n4\\n{\"description\":\"Not tabular input\"}\\n', command=\"/bin/zsh -lc 'cat units.csv metadata.json'\", command_actions=[CommandAction(root=UnknownCommandAction(command='cat units.csv metadata.json', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/recovery_two_arguments-1-codex'), duration_ms=0, exit_code=0, id='exec-ff75e1bd-eab6-484e-aa77-228b84910c70', plugin_id=None, process_id='15092', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='VALUE=36\\n', command=\"/bin/zsh -lc 'python3 scale.py --records units.csv --factor 4'\", command_actions=[CommandAction(root=UnknownCommandAction(command='python3 scale.py --records units.csv --factor 4', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/recovery_two_arguments-1-codex'), duration_ms=0, exit_code=0, id='exec-bb154625-f715-4368-a848-3ff94cce7eb5', plugin_id=None, process_id='2693', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_02adcc37091b2efc016ab1045809d487d082acb1ab734f40de', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='Ran successfully with `python3 scale.py --records units.csv --factor 4`.\\n\\nActual emitted result:\\n```text\\nVALUE=36\\n```\\n\\nNo files were edited.', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "units.csv": "units\n2\n3\n4\n",
+      "metadata.json": "{\"description\":\"Not tabular input\"}\n",
+      "scale.py": "import argparse,csv\np=argparse.ArgumentParser()\np.add_argument(\"--records\",required=True)\np.add_argument(\"--factor\",required=True,type=int)\na=p.parse_args()\nwith open(a.records) as f: total=sum(int(r[\"units\"]) for r in csv.DictReader(f))\nprint(\"VALUE=\"+str(total*a.factor))\n"
+    },
+    "workspace_before": {
+      "metadata.json": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 36,
+        "sha256": "ed4c44969d100f7a5082ee3c0286c2d02407570b24e90cb014f8e4e735c7ba33"
+      },
+      "scale.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 274,
+        "sha256": "d9061fc380e11117bf9e41b365c17f65829cb703d7b828a73fefaa5acb5db482"
+      },
+      "units.csv": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 12,
+        "sha256": "fa4b7964b51986ca88f1b46e4df2da3a4d18db70f8946b002a865795f350b47a"
+      }
+    },
+    "workspace_after": {
+      "metadata.json": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 36,
+        "sha256": "ed4c44969d100f7a5082ee3c0286c2d02407570b24e90cb014f8e4e735c7ba33"
+      },
+      "scale.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 274,
+        "sha256": "d9061fc380e11117bf9e41b365c17f65829cb703d7b828a73fefaa5acb5db482"
+      },
+      "units.csv": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 12,
+        "sha256": "fa4b7964b51986ca88f1b46e4df2da3a4d18db70f8946b002a865795f350b47a"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "recovery_two_arguments",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "ecb0d6d4aa57a9cd426f74fc5e4e9791ec834cd1340e722d4ba460753065f581",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "scale.py": "import argparse,csv\np=argparse.ArgumentParser()\np.add_argument(\"--records\",required=True)\np.add_argument(\"--factor\",required=True,type=int)\na=p.parse_args()\nwith open(a.records) as f: total=sum(int(r[\"units\"]) for r in csv.DictReader(f))\nprint(\"VALUE=\"+str(total*a.factor))\n",
+      "units.csv": "units\n2\n3\n4\n",
+      "metadata.json": "{\"description\":\"Not tabular input\"}\n"
+    },
+    "prompt": "Run python3 scale.py. If it fails, inspect the program and existing input files, correct the arguments using a factor of 4, and run it successfully. Do not edit files. Report the actual emitted result.",
+    "elapsed_seconds": 24.99,
+    "codex_calls": 2,
+    "jev_calls": 4,
+    "codex_input_tokens": 31648,
+    "codex_output_tokens": 344,
+    "jev_input_tokens": 9049,
+    "provider": "codex",
+    "generation_calls": 2,
+    "generation_input_tokens": 31648,
+    "generation_output_tokens": 344,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.058427
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.005951
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.010248
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.103975
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010885
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 13.75635,
+          "first_output_seconds": 5.455032
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 20546,
+          "schema_bytes": 1532,
+          "queue_seconds": 3.4e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 17702,
+            "output_tokens": 288,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 13.887668
+        },
+        {
+          "stage": "tool",
+          "tool": "shell",
+          "action": "run",
+          "status": "completed",
+          "seconds": 0.147894
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.093975
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010099
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 5.01204,
+          "first_output_seconds": 3.716806
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 3883,
+          "schema_bytes": 346,
+          "queue_seconds": 1.6e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 13946,
+            "output_tokens": 56,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 5.116298
+        },
+        {
+          "stage": "tool",
+          "tool": "repair_command",
+          "action": "repair",
+          "status": "completed",
+          "seconds": 5.55945
+        },
+        {
+          "stage": "tool",
+          "tool": "shell",
+          "action": "retry",
+          "status": "completed",
+          "seconds": 0.171625
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 1416,
+          "question_bytes": 742,
+          "status": "completed",
+          "seconds": 0.724333
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 2814,
+          "question_bytes": 748,
+          "status": "completed",
+          "seconds": 0.242689
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 6695,
+          "question_bytes": 755,
+          "status": "completed",
+          "seconds": 0.697713
+        },
+        {
+          "stage": "jev",
+          "questions": 7,
+          "state_bytes": 7704,
+          "question_bytes": 4652,
+          "status": "completed",
+          "seconds": 0.285654
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 0,
+    "generation_cache_write_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Run python3 scale.py. If it fails, inspect the program and existing input files, correct the arguments using a factor of 4, and run it successfully. Do not edit files. Report the actual emitted result.\""
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Run the command, then inspect and repair its arguments if it fails, using a factor of 4 without editing files.\", \"actions\": [{\"id\": \"run\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"scale.py\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Run the requested command and capture its actual output.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"repair\", \"tool\": \"repair_command\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"scale.py\\\"],\\\"failure\\\":\\\"${run}\\\",\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [\"run\"], \"purpose\": \"Inspect the program and existing input files to prepare corrected arguments using a factor of 4, without editing files.\", \"condition\": \"always\", \"after\": \"failure\"}, {\"id\": \"retry\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":\\\"${repair.command}\\\",\\\"cwd\\\":\\\"${repair.cwd}\\\"}\", \"depends_on\": [\"repair\"], \"purpose\": \"Run the corrected command and capture the actual emitted result.\", \"condition\": \"${repair.ready}\", \"after\": \"success\"}], \"success_criteria\": [\"The original command was executed.\", \"If it failed, the program and existing inputs were inspected and corrected arguments used a factor of 4.\", \"The original or corrected command exited successfully and its emitted output was captured.\", \"No files were edited.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"run\": {\"choice\": \"execute\", \"confidence\": 0.97, \"probabilities\": {\"skip\": 0.0, \"execute\": 0.98, \"need_context\": 0.02}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"run\", \"tool\": \"shell\", \"status\": \"error\", \"evidence_id\": \"75b984805f1b4a61\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"repair\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"need_context\": 0.0, \"skip\": 0.01, \"execute\": 0.99}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"repair\", \"tool\": \"repair_command\", \"status\": \"completed\", \"evidence_id\": \"3c0b9ebcdf3f42f9\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"retry\": {\"choice\": \"execute\", \"confidence\": 1.0, \"probabilities\": {\"need_context\": 0.0, \"execute\": 1.0, \"skip\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"retry\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"69deb67bab1a4a70\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"response_pending\": 0.01, \"met\": 0.99, \"unclear\": 0.0, \"not_met\": 0.0}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"response_pending\": 0.01, \"met\": 0.99, \"unclear\": 0.0, \"not_met\": 0.0}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"response_pending\": 0.01, \"unclear\": 0.0, \"met\": 0.99, \"not_met\": 0.0}}, \"criterion_3\": {\"choice\": \"met\", \"confidence\": 0.95, \"probabilities\": {\"response_pending\": 0.02, \"unclear\": 0.01, \"met\": 0.97, \"not_met\": 0.0}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"met\": 0.99, \"unclear\": 0.0, \"not_met\": 0.01}}, \"recovery_run\": {\"choice\": \"met\", \"confidence\": 1.0, \"probabilities\": {\"met\": 1.0, \"not_met\": 0.0}}, \"select_response\": {\"choice\": \"answer_1\", \"confidence\": 0.35, \"probabilities\": {\"answer_0\": 0.16, \"answer_1\": 0.57, \"generate\": 0.27}}}"
+      },
+      {
+        "kind": "verified_result_reuse",
+        "body": "{\"action\": \"retry\", \"kind\": \"command_receipt\", \"automatic\": true}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"Command:\\n```\\npython3 scale.py --records units.csv --factor 4\\n```\\nExit code: 0\\n\\nStandard output:\\n```\\nVALUE=36\\n```\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 24.99, \"codex_calls\": 2, \"jev_calls\": 4, \"codex_input_tokens\": 31648, \"codex_output_tokens\": 344, \"jev_input_tokens\": 9049, \"provider\": \"codex\", \"generation_calls\": 2, \"generation_input_tokens\": 31648, \"generation_output_tokens\": 344, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.058427}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.005951}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.010248}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.103975}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010885}, {\"stage\": \"turn_stream\", \"seconds\": 13.75635, \"first_output_seconds\": 5.455032}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 20546, \"schema_bytes\": 1532, \"queue_seconds\": 3.4e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 17702, \"output_tokens\": 288, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 13.887668}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"run\", \"status\": \"completed\", \"seconds\": 0.147894}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.093975}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010099}, {\"stage\": \"turn_stream\", \"seconds\": 5.01204, \"first_output_seconds\": 3.716806}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 3883, \"schema_bytes\": 346, \"queue_seconds\": 1.6e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 13946, \"output_tokens\": 56, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 5.116298}, {\"stage\": \"tool\", \"tool\": \"repair_command\", \"action\": \"repair\", \"status\": \"completed\", \"seconds\": 5.55945}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"retry\", \"status\": \"completed\", \"seconds\": 0.171625}], \"decisions\": [{\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 1416, \"question_bytes\": 742, \"status\": \"completed\", \"seconds\": 0.724333}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 2814, \"question_bytes\": 748, \"status\": \"completed\", \"seconds\": 0.242689}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 6695, \"question_bytes\": 755, \"status\": \"completed\", \"seconds\": 0.697713}, {\"stage\": \"jev\", \"questions\": 7, \"state_bytes\": 7704, \"question_bytes\": 4652, \"status\": \"completed\", \"seconds\": 0.285654}]}, \"generation_cached_input_tokens\": 0, \"generation_cache_write_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 25.143,
+    "answer": "Command:\n```\npython3 scale.py --records units.csv --factor 4\n```\nExit code: 0\n\nStandard output:\n```\nVALUE=36\n```",
+    "passed": true,
+    "grading": {
+      "observed_success": true
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "VALUE=36\n"
+      }
+    ],
+    "events": [
+      {
+        "seconds": 1.218,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 15.188,
+        "kind": "plan",
+        "text": "Run the command, then inspect and repair its arguments if it fails, using a factor of 4 without editing files."
+      },
+      {
+        "seconds": 15.188,
+        "kind": "planned",
+        "text": "run \u00b7 Run the requested command and capture its actual output."
+      },
+      {
+        "seconds": 15.188,
+        "kind": "planned",
+        "text": "repair \u00b7 Inspect the program and existing input files to prepare corrected arguments using a factor of 4, without editing files."
+      },
+      {
+        "seconds": 15.188,
+        "kind": "planned",
+        "text": "retry \u00b7 Run the corrected command and capture the actual emitted result."
+      },
+      {
+        "seconds": 15.278,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.103,
+        "kind": "decision",
+        "text": "run \u2192 execute"
+      },
+      {
+        "seconds": 16.103,
+        "kind": "tool",
+        "text": "shell \u00b7 Run the requested command and capture its actual output."
+      },
+      {
+        "seconds": 16.509,
+        "kind": "warning",
+        "text": "run \u00b7 error \u00b7 Command exited with status 2"
+      },
+      {
+        "seconds": 16.681,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 17.025,
+        "kind": "decision",
+        "text": "repair \u2192 execute"
+      },
+      {
+        "seconds": 17.025,
+        "kind": "tool",
+        "text": "repair_command \u00b7 Inspect the program and existing input files to prepare corrected arguments using a factor of 4, without editing files."
+      },
+      {
+        "seconds": 17.566,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 22.858,
+        "kind": "done",
+        "text": "repair \u00b7 completed"
+      },
+      {
+        "seconds": 23.03,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 23.812,
+        "kind": "decision",
+        "text": "retry \u2192 execute"
+      },
+      {
+        "seconds": 23.812,
+        "kind": "tool",
+        "text": "shell \u00b7 Run the corrected command and capture the actual emitted result."
+      },
+      {
+        "seconds": 24.06,
+        "kind": "output",
+        "text": "VALUE=36\n"
+      },
+      {
+        "seconds": 24.212,
+        "kind": "done",
+        "text": "retry \u00b7 completed"
+      },
+      {
+        "seconds": 24.352,
+        "kind": "judge",
+        "text": "Jev \u00b7 7 decisions"
+      },
+      {
+        "seconds": 24.904,
+        "kind": "done",
+        "text": "Returning verified evidence \u00b7 no final generation call"
+      },
+      {
+        "seconds": 25.143,
+        "kind": "usage",
+        "text": "25.0s \u00b7 codex 2 calls \u00b7 Jev 4 calls"
+      }
+    ],
+    "artifacts": {
+      "units.csv": "units\n2\n3\n4\n",
+      "metadata.json": "{\"description\":\"Not tabular input\"}\n",
+      "scale.py": "import argparse,csv\np=argparse.ArgumentParser()\np.add_argument(\"--records\",required=True)\np.add_argument(\"--factor\",required=True,type=int)\na=p.parse_args()\nwith open(a.records) as f: total=sum(int(r[\"units\"]) for r in csv.DictReader(f))\nprint(\"VALUE=\"+str(total*a.factor))\n"
+    },
+    "workspace_before": {
+      "metadata.json": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 36,
+        "sha256": "ed4c44969d100f7a5082ee3c0286c2d02407570b24e90cb014f8e4e735c7ba33"
+      },
+      "scale.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 274,
+        "sha256": "d9061fc380e11117bf9e41b365c17f65829cb703d7b828a73fefaa5acb5db482"
+      },
+      "units.csv": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 12,
+        "sha256": "fa4b7964b51986ca88f1b46e4df2da3a4d18db70f8946b002a865795f350b47a"
+      }
+    },
+    "workspace_after": {
+      "metadata.json": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 36,
+        "sha256": "ed4c44969d100f7a5082ee3c0286c2d02407570b24e90cb014f8e4e735c7ba33"
+      },
+      "scale.py": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 274,
+        "sha256": "d9061fc380e11117bf9e41b365c17f65829cb703d7b828a73fefaa5acb5db482"
+      },
+      "units.csv": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 12,
+        "sha256": "fa4b7964b51986ca88f1b46e4df2da3a4d18db70f8946b002a865795f350b47a"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 1,
+    "table_fastpaths": 0
+  },
+  {
+    "task": "long_evidence",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "ecb0d6d4aa57a9cd426f74fc5e4e9791ec834cd1340e722d4ba460753065f581",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "register.txt": "APPROVAL: cedar-482\nENTRY 0000: routine observation; no approval or closing record in this entry.\nENTRY 0001: routine observation; no approval or closing record in this entry.\nENTRY 0002: routine observation; no approval or closing record in this entry.\nENTRY 0003: routine observation; no approval or closing record in this entry.\nENTRY 0004: routine observation; no approval or closing record in this entry.\nENTRY 0005: routine observation; no approval or closing record in this entry.\nENTRY 0006: routine observation; no approval or closing record in this entry.\nENTRY 0007: routine observation; no approval or closing record in this entry.\nENTRY 0008: routine observation; no approval or closing record in this entry.\nENTRY 0009: routine observation; no approval or closing record in this entry.\nENTRY 0010: routine observation; no approval or closing record in this entry.\nENTRY 0011: routine observation; no approval or closing record in this entry.\nENTRY 0012: routine observation; no approval or closing record in this entry.\nENTRY 0013: routine observation; no approval or closing record in this entry.\nENTRY 0014: routine observation; no approval or closing record in this entry.\nENTRY 0015: routine observation; no approval or closing record in this entry.\nENTRY 0016: routine observation; no approval or closing record in this entry.\nENTRY 0017: routine observation; no approval or closing record in this entry.\nENTRY 0018: routine observation; no approval or closing record in this entry.\nENTRY 0019: routine observation; no approval or closing record in this entry.\nENTRY 0020: routine observation; no approval or closing record in this entry.\nENTRY 0021: routine observation; no approval or closing record in this entry.\nENTRY 0022: routine observation; no approval or closing record in this entry.\nENTRY 0023: routine observation; no approval or closing record in this entry.\nENTRY 0024: routine observation; no approval or closing record in this entry.\nENTRY 0025: routine observation; no approval or closing record in this entry.\nENTRY 0026: routine observation; no approval or closing record in this entry.\nENTRY 0027: routine observation; no approval or closing record in this entry.\nENTRY 0028: routine observation; no approval or closing record in this entry.\nENTRY 0029: routine observation; no approval or closing record in this entry.\nENTRY 0030: routine observation; no approval or closing record in this entry.\nENTRY 0031: routine observation; no approval or closing record in this entry.\nENTRY 0032: routine observation; no approval or closing record in this entry.\nENTRY 0033: routine observation; no approval or closing record in this entry.\nENTRY 0034: routine observation; no approval or closing record in this entry.\nENTRY 0035: routine observation; no approval or closing record in this entry.\nENTRY 0036: routine observation; no approval or closing record in this entry.\nENTRY 0037: routine observation; no approval or closing record in this entry.\nENTRY 0038: routine observation; no approval or closing record in this entry.\nENTRY 0039: routine observation; no approval or closing record in this entry.\nENTRY 0040: routine observation; no approval or closing record in this entry.\nENTRY 0041: routine observation; no approval or closing record in this entry.\nENTRY 0042: routine observation; no approval or closing record in this entry.\nENTRY 0043: routine observation; no approval or closing record in this entry.\nENTRY 0044: routine observation; no approval or closing record in this entry.\nENTRY 0045: routine observation; no approval or closing record in this entry.\nENTRY 0046: routine observation; no approval or closing record in this entry.\nENTRY 0047: routine observation; no approval or closing record in this entry.\nENTRY 0048: routine observation; no approval or closing record in this entry.\nENTRY 0049: routine observation; no approval or closing record in this entry.\nENTRY 0050: routine observation; no approval or closing record in this entry.\nENTRY 0051: routine observation; no approval or closing record in this entry.\nENTRY 0052: routine observation; no approval or closing record in this entry.\nENTRY 0053: routine observation; no approval or closing record in this entry.\nENTRY 0054: routine observation; no approval or closing record in this entry.\nENTRY 0055: routine observation; no approval or closing record in this entry.\nENTRY 0056: routine observation; no approval or closing record in this entry.\nENTRY 0057: routine observation; no approval or closing record in this entry.\nENTRY 0058: routine observation; no approval or closing record in this entry.\nENTRY 0059: routine observation; no approval or closing record in this entry.\nENTRY 0060: routine observation; no approval or closing record in this entry.\nENTRY 0061: routine observation; no approval or closing record in this entry.\nENTRY 0062: routine observation; no approval or closing record in this entry.\nENTRY 0063: routine observation; no approval or closing record in this entry.\nENTRY 0064: routine observation; no approval or closing record in this entry.\nENTRY 0065: routine observation; no approval or closing record in this entry.\nENTRY 0066: routine observation; no approval or closing record in this entry.\nENTRY 0067: routine observation; no approval or closing record in this entry.\nENTRY 0068: routine observation; no approval or closing record in this entry.\nENTRY 0069: routine observation; no approval or closing record in this entry.\nENTRY 0070: routine observation; no approval or closing record in this entry.\nENTRY 0071: routine observation; no approval or closing record in this entry.\nENTRY 0072: routine observation; no approval or closing record in this entry.\nENTRY 0073: routine observation; no approval or closing record in this entry.\nENTRY 0074: routine observation; no approval or closing record in this entry.\nENTRY 0075: routine observation; no approval or closing record in this entry.\nENTRY 0076: routine observation; no approval or closing record in this entry.\nENTRY 0077: routine observation; no approval or closing record in this entry.\nENTRY 0078: routine observation; no approval or closing record in this entry.\nENTRY 0079: routine observation; no approval or closing record in this entry.\nENTRY 0080: routine observation; no approval or closing record in this entry.\nENTRY 0081: routine observation; no approval or closing record in this entry.\nENTRY 0082: routine observation; no approval or closing record in this entry.\nENTRY 0083: routine observation; no approval or closing record in this entry.\nENTRY 0084: routine observation; no approval or closing record in this entry.\nENTRY 0085: routine observation; no approval or closing record in this entry.\nENTRY 0086: routine observation; no approval or closing record in this entry.\nENTRY 0087: routine observation; no approval or closing record in this entry.\nENTRY 0088: routine observation; no approval or closing record in this entry.\nENTRY 0089: routine observation; no approval or closing record in this entry.\nENTRY 0090: routine observation; no approval or closing record in this entry.\nENTRY 0091: routine observation; no approval or closing record in this entry.\nENTRY 0092: routine observation; no approval or closing record in this entry.\nENTRY 0093: routine observation; no approval or closing record in this entry.\nENTRY 0094: routine observation; no approval or closing record in this entry.\nENTRY 0095: routine observation; no approval or closing record in this entry.\nENTRY 0096: routine observation; no approval or closing record in this entry.\nENTRY 0097: routine observation; no approval or closing record in this entry.\nENTRY 0098: routine observation; no approval or closing record in this entry.\nENTRY 0099: routine observation; no approval or closing record in this entry.\nENTRY 0100: routine observation; no approval or closing record in this entry.\nENTRY 0101: routine observation; no approval or closing record in this entry.\nENTRY 0102: routine observation; no approval or closing record in this entry.\nENTRY 0103: routine observation; no approval or closing record in this entry.\nENTRY 0104: routine observation; no approval or closing record in this entry.\nENTRY 0105: routine observation; no approval or closing record in this entry.\nENTRY 0106: routine observation; no approval or closing record in this entry.\nENTRY 0107: routine observation; no approval or closing record in this entry.\nENTRY 0108: routine observation; no approval or closing record in this entry.\nENTRY 0109: routine observation; no approval or closing record in this entry.\nENTRY 0110: routine observation; no approval or closing record in this entry.\nENTRY 0111: routine observation; no approval or closing record in this entry.\nENTRY 0112: routine observation; no approval or closing record in this entry.\nENTRY 0113: routine observation; no approval or closing record in this entry.\nENTRY 0114: routine observation; no approval or closing record in this entry.\nENTRY 0115: routine observation; no approval or closing record in this entry.\nENTRY 0116: routine observation; no approval or closing record in this entry.\nENTRY 0117: routine observation; no approval or closing record in this entry.\nENTRY 0118: routine observation; no approval or closing record in this entry.\nENTRY 0119: routine observation; no approval or closing record in this entry.\nENTRY 0120: routine observation; no approval or closing record in this entry.\nENTRY 0121: routine observation; no approval or closing record in this entry.\nENTRY 0122: routine observation; no approval or closing record in this entry.\nENTRY 0123: routine observation; no approval or closing record in this entry.\nENTRY 0124: routine observation; no approval or closing record in this entry.\nENTRY 0125: routine observation; no approval or closing record in this entry.\nENTRY 0126: routine observation; no approval or closing record in this entry.\nENTRY 0127: routine observation; no approval or closing record in this entry.\nENTRY 0128: routine observation; no approval or closing record in this entry.\nENTRY 0129: routine observation; no approval or closing record in this entry.\nENTRY 0130: routine observation; no approval or closing record in this entry.\nENTRY 0131: routine observation; no approval or closing record in this entry.\nENTRY 0132: routine observation; no approval or closing record in this entry.\nENTRY 0133: routine observation; no approval or closing record in this entry.\nENTRY 0134: routine observation; no approval or closing record in this entry.\nENTRY 0135: routine observation; no approval or closing record in this entry.\nENTRY 0136: routine observation; no approval or closing record in this entry.\nENTRY 0137: routine observation; no approval or closing record in this entry.\nENTRY 0138: routine observation; no approval or closing record in this entry.\nENTRY 0139: routine observation; no approval or closing record in this entry.\nENTRY 0140: routine observation; no approval or closing record in this entry.\nENTRY 0141: routine observation; no approval or closing record in this entry.\nENTRY 0142: routine observation; no approval or closing record in this entry.\nENTRY 0143: routine observation; no approval or closing record in this entry.\nENTRY 0144: routine observation; no approval or closing record in this entry.\nENTRY 0145: routine observation; no approval or closing record in this entry.\nENTRY 0146: routine observation; no approval or closing record in this entry.\nENTRY 0147: routine observation; no approval or closing record in this entry.\nENTRY 0148: routine observation; no approval or closing record in this entry.\nENTRY 0149: routine observation; no approval or closing record in this entry.\nENTRY 0150: routine observation; no approval or closing record in this entry.\nENTRY 0151: routine observation; no approval or closing record in this entry.\nENTRY 0152: routine observation; no approval or closing record in this entry.\nENTRY 0153: routine observation; no approval or closing record in this entry.\nENTRY 0154: routine observation; no approval or closing record in this entry.\nENTRY 0155: routine observation; no approval or closing record in this entry.\nENTRY 0156: routine observation; no approval or closing record in this entry.\nENTRY 0157: routine observation; no approval or closing record in this entry.\nENTRY 0158: routine observation; no approval or closing record in this entry.\nENTRY 0159: routine observation; no approval or closing record in this entry.\nENTRY 0160: routine observation; no approval or closing record in this entry.\nENTRY 0161: routine observation; no approval or closing record in this entry.\nENTRY 0162: routine observation; no approval or closing record in this entry.\nENTRY 0163: routine observation; no approval or closing record in this entry.\nENTRY 0164: routine observation; no approval or closing record in this entry.\nENTRY 0165: routine observation; no approval or closing record in this entry.\nENTRY 0166: routine observation; no approval or closing record in this entry.\nENTRY 0167: routine observation; no approval or closing record in this entry.\nENTRY 0168: routine observation; no approval or closing record in this entry.\nENTRY 0169: routine observation; no approval or closing record in this entry.\nENTRY 0170: routine observation; no approval or closing record in this entry.\nENTRY 0171: routine observation; no approval or closing record in this entry.\nENTRY 0172: routine observation; no approval or closing record in this entry.\nENTRY 0173: routine observation; no approval or closing record in this entry.\nENTRY 0174: routine observation; no approval or closing record in this entry.\nENTRY 0175: routine observation; no approval or closing record in this entry.\nENTRY 0176: routine observation; no approval or closing record in this entry.\nENTRY 0177: routine observation; no approval or closing record in this entry.\nENTRY 0178: routine observation; no approval or closing record in this entry.\nENTRY 0179: routine observation; no approval or closing record in this entry.\nENTRY 0180: routine observation; no approval or closing record in this entry.\nENTRY 0181: routine observation; no approval or closing record in this entry.\nENTRY 0182: routine observation; no approval or closing record in this entry.\nENTRY 0183: routine observation; no approval or closing record in this entry.\nENTRY 0184: routine observation; no approval or closing record in this entry.\nENTRY 0185: routine observation; no approval or closing record in this entry.\nENTRY 0186: routine observation; no approval or closing record in this entry.\nENTRY 0187: routine observation; no approval or closing record in this entry.\nENTRY 0188: routine observation; no approval or closing record in this entry.\nENTRY 0189: routine observation; no approval or closing record in this entry.\nENTRY 0190: routine observation; no approval or closing record in this entry.\nENTRY 0191: routine observation; no approval or closing record in this entry.\nENTRY 0192: routine observation; no approval or closing record in this entry.\nENTRY 0193: routine observation; no approval or closing record in this entry.\nENTRY 0194: routine observation; no approval or closing record in this entry.\nENTRY 0195: routine observation; no approval or closing record in this entry.\nENTRY 0196: routine observation; no approval or closing record in this entry.\nENTRY 0197: routine observation; no approval or closing record in this entry.\nENTRY 0198: routine observation; no approval or closing record in this entry.\nENTRY 0199: routine observation; no approval or closing record in this entry.\nENTRY 0200: routine observation; no approval or closing record in this entry.\nENTRY 0201: routine observation; no approval or closing record in this entry.\nENTRY 0202: routine observation; no approval or closing record in this entry.\nENTRY 0203: routine observation; no approval or closing record in this entry.\nENTRY 0204: routine observation; no approval or closing record in this entry.\nENTRY 0205: routine observation; no approval or closing record in this entry.\nENTRY 0206: routine observation; no approval or closing record in this entry.\nENTRY 0207: routine observation; no approval or closing record in this entry.\nENTRY 0208: routine observation; no approval or closing record in this entry.\nENTRY 0209: routine observation; no approval or closing record in this entry.\nENTRY 0210: routine observation; no approval or closing record in this entry.\nENTRY 0211: routine observation; no approval or closing record in this entry.\nENTRY 0212: routine observation; no approval or closing record in this entry.\nENTRY 0213: routine observation; no approval or closing record in this entry.\nENTRY 0214: routine observation; no approval or closing record in this entry.\nENTRY 0215: routine observation; no approval or closing record in this entry.\nENTRY 0216: routine observation; no approval or closing record in this entry.\nENTRY 0217: routine observation; no approval or closing record in this entry.\nENTRY 0218: routine observation; no approval or closing record in this entry.\nENTRY 0219: routine observation; no approval or closing record in this entry.\nENTRY 0220: routine observation; no approval or closing record in this entry.\nENTRY 0221: routine observation; no approval or closing record in this entry.\nENTRY 0222: routine observation; no approval or closing record in this entry.\nENTRY 0223: routine observation; no approval or closing record in this entry.\nENTRY 0224: routine observation; no approval or closing record in this entry.\nENTRY 0225: routine observation; no approval or closing record in this entry.\nENTRY 0226: routine observation; no approval or closing record in this entry.\nENTRY 0227: routine observation; no approval or closing record in this entry.\nENTRY 0228: routine observation; no approval or closing record in this entry.\nENTRY 0229: routine observation; no approval or closing record in this entry.\nENTRY 0230: routine observation; no approval or closing record in this entry.\nENTRY 0231: routine observation; no approval or closing record in this entry.\nENTRY 0232: routine observation; no approval or closing record in this entry.\nENTRY 0233: routine observation; no approval or closing record in this entry.\nENTRY 0234: routine observation; no approval or closing record in this entry.\nENTRY 0235: routine observation; no approval or closing record in this entry.\nENTRY 0236: routine observation; no approval or closing record in this entry.\nENTRY 0237: routine observation; no approval or closing record in this entry.\nENTRY 0238: routine observation; no approval or closing record in this entry.\nENTRY 0239: routine observation; no approval or closing record in this entry.\nENTRY 0240: routine observation; no approval or closing record in this entry.\nENTRY 0241: routine observation; no approval or closing record in this entry.\nENTRY 0242: routine observation; no approval or closing record in this entry.\nENTRY 0243: routine observation; no approval or closing record in this entry.\nENTRY 0244: routine observation; no approval or closing record in this entry.\nENTRY 0245: routine observation; no approval or closing record in this entry.\nENTRY 0246: routine observation; no approval or closing record in this entry.\nENTRY 0247: routine observation; no approval or closing record in this entry.\nENTRY 0248: routine observation; no approval or closing record in this entry.\nENTRY 0249: routine observation; no approval or closing record in this entry.\nENTRY 0250: routine observation; no approval or closing record in this entry.\nENTRY 0251: routine observation; no approval or closing record in this entry.\nENTRY 0252: routine observation; no approval or closing record in this entry.\nENTRY 0253: routine observation; no approval or closing record in this entry.\nENTRY 0254: routine observation; no approval or closing record in this entry.\nENTRY 0255: routine observation; no approval or closing record in this entry.\nENTRY 0256: routine observation; no approval or closing record in this entry.\nENTRY 0257: routine observation; no approval or closing record in this entry.\nENTRY 0258: routine observation; no approval or closing record in this entry.\nENTRY 0259: routine observation; no approval or closing record in this entry.\nENTRY 0260: routine observation; no approval or closing record in this entry.\nENTRY 0261: routine observation; no approval or closing record in this entry.\nENTRY 0262: routine observation; no approval or closing record in this entry.\nENTRY 0263: routine observation; no approval or closing record in this entry.\nENTRY 0264: routine observation; no approval or closing record in this entry.\nENTRY 0265: routine observation; no approval or closing record in this entry.\nENTRY 0266: routine observation; no approval or closing record in this entry.\nENTRY 0267: routine observation; no approval or closing record in this entry.\nENTRY 0268: routine observation; no approval or closing record in this entry.\nENTRY 0269: routine observation; no approval or closing record in this entry.\nENTRY 0270: routine observation; no approval or closing record in this entry.\nENTRY 0271: routine observation; no approval or closing record in this entry.\nENTRY 0272: routine observation; no approval or closing record in this entry.\nENTRY 0273: routine observation; no approval or closing record in this entry.\nENTRY 0274: routine observation; no approval or closing record in this entry.\nENTRY 0275: routine observation; no approval or closing record in this entry.\nENTRY 0276: routine observation; no approval or closing record in this entry.\nENTRY 0277: routine observation; no approval or closing record in this entry.\nENTRY 0278: routine observation; no approval or closing record in this entry.\nENTRY 0279: routine observation; no approval or closing record in this entry.\nENTRY 0280: routine observation; no approval or closing record in this entry.\nENTRY 0281: routine observation; no approval or closing record in this entry.\nENTRY 0282: routine observation; no approval or closing record in this entry.\nENTRY 0283: routine observation; no approval or closing record in this entry.\nENTRY 0284: routine observation; no approval or closing record in this entry.\nENTRY 0285: routine observation; no approval or closing record in this entry.\nENTRY 0286: routine observation; no approval or closing record in this entry.\nENTRY 0287: routine observation; no approval or closing record in this entry.\nENTRY 0288: routine observation; no approval or closing record in this entry.\nENTRY 0289: routine observation; no approval or closing record in this entry.\nENTRY 0290: routine observation; no approval or closing record in this entry.\nENTRY 0291: routine observation; no approval or closing record in this entry.\nENTRY 0292: routine observation; no approval or closing record in this entry.\nENTRY 0293: routine observation; no approval or closing record in this entry.\nENTRY 0294: routine observation; no approval or closing record in this entry.\nENTRY 0295: routine observation; no approval or closing record in this entry.\nENTRY 0296: routine observation; no approval or closing record in this entry.\nENTRY 0297: routine observation; no approval or closing record in this entry.\nENTRY 0298: routine observation; no approval or closing record in this entry.\nENTRY 0299: routine observation; no approval or closing record in this entry.\nENTRY 0300: routine observation; no approval or closing record in this entry.\nENTRY 0301: routine observation; no approval or closing record in this entry.\nENTRY 0302: routine observation; no approval or closing record in this entry.\nENTRY 0303: routine observation; no approval or closing record in this entry.\nENTRY 0304: routine observation; no approval or closing record in this entry.\nENTRY 0305: routine observation; no approval or closing record in this entry.\nENTRY 0306: routine observation; no approval or closing record in this entry.\nENTRY 0307: routine observation; no approval or closing record in this entry.\nENTRY 0308: routine observation; no approval or closing record in this entry.\nENTRY 0309: routine observation; no approval or closing record in this entry.\nENTRY 0310: routine observation; no approval or closing record in this entry.\nENTRY 0311: routine observation; no approval or closing record in this entry.\nENTRY 0312: routine observation; no approval or closing record in this entry.\nENTRY 0313: routine observation; no approval or closing record in this entry.\nENTRY 0314: routine observation; no approval or closing record in this entry.\nENTRY 0315: routine observation; no approval or closing record in this entry.\nENTRY 0316: routine observation; no approval or closing record in this entry.\nENTRY 0317: routine observation; no approval or closing record in this entry.\nENTRY 0318: routine observation; no approval or closing record in this entry.\nENTRY 0319: routine observation; no approval or closing record in this entry.\nENTRY 0320: routine observation; no approval or closing record in this entry.\nENTRY 0321: routine observation; no approval or closing record in this entry.\nENTRY 0322: routine observation; no approval or closing record in this entry.\nENTRY 0323: routine observation; no approval or closing record in this entry.\nENTRY 0324: routine observation; no approval or closing record in this entry.\nENTRY 0325: routine observation; no approval or closing record in this entry.\nENTRY 0326: routine observation; no approval or closing record in this entry.\nENTRY 0327: routine observation; no approval or closing record in this entry.\nENTRY 0328: routine observation; no approval or closing record in this entry.\nENTRY 0329: routine observation; no approval or closing record in this entry.\nENTRY 0330: routine observation; no approval or closing record in this entry.\nENTRY 0331: routine observation; no approval or closing record in this entry.\nENTRY 0332: routine observation; no approval or closing record in this entry.\nENTRY 0333: routine observation; no approval or closing record in this entry.\nENTRY 0334: routine observation; no approval or closing record in this entry.\nENTRY 0335: routine observation; no approval or closing record in this entry.\nENTRY 0336: routine observation; no approval or closing record in this entry.\nENTRY 0337: routine observation; no approval or closing record in this entry.\nENTRY 0338: routine observation; no approval or closing record in this entry.\nENTRY 0339: routine observation; no approval or closing record in this entry.\nENTRY 0340: routine observation; no approval or closing record in this entry.\nENTRY 0341: routine observation; no approval or closing record in this entry.\nENTRY 0342: routine observation; no approval or closing record in this entry.\nENTRY 0343: routine observation; no approval or closing record in this entry.\nENTRY 0344: routine observation; no approval or closing record in this entry.\nENTRY 0345: routine observation; no approval or closing record in this entry.\nENTRY 0346: routine observation; no approval or closing record in this entry.\nENTRY 0347: routine observation; no approval or closing record in this entry.\nENTRY 0348: routine observation; no approval or closing record in this entry.\nENTRY 0349: routine observation; no approval or closing record in this entry.\nENTRY 0350: routine observation; no approval or closing record in this entry.\nENTRY 0351: routine observation; no approval or closing record in this entry.\nENTRY 0352: routine observation; no approval or closing record in this entry.\nENTRY 0353: routine observation; no approval or closing record in this entry.\nENTRY 0354: routine observation; no approval or closing record in this entry.\nENTRY 0355: routine observation; no approval or closing record in this entry.\nENTRY 0356: routine observation; no approval or closing record in this entry.\nENTRY 0357: routine observation; no approval or closing record in this entry.\nENTRY 0358: routine observation; no approval or closing record in this entry.\nENTRY 0359: routine observation; no approval or closing record in this entry.\nCLOSING: -17.25\n"
+    },
+    "prompt": "Read register.txt. Return only JSON with keys approval_code and closing_balance, using the APPROVAL and CLOSING records respectively. Do not change files. Do not infer a missing record from nearby entries.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13184, input_tokens=13564, output_tokens=21, reasoning_output_tokens=0, total_tokens=13585) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=18176, input_tokens=26990, output_tokens=84, reasoning_output_tokens=0, total_tokens=27074)",
+    "seconds": 8.849,
+    "answer": "{\"approval_code\":\"cedar-482\",\"closing_balance\":-17.25}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "approval_code": "cedar-482",
+        "closing_balance": -17.25
+      }
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "1:APPROVAL: cedar-482\n362:CLOSING: -17.25\n"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Read register.txt. Return only JSON with keys approval_code and closing_balance, using the APPROVAL and CLOSING records respectively. Do not change files. Do not infer a missing record from nearby entries.', text_elements=[], type='text'))], id='01a0c379-66e2-7c91-8742-6ef9f6f30da0', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0602c9fadf59c15a016ab104769ba487d09346ebe38850a671', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll read register.txt and extract the APPROVAL and CLOSING records.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='1:APPROVAL: cedar-482\\n362:CLOSING: -17.25\\n', command='/bin/zsh -lc \"rg -n \\'APPROVAL|CLOSING\\' register.txt\"', command_actions=[CommandAction(root=SearchCommandAction(command=\"rg -n 'APPROVAL|CLOSING' register.txt\", path='register.txt', query='APPROVAL|CLOSING', type='search'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-codex'), duration_ms=0, exit_code=0, id='exec-076ae95f-982e-4e1a-a4b0-1924e0a394f2', plugin_id=None, process_id='59537', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_0602c9fadf59c15a016ab1047aa15087d0baa9e99d576c86c3', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='{\"approval_code\":\"cedar-482\",\"closing_balance\":-17.25}', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "register.txt": "APPROVAL: cedar-482\nENTRY 0000: routine observation; no approval or closing record in this entry.\nENTRY 0001: routine observation; no approval or closing record in this entry.\nENTRY 0002: routine observation; no approval or closing record in this entry.\nENTRY 0003: routine observation; no approval or closing record in this entry.\nENTRY 0004: routine observation; no approval or closing record in this entry.\nENTRY 0005: routine observation; no approval or closing record in this entry.\nENTRY 0006: routine observation; no approval or closing record in this entry.\nENTRY 0007: routine observation; no approval or closing record in this entry.\nENTRY 0008: routine observation; no approval or closing record in this entry.\nENTRY 0009: routine observation; no approval or closing record in this entry.\nENTRY 0010: routine observation; no approval or closing record in this entry.\nENTRY 0011: routine observation; no approval or closing record in this entry.\nENTRY 0012: routine observation; no approval or closing record in this entry.\nENTRY 0013: routine observation; no approval or closing record in this entry.\nENTRY 0014: routine observation; no approval or closing record in this entry.\nENTRY 0015: routine observation; no approval or closing record in this entry.\nENTRY 0016: routine observation; no approval or closing record in this entry.\nENTRY 0017: routine observation; no approval or closing record in this entry.\nENTRY 0018: routine observation; no approval or closing record in this entry.\nENTRY 0019: routine observation; no approval or closing record in this entry.\nENTRY 0020: routine observation; no approval or closing record in this entry.\nENTRY 0021: routine observation; no approval or closing record in this entry.\nENTRY 0022: routine observation; no approval or closing record in this entry.\nENTRY 0023: routine observation; no approval or closing record in this entry.\nENTRY 0024: routine observation; no approval or closing record in this entry.\nENTRY 0025: routine observation; no approval or closing record in this entry.\nENTRY 0026: routine observation; no approval or closing record in this entry.\nENTRY 0027: routine observation; no approval or closing record in this entry.\nENTRY 0028: routine observation; no approval or closing record in this entry.\nENTRY 0029: routine observation; no approval or closing record in this entry.\nENTRY 0030: routine observation; no approval or closing record in this entry.\nENTRY 0031: routine observation; no approval or closing record in this entry.\nENTRY 0032: routine observation; no approval or closing record in this entry.\nENTRY 0033: routine observation; no approval or closing record in this entry.\nENTRY 0034: routine observation; no approval or closing record in this entry.\nENTRY 0035: routine observation; no approval or closing record in this entry.\nENTRY 0036: routine observation; no approval or closing record in this entry.\nENTRY 0037: routine observation; no approval or closing record in this entry.\nENTRY 0038: routine observation; no approval or closing record in this entry.\nENTRY 0039: routine observation; no approval or closing record in this entry.\nENTRY 0040: routine observation; no approval or closing record in this entry.\nENTRY 0041: routine observation; no approval or closing record in this entry.\nENTRY 0042: routine observation; no approval or closing record in this entry.\nENTRY 0043: routine observation; no approval or closing record in this entry.\nENTRY 0044: routine observation; no approval or closing record in this entry.\nENTRY 0045: routine observation; no approval or closing record in this entry.\nENTRY 0046: routine observation; no approval or closing record in this entry.\nENTRY 0047: routine observation; no approval or closing record in this entry.\nENTRY 0048: routine observation; no approval or closing record in this entry.\nENTRY 0049: routine observation; no approval or closing record in this entry.\nENTRY 0050: routine observation; no approval or closing record in this entry.\nENTRY 0051: routine observation; no approval or closing record in this entry.\nENTRY 0052: routine observation; no approval or closing record in this entry.\nENTRY 0053: routine observation; no approval or closing record in this entry.\nENTRY 0054: routine observation; no approval or closing record in this entry.\nENTRY 0055: routine observation; no approval or closing record in this entry.\nENTRY 0056: routine observation; no approval or closing record in this entry.\nENTRY 0057: routine observation; no approval or closing record in this entry.\nENTRY 0058: routine observation; no approval or closing record in this entry.\nENTRY 0059: routine observation; no approval or closing record in this entry.\nENTRY 0060: routine observation; no approval or closing record in this entry.\nENTRY 0061: routine observation; no approval or closing record in this entry.\nENTRY 0062: routine observation; no approval or closing record in this entry.\nENTRY 0063: routine observation; no approval or closing record in this entry.\nENTRY 0064: routine observation; no approval or closing record in this entry.\nENTRY 0065: routine observation; no approval or closing record in this entry.\nENTRY 0066: routine observation; no approval or closing record in this entry.\nENTRY 0067: routine observation; no approval or closing record in this entry.\nENTRY 0068: routine observation; no approval or closing record in this entry.\nENTRY 0069: routine observation; no approval or closing record in this entry.\nENTRY 0070: routine observation; no approval or closing record in this entry.\nENTRY 0071: routine observation; no approval or closing record in this entry.\nENTRY 0072: routine observation; no approval or closing record in this entry.\nENTRY 0073: routine observation; no approval or closing record in this entry.\nENTRY 0074: routine observation; no approval or closing record in this entry.\nENTRY 0075: routine observation; no approval or closing record in this entry.\nENTRY 0076: routine observation; no approval or closing record in this entry.\nENTRY 0077: routine observation; no approval or closing record in this entry.\nENTRY 0078: routine observation; no approval or closing record in this entry.\nENTRY 0079: routine observation; no approval or closing record in this entry.\nENTRY 0080: routine observation; no approval or closing record in this entry.\nENTRY 0081: routine observation; no approval or closing record in this entry.\nENTRY 0082: routine observation; no approval or closing record in this entry.\nENTRY 0083: routine observation; no approval or closing record in this entry.\nENTRY 0084: routine observation; no approval or closing record in this entry.\nENTRY 0085: routine observation; no approval or closing record in this entry.\nENTRY 0086: routine observation; no approval or closing record in this entry.\nENTRY 0087: routine observation; no approval or closing record in this entry.\nENTRY 0088: routine observation; no approval or closing record in this entry.\nENTRY 0089: routine observation; no approval or closing record in this entry.\nENTRY 0090: routine observation; no approval or closing record in this entry.\nENTRY 0091: routine observation; no approval or closing record in this entry.\nENTRY 0092: routine observation; no approval or closing record in this entry.\nENTRY 0093: routine observation; no approval or closing record in this entry.\nENTRY 0094: routine observation; no approval or closing record in this entry.\nENTRY 0095: routine observation; no approval or closing record in this entry.\nENTRY 0096: routine observation; no approval or closing record in this entry.\nENTRY 0097: routine observation; no approval or closing record in this entry.\nENTRY 0098: routine observation; no approval or closing record in this entry.\nENTRY 0099: routine observation; no approval or closing record in this entry.\nENTRY 0100: routine observation; no approval or closing record in this entry.\nENTRY 0101: routine observation; no approval or closing record in this entry.\nENTRY 0102: routine observation; no approval or closing record in this entry.\nENTRY 0103: routine observation; no approval or closing record in this entry.\nENTRY 0104: routine observation; no approval or closing record in this entry.\nENTRY 0105: routine observation; no approval or closing record in this entry.\nENTRY 0106: routine observation; no approval or closing record in this entry.\nENTRY 0107: routine observation; no approval or closing record in this entry.\nENTRY 0108: routine observation; no approval or closing record in this entry.\nENTRY 0109: routine observation; no approval or closing record in this entry.\nENTRY 0110: routine observation; no approval or closing record in this entry.\nENTRY 0111: routine observation; no approval or closing record in this entry.\nENTRY 0112: routine observation; no approval or closing record in this entry.\nENTRY 0113: routine observation; no approval or closing record in this entry.\nENTRY 0114: routine observation; no approval or closing record in this entry.\nENTRY 0115: routine observation; no approval or closing record in this entry.\nENTRY 0116: routine observation; no approval or closing record in this entry.\nENTRY 0117: routine observation; no approval or closing record in this entry.\nENTRY 0118: routine observation; no approval or closing record in this entry.\nENTRY 0119: routine observation; no approval or closing record in this entry.\nENTRY 0120: routine observation; no approval or closing record in this entry.\nENTRY 0121: routine observation; no approval or closing record in this entry.\nENTRY 0122: routine observation; no approval or closing record in this entry.\nENTRY 0123: routine observation; no approval or closing record in this entry.\nENTRY 0124: routine observation; no approval or closing record in this entry.\nENTRY 0125: routine observation; no approval or closing record in this entry.\nENTRY 0126: routine observation; no approval or closing record in this entry.\nENTRY 0127: routine observation; no approval or closing record in this entry.\nENTRY 0128: routine observation; no approval or closing record in this entry.\nENTRY 0129: routine observation; no approval or closing record in this entry.\nENTRY 0130: routine observation; no approval or closing record in this entry.\nENTRY 0131: routine observation; no approval or closing record in this entry.\nENTRY 0132: routine observation; no approval or closing record in this entry.\nENTRY 0133: routine observation; no approval or closing record in this entry.\nENTRY 0134: routine observation; no approval or closing record in this entry.\nENTRY 0135: routine observation; no approval or closing record in this entry.\nENTRY 0136: routine observation; no approval or closing record in this entry.\nENTRY 0137: routine observation; no approval or closing record in this entry.\nENTRY 0138: routine observation; no approval or closing record in this entry.\nENTRY 0139: routine observation; no approval or closing record in this entry.\nENTRY 0140: routine observation; no approval or closing record in this entry.\nENTRY 0141: routine observation; no approval or closing record in this entry.\nENTRY 0142: routine observation; no approval or closing record in this entry.\nENTRY 0143: routine observation; no approval or closing record in this entry.\nENTRY 0144: routine observation; no approval or closing record in this entry.\nENTRY 0145: routine observation; no approval or closing record in this entry.\nENTRY 0146: routine observation; no approval or closing record in this entry.\nENTRY 0147: routine observation; no approval or closing record in this entry.\nENTRY 0148: routine observation; no approval or closing record in this entry.\nENTRY 0149: routine observation; no approval or closing record in this entry.\nENTRY 0150: routine observation; no approval or closing record in this entry.\nENTRY 0151: routine observation; no approval or closing record in this entry.\nENTRY 0152: routine observation; no approval or closing record in this entry.\nENTRY 0153: routine observation; no approval or closing record in this entry.\nENTRY 0154: routine observation; no approval or closing record in this entry.\nENTRY 0155: routine observation; no approval or closing record in this entry.\nENTRY 0156: routine observation; no approval or closing record in this entry.\nENTRY 0157: routine observation; no approval or closing record in this entry.\nENTRY 0158: routine observation; no approval or closing record in this entry.\nENTRY 0159: routine observation; no approval or closing record in this entry.\nENTRY 0160: routine observation; no approval or closing record in this entry.\nENTRY 0161: routine observation; no approval or closing record in this entry.\nENTRY 0162: routine observation; no approval or closing record in this entry.\nENTRY 0163: routine observation; no approval or closing record in this entry.\nENTRY 0164: routine observation; no approval or closing record in this entry.\nENTRY 0165: routine observation; no approval or closing record in this entry.\nENTRY 0166: routine observation; no approval or closing record in this entry.\nENTRY 0167: routine observation; no approval or closing record in this entry.\nENTRY 0168: routine observation; no approval or closing record in this entry.\nENTRY 0169: routine observation; no approval or closing record in this entry.\nENTRY 0170: routine observation; no approval or closing record in this entry.\nENTRY 0171: routine observation; no approval or closing record in this entry.\nENTRY 0172: routine observation; no approval or closing record in this entry.\nENTRY 0173: routine observation; no approval or closing record in this entry.\nENTRY 0174: routine observation; no approval or closing record in this entry.\nENTRY 0175: routine observation; no approval or closing record in this entry.\nENTRY 0176: routine observation; no approval or closing record in this entry.\nENTRY 0177: routine observation; no approval or closing record in this entry.\nENTRY 0178: routine observation; no approval or closing record in this entry.\nENTRY 0179: routine observation; no approval or closing record in this entry.\nENTRY 0180: routine observation; no approval or closing record in this entry.\nENTRY 0181: routine observation; no approval or closing record in this entry.\nENTRY 0182: routine observation; no approval or closing record in this entry.\nENTRY 0183: routine observation; no approval or closing record in this entry.\nENTRY 0184: routine observation; no approval or closing record in this entry.\nENTRY 0185: routine observation; no approval or closing record in this entry.\nENTRY 0186: routine observation; no approval or closing record in this entry.\nENTRY 0187: routine observation; no approval or closing record in this entry.\nENTRY 0188: routine observation; no approval or closing record in this entry.\nENTRY 0189: routine observation; no approval or closing record in this entry.\nENTRY 0190: routine observation; no approval or closing record in this entry.\nENTRY 0191: routine observation; no approval or closing record in this entry.\nENTRY 0192: routine observation; no approval or closing record in this entry.\nENTRY 0193: routine observation; no approval or closing record in this entry.\nENTRY 0194: routine observation; no approval or closing record in this entry.\nENTRY 0195: routine observation; no approval or closing record in this entry.\nENTRY 0196: routine observation; no approval or closing record in this entry.\nENTRY 0197: routine observation; no approval or closing record in this entry.\nENTRY 0198: routine observation; no approval or closing record in this entry.\nENTRY 0199: routine observation; no approval or closing record in this entry.\nENTRY 0200: routine observation; no approval or closing record in this entry.\nENTRY 0201: routine observation; no approval or closing record in this entry.\nENTRY 0202: routine observation; no approval or closing record in this entry.\nENTRY 0203: routine observation; no approval or closing record in this entry.\nENTRY 0204: routine observation; no approval or closing record in this entry.\nENTRY 0205: routine observation; no approval or closing record in this entry.\nENTRY 0206: routine observation; no approval or closing record in this entry.\nENTRY 0207: routine observation; no approval or closing record in this entry.\nENTRY 0208: routine observation; no approval or closing record in this entry.\nENTRY 0209: routine observation; no approval or closing record in this entry.\nENTRY 0210: routine observation; no approval or closing record in this entry.\nENTRY 0211: routine observation; no approval or closing record in this entry.\nENTRY 0212: routine observation; no approval or closing record in this entry.\nENTRY 0213: routine observation; no approval or closing record in this entry.\nENTRY 0214: routine observation; no approval or closing record in this entry.\nENTRY 0215: routine observation; no approval or closing record in this entry.\nENTRY 0216: routine observation; no approval or closing record in this entry.\nENTRY 0217: routine observation; no approval or closing record in this entry.\nENTRY 0218: routine observation; no approval or closing record in this entry.\nENTRY 0219: routine observation; no approval or closing record in this entry.\nENTRY 0220: routine observation; no approval or closing record in this entry.\nENTRY 0221: routine observation; no approval or closing record in this entry.\nENTRY 0222: routine observation; no approval or closing record in this entry.\nENTRY 0223: routine observation; no approval or closing record in this entry.\nENTRY 0224: routine observation; no approval or closing record in this entry.\nENTRY 0225: routine observation; no approval or closing record in this entry.\nENTRY 0226: routine observation; no approval or closing record in this entry.\nENTRY 0227: routine observation; no approval or closing record in this entry.\nENTRY 0228: routine observation; no approval or closing record in this entry.\nENTRY 0229: routine observation; no approval or closing record in this entry.\nENTRY 0230: routine observation; no approval or closing record in this entry.\nENTRY 0231: routine observation; no approval or closing record in this entry.\nENTRY 0232: routine observation; no approval or closing record in this entry.\nENTRY 0233: routine observation; no approval or closing record in this entry.\nENTRY 0234: routine observation; no approval or closing record in this entry.\nENTRY 0235: routine observation; no approval or closing record in this entry.\nENTRY 0236: routine observation; no approval or closing record in this entry.\nENTRY 0237: routine observation; no approval or closing record in this entry.\nENTRY 0238: routine observation; no approval or closing record in this entry.\nENTRY 0239: routine observation; no approval or closing record in this entry.\nENTRY 0240: routine observation; no approval or closing record in this entry.\nENTRY 0241: routine observation; no approval or closing record in this entry.\nENTRY 0242: routine observation; no approval or closing record in this entry.\nENTRY 0243: routine observation; no approval or closing record in this entry.\nENTRY 0244: routine observation; no approval or closing record in this entry.\nENTRY 0245: routine observation; no approval or closing record in this entry.\nENTRY 0246: routine observation; no approval or closing record in this entry.\nENTRY 0247: routine observation; no approval or closing record in this entry.\nENTRY 0248: routine observation; no approval or closing record in this entry.\nENTRY 0249: routine observation; no approval or closing record in this entry.\nENTRY 0250: routine observation; no approval or closing record in this entry.\nENTRY 0251: routine observation; no approval or closing record in this entry.\nENTRY 0252: routine observation; no approval or closing record in this entry.\nENTRY 0253: routine observation; no approval or closing record in this entry.\nENTRY 0254: routine observation; no approval or closing record in this entry.\nENTRY 0255: routine observation; no approval or closing record in this entry.\nENTRY 0256: routine observation; no approval or closing record in this entry.\nENTRY 0257: routine observation; no approval or closing record in this entry.\nENTRY 0258: routine observation; no approval or closing record in this entry.\nENTRY 0259: routine observation; no approval or closing record in this entry.\nENTRY 0260: routine observation; no approval or closing record in this entry.\nENTRY 0261: routine observation; no approval or closing record in this entry.\nENTRY 0262: routine observation; no approval or closing record in this entry.\nENTRY 0263: routine observation; no approval or closing record in this entry.\nENTRY 0264: routine observation; no approval or closing record in this entry.\nENTRY 0265: routine observation; no approval or closing record in this entry.\nENTRY 0266: routine observation; no approval or closing record in this entry.\nENTRY 0267: routine observation; no approval or closing record in this entry.\nENTRY 0268: routine observation; no approval or closing record in this entry.\nENTRY 0269: routine observation; no approval or closing record in this entry.\nENTRY 0270: routine observation; no approval or closing record in this entry.\nENTRY 0271: routine observation; no approval or closing record in this entry.\nENTRY 0272: routine observation; no approval or closing record in this entry.\nENTRY 0273: routine observation; no approval or closing record in this entry.\nENTRY 0274: routine observation; no approval or closing record in this entry.\nENTRY 0275: routine observation; no approval or closing record in this entry.\nENTRY 0276: routine observation; no approval or closing record in this entry.\nENTRY 0277: routine observation; no approval or closing record in this entry.\nENTRY 0278: routine observation; no approval or closing record in this entry.\nENTRY 0279: routine observation; no approval or closing record in this entry.\nENTRY 0280: routine observation; no approval or closing record in this entry.\nENTRY 0281: routine observation; no approval or closing record in this entry.\nENTRY 0282: routine observation; no approval or closing record in this entry.\nENTRY 0283: routine observation; no approval or closing record in this entry.\nENTRY 0284: routine observation; no approval or closing record in this entry.\nENTRY 0285: routine observation; no approval or closing record in this entry.\nENTRY 0286: routine observation; no approval or closing record in this entry.\nENTRY 0287: routine observation; no approval or closing record in this entry.\nENTRY 0288: routine observation; no approval or closing record in this entry.\nENTRY 0289: routine observation; no approval or closing record in this entry.\nENTRY 0290: routine observation; no approval or closing record in this entry.\nENTRY 0291: routine observation; no approval or closing record in this entry.\nENTRY 0292: routine observation; no approval or closing record in this entry.\nENTRY 0293: routine observation; no approval or closing record in this entry.\nENTRY 0294: routine observation; no approval or closing record in this entry.\nENTRY 0295: routine observation; no approval or closing record in this entry.\nENTRY 0296: routine observation; no approval or closing record in this entry.\nENTRY 0297: routine observation; no approval or closing record in this entry.\nENTRY 0298: routine observation; no approval or closing record in this entry.\nENTRY 0299: routine observation; no approval or closing record in this entry.\nENTRY 0300: routine observation; no approval or closing record in this entry.\nENTRY 0301: routine observation; no approval or closing record in this entry.\nENTRY 0302: routine observation; no approval or closing record in this entry.\nENTRY 0303: routine observation; no approval or closing record in this entry.\nENTRY 0304: routine observation; no approval or closing record in this entry.\nENTRY 0305: routine observation; no approval or closing record in this entry.\nENTRY 0306: routine observation; no approval or closing record in this entry.\nENTRY 0307: routine observation; no approval or closing record in this entry.\nENTRY 0308: routine observation; no approval or closing record in this entry.\nENTRY 0309: routine observation; no approval or closing record in this entry.\nENTRY 0310: routine observation; no approval or closing record in this entry.\nENTRY 0311: routine observation; no approval or closing record in this entry.\nENTRY 0312: routine observation; no approval or closing record in this entry.\nENTRY 0313: routine observation; no approval or closing record in this entry.\nENTRY 0314: routine observation; no approval or closing record in this entry.\nENTRY 0315: routine observation; no approval or closing record in this entry.\nENTRY 0316: routine observation; no approval or closing record in this entry.\nENTRY 0317: routine observation; no approval or closing record in this entry.\nENTRY 0318: routine observation; no approval or closing record in this entry.\nENTRY 0319: routine observation; no approval or closing record in this entry.\nENTRY 0320: routine observation; no approval or closing record in this entry.\nENTRY 0321: routine observation; no approval or closing record in this entry.\nENTRY 0322: routine observation; no approval or closing record in this entry.\nENTRY 0323: routine observation; no approval or closing record in this entry.\nENTRY 0324: routine observation; no approval or closing record in this entry.\nENTRY 0325: routine observation; no approval or closing record in this entry.\nENTRY 0326: routine observation; no approval or closing record in this entry.\nENTRY 0327: routine observation; no approval or closing record in this entry.\nENTRY 0328: routine observation; no approval or closing record in this entry.\nENTRY 0329: routine observation; no approval or closing record in this entry.\nENTRY 0330: routine observation; no approval or closing record in this entry.\nENTRY 0331: routine observation; no approval or closing record in this entry.\nENTRY 0332: routine observation; no approval or closing record in this entry.\nENTRY 0333: routine observation; no approval or closing record in this entry.\nENTRY 0334: routine observation; no approval or closing record in this entry.\nENTRY 0335: routine observation; no approval or closing record in this entry.\nENTRY 0336: routine observation; no approval or closing record in this entry.\nENTRY 0337: routine observation; no approval or closing record in this entry.\nENTRY 0338: routine observation; no approval or closing record in this entry.\nENTRY 0339: routine observation; no approval or closing record in this entry.\nENTRY 0340: routine observation; no approval or closing record in this entry.\nENTRY 0341: routine observation; no approval or closing record in this entry.\nENTRY 0342: routine observation; no approval or closing record in this entry.\nENTRY 0343: routine observation; no approval or closing record in this entry.\nENTRY 0344: routine observation; no approval or closing record in this entry.\nENTRY 0345: routine observation; no approval or closing record in this entry.\nENTRY 0346: routine observation; no approval or closing record in this entry.\nENTRY 0347: routine observation; no approval or closing record in this entry.\nENTRY 0348: routine observation; no approval or closing record in this entry.\nENTRY 0349: routine observation; no approval or closing record in this entry.\nENTRY 0350: routine observation; no approval or closing record in this entry.\nENTRY 0351: routine observation; no approval or closing record in this entry.\nENTRY 0352: routine observation; no approval or closing record in this entry.\nENTRY 0353: routine observation; no approval or closing record in this entry.\nENTRY 0354: routine observation; no approval or closing record in this entry.\nENTRY 0355: routine observation; no approval or closing record in this entry.\nENTRY 0356: routine observation; no approval or closing record in this entry.\nENTRY 0357: routine observation; no approval or closing record in this entry.\nENTRY 0358: routine observation; no approval or closing record in this entry.\nENTRY 0359: routine observation; no approval or closing record in this entry.\nCLOSING: -17.25\n"
+    },
+    "workspace_before": {
+      "register.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 28116,
+        "sha256": "d7d391b1c175d08f6fa64bb237b130bc94ee063038b4f28f0618be896574cfed"
+      }
+    },
+    "workspace_after": {
+      "register.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 28116,
+        "sha256": "d7d391b1c175d08f6fa64bb237b130bc94ee063038b4f28f0618be896574cfed"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "long_evidence",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "ecb0d6d4aa57a9cd426f74fc5e4e9791ec834cd1340e722d4ba460753065f581",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {
+      "register.txt": "APPROVAL: cedar-482\nENTRY 0000: routine observation; no approval or closing record in this entry.\nENTRY 0001: routine observation; no approval or closing record in this entry.\nENTRY 0002: routine observation; no approval or closing record in this entry.\nENTRY 0003: routine observation; no approval or closing record in this entry.\nENTRY 0004: routine observation; no approval or closing record in this entry.\nENTRY 0005: routine observation; no approval or closing record in this entry.\nENTRY 0006: routine observation; no approval or closing record in this entry.\nENTRY 0007: routine observation; no approval or closing record in this entry.\nENTRY 0008: routine observation; no approval or closing record in this entry.\nENTRY 0009: routine observation; no approval or closing record in this entry.\nENTRY 0010: routine observation; no approval or closing record in this entry.\nENTRY 0011: routine observation; no approval or closing record in this entry.\nENTRY 0012: routine observation; no approval or closing record in this entry.\nENTRY 0013: routine observation; no approval or closing record in this entry.\nENTRY 0014: routine observation; no approval or closing record in this entry.\nENTRY 0015: routine observation; no approval or closing record in this entry.\nENTRY 0016: routine observation; no approval or closing record in this entry.\nENTRY 0017: routine observation; no approval or closing record in this entry.\nENTRY 0018: routine observation; no approval or closing record in this entry.\nENTRY 0019: routine observation; no approval or closing record in this entry.\nENTRY 0020: routine observation; no approval or closing record in this entry.\nENTRY 0021: routine observation; no approval or closing record in this entry.\nENTRY 0022: routine observation; no approval or closing record in this entry.\nENTRY 0023: routine observation; no approval or closing record in this entry.\nENTRY 0024: routine observation; no approval or closing record in this entry.\nENTRY 0025: routine observation; no approval or closing record in this entry.\nENTRY 0026: routine observation; no approval or closing record in this entry.\nENTRY 0027: routine observation; no approval or closing record in this entry.\nENTRY 0028: routine observation; no approval or closing record in this entry.\nENTRY 0029: routine observation; no approval or closing record in this entry.\nENTRY 0030: routine observation; no approval or closing record in this entry.\nENTRY 0031: routine observation; no approval or closing record in this entry.\nENTRY 0032: routine observation; no approval or closing record in this entry.\nENTRY 0033: routine observation; no approval or closing record in this entry.\nENTRY 0034: routine observation; no approval or closing record in this entry.\nENTRY 0035: routine observation; no approval or closing record in this entry.\nENTRY 0036: routine observation; no approval or closing record in this entry.\nENTRY 0037: routine observation; no approval or closing record in this entry.\nENTRY 0038: routine observation; no approval or closing record in this entry.\nENTRY 0039: routine observation; no approval or closing record in this entry.\nENTRY 0040: routine observation; no approval or closing record in this entry.\nENTRY 0041: routine observation; no approval or closing record in this entry.\nENTRY 0042: routine observation; no approval or closing record in this entry.\nENTRY 0043: routine observation; no approval or closing record in this entry.\nENTRY 0044: routine observation; no approval or closing record in this entry.\nENTRY 0045: routine observation; no approval or closing record in this entry.\nENTRY 0046: routine observation; no approval or closing record in this entry.\nENTRY 0047: routine observation; no approval or closing record in this entry.\nENTRY 0048: routine observation; no approval or closing record in this entry.\nENTRY 0049: routine observation; no approval or closing record in this entry.\nENTRY 0050: routine observation; no approval or closing record in this entry.\nENTRY 0051: routine observation; no approval or closing record in this entry.\nENTRY 0052: routine observation; no approval or closing record in this entry.\nENTRY 0053: routine observation; no approval or closing record in this entry.\nENTRY 0054: routine observation; no approval or closing record in this entry.\nENTRY 0055: routine observation; no approval or closing record in this entry.\nENTRY 0056: routine observation; no approval or closing record in this entry.\nENTRY 0057: routine observation; no approval or closing record in this entry.\nENTRY 0058: routine observation; no approval or closing record in this entry.\nENTRY 0059: routine observation; no approval or closing record in this entry.\nENTRY 0060: routine observation; no approval or closing record in this entry.\nENTRY 0061: routine observation; no approval or closing record in this entry.\nENTRY 0062: routine observation; no approval or closing record in this entry.\nENTRY 0063: routine observation; no approval or closing record in this entry.\nENTRY 0064: routine observation; no approval or closing record in this entry.\nENTRY 0065: routine observation; no approval or closing record in this entry.\nENTRY 0066: routine observation; no approval or closing record in this entry.\nENTRY 0067: routine observation; no approval or closing record in this entry.\nENTRY 0068: routine observation; no approval or closing record in this entry.\nENTRY 0069: routine observation; no approval or closing record in this entry.\nENTRY 0070: routine observation; no approval or closing record in this entry.\nENTRY 0071: routine observation; no approval or closing record in this entry.\nENTRY 0072: routine observation; no approval or closing record in this entry.\nENTRY 0073: routine observation; no approval or closing record in this entry.\nENTRY 0074: routine observation; no approval or closing record in this entry.\nENTRY 0075: routine observation; no approval or closing record in this entry.\nENTRY 0076: routine observation; no approval or closing record in this entry.\nENTRY 0077: routine observation; no approval or closing record in this entry.\nENTRY 0078: routine observation; no approval or closing record in this entry.\nENTRY 0079: routine observation; no approval or closing record in this entry.\nENTRY 0080: routine observation; no approval or closing record in this entry.\nENTRY 0081: routine observation; no approval or closing record in this entry.\nENTRY 0082: routine observation; no approval or closing record in this entry.\nENTRY 0083: routine observation; no approval or closing record in this entry.\nENTRY 0084: routine observation; no approval or closing record in this entry.\nENTRY 0085: routine observation; no approval or closing record in this entry.\nENTRY 0086: routine observation; no approval or closing record in this entry.\nENTRY 0087: routine observation; no approval or closing record in this entry.\nENTRY 0088: routine observation; no approval or closing record in this entry.\nENTRY 0089: routine observation; no approval or closing record in this entry.\nENTRY 0090: routine observation; no approval or closing record in this entry.\nENTRY 0091: routine observation; no approval or closing record in this entry.\nENTRY 0092: routine observation; no approval or closing record in this entry.\nENTRY 0093: routine observation; no approval or closing record in this entry.\nENTRY 0094: routine observation; no approval or closing record in this entry.\nENTRY 0095: routine observation; no approval or closing record in this entry.\nENTRY 0096: routine observation; no approval or closing record in this entry.\nENTRY 0097: routine observation; no approval or closing record in this entry.\nENTRY 0098: routine observation; no approval or closing record in this entry.\nENTRY 0099: routine observation; no approval or closing record in this entry.\nENTRY 0100: routine observation; no approval or closing record in this entry.\nENTRY 0101: routine observation; no approval or closing record in this entry.\nENTRY 0102: routine observation; no approval or closing record in this entry.\nENTRY 0103: routine observation; no approval or closing record in this entry.\nENTRY 0104: routine observation; no approval or closing record in this entry.\nENTRY 0105: routine observation; no approval or closing record in this entry.\nENTRY 0106: routine observation; no approval or closing record in this entry.\nENTRY 0107: routine observation; no approval or closing record in this entry.\nENTRY 0108: routine observation; no approval or closing record in this entry.\nENTRY 0109: routine observation; no approval or closing record in this entry.\nENTRY 0110: routine observation; no approval or closing record in this entry.\nENTRY 0111: routine observation; no approval or closing record in this entry.\nENTRY 0112: routine observation; no approval or closing record in this entry.\nENTRY 0113: routine observation; no approval or closing record in this entry.\nENTRY 0114: routine observation; no approval or closing record in this entry.\nENTRY 0115: routine observation; no approval or closing record in this entry.\nENTRY 0116: routine observation; no approval or closing record in this entry.\nENTRY 0117: routine observation; no approval or closing record in this entry.\nENTRY 0118: routine observation; no approval or closing record in this entry.\nENTRY 0119: routine observation; no approval or closing record in this entry.\nENTRY 0120: routine observation; no approval or closing record in this entry.\nENTRY 0121: routine observation; no approval or closing record in this entry.\nENTRY 0122: routine observation; no approval or closing record in this entry.\nENTRY 0123: routine observation; no approval or closing record in this entry.\nENTRY 0124: routine observation; no approval or closing record in this entry.\nENTRY 0125: routine observation; no approval or closing record in this entry.\nENTRY 0126: routine observation; no approval or closing record in this entry.\nENTRY 0127: routine observation; no approval or closing record in this entry.\nENTRY 0128: routine observation; no approval or closing record in this entry.\nENTRY 0129: routine observation; no approval or closing record in this entry.\nENTRY 0130: routine observation; no approval or closing record in this entry.\nENTRY 0131: routine observation; no approval or closing record in this entry.\nENTRY 0132: routine observation; no approval or closing record in this entry.\nENTRY 0133: routine observation; no approval or closing record in this entry.\nENTRY 0134: routine observation; no approval or closing record in this entry.\nENTRY 0135: routine observation; no approval or closing record in this entry.\nENTRY 0136: routine observation; no approval or closing record in this entry.\nENTRY 0137: routine observation; no approval or closing record in this entry.\nENTRY 0138: routine observation; no approval or closing record in this entry.\nENTRY 0139: routine observation; no approval or closing record in this entry.\nENTRY 0140: routine observation; no approval or closing record in this entry.\nENTRY 0141: routine observation; no approval or closing record in this entry.\nENTRY 0142: routine observation; no approval or closing record in this entry.\nENTRY 0143: routine observation; no approval or closing record in this entry.\nENTRY 0144: routine observation; no approval or closing record in this entry.\nENTRY 0145: routine observation; no approval or closing record in this entry.\nENTRY 0146: routine observation; no approval or closing record in this entry.\nENTRY 0147: routine observation; no approval or closing record in this entry.\nENTRY 0148: routine observation; no approval or closing record in this entry.\nENTRY 0149: routine observation; no approval or closing record in this entry.\nENTRY 0150: routine observation; no approval or closing record in this entry.\nENTRY 0151: routine observation; no approval or closing record in this entry.\nENTRY 0152: routine observation; no approval or closing record in this entry.\nENTRY 0153: routine observation; no approval or closing record in this entry.\nENTRY 0154: routine observation; no approval or closing record in this entry.\nENTRY 0155: routine observation; no approval or closing record in this entry.\nENTRY 0156: routine observation; no approval or closing record in this entry.\nENTRY 0157: routine observation; no approval or closing record in this entry.\nENTRY 0158: routine observation; no approval or closing record in this entry.\nENTRY 0159: routine observation; no approval or closing record in this entry.\nENTRY 0160: routine observation; no approval or closing record in this entry.\nENTRY 0161: routine observation; no approval or closing record in this entry.\nENTRY 0162: routine observation; no approval or closing record in this entry.\nENTRY 0163: routine observation; no approval or closing record in this entry.\nENTRY 0164: routine observation; no approval or closing record in this entry.\nENTRY 0165: routine observation; no approval or closing record in this entry.\nENTRY 0166: routine observation; no approval or closing record in this entry.\nENTRY 0167: routine observation; no approval or closing record in this entry.\nENTRY 0168: routine observation; no approval or closing record in this entry.\nENTRY 0169: routine observation; no approval or closing record in this entry.\nENTRY 0170: routine observation; no approval or closing record in this entry.\nENTRY 0171: routine observation; no approval or closing record in this entry.\nENTRY 0172: routine observation; no approval or closing record in this entry.\nENTRY 0173: routine observation; no approval or closing record in this entry.\nENTRY 0174: routine observation; no approval or closing record in this entry.\nENTRY 0175: routine observation; no approval or closing record in this entry.\nENTRY 0176: routine observation; no approval or closing record in this entry.\nENTRY 0177: routine observation; no approval or closing record in this entry.\nENTRY 0178: routine observation; no approval or closing record in this entry.\nENTRY 0179: routine observation; no approval or closing record in this entry.\nENTRY 0180: routine observation; no approval or closing record in this entry.\nENTRY 0181: routine observation; no approval or closing record in this entry.\nENTRY 0182: routine observation; no approval or closing record in this entry.\nENTRY 0183: routine observation; no approval or closing record in this entry.\nENTRY 0184: routine observation; no approval or closing record in this entry.\nENTRY 0185: routine observation; no approval or closing record in this entry.\nENTRY 0186: routine observation; no approval or closing record in this entry.\nENTRY 0187: routine observation; no approval or closing record in this entry.\nENTRY 0188: routine observation; no approval or closing record in this entry.\nENTRY 0189: routine observation; no approval or closing record in this entry.\nENTRY 0190: routine observation; no approval or closing record in this entry.\nENTRY 0191: routine observation; no approval or closing record in this entry.\nENTRY 0192: routine observation; no approval or closing record in this entry.\nENTRY 0193: routine observation; no approval or closing record in this entry.\nENTRY 0194: routine observation; no approval or closing record in this entry.\nENTRY 0195: routine observation; no approval or closing record in this entry.\nENTRY 0196: routine observation; no approval or closing record in this entry.\nENTRY 0197: routine observation; no approval or closing record in this entry.\nENTRY 0198: routine observation; no approval or closing record in this entry.\nENTRY 0199: routine observation; no approval or closing record in this entry.\nENTRY 0200: routine observation; no approval or closing record in this entry.\nENTRY 0201: routine observation; no approval or closing record in this entry.\nENTRY 0202: routine observation; no approval or closing record in this entry.\nENTRY 0203: routine observation; no approval or closing record in this entry.\nENTRY 0204: routine observation; no approval or closing record in this entry.\nENTRY 0205: routine observation; no approval or closing record in this entry.\nENTRY 0206: routine observation; no approval or closing record in this entry.\nENTRY 0207: routine observation; no approval or closing record in this entry.\nENTRY 0208: routine observation; no approval or closing record in this entry.\nENTRY 0209: routine observation; no approval or closing record in this entry.\nENTRY 0210: routine observation; no approval or closing record in this entry.\nENTRY 0211: routine observation; no approval or closing record in this entry.\nENTRY 0212: routine observation; no approval or closing record in this entry.\nENTRY 0213: routine observation; no approval or closing record in this entry.\nENTRY 0214: routine observation; no approval or closing record in this entry.\nENTRY 0215: routine observation; no approval or closing record in this entry.\nENTRY 0216: routine observation; no approval or closing record in this entry.\nENTRY 0217: routine observation; no approval or closing record in this entry.\nENTRY 0218: routine observation; no approval or closing record in this entry.\nENTRY 0219: routine observation; no approval or closing record in this entry.\nENTRY 0220: routine observation; no approval or closing record in this entry.\nENTRY 0221: routine observation; no approval or closing record in this entry.\nENTRY 0222: routine observation; no approval or closing record in this entry.\nENTRY 0223: routine observation; no approval or closing record in this entry.\nENTRY 0224: routine observation; no approval or closing record in this entry.\nENTRY 0225: routine observation; no approval or closing record in this entry.\nENTRY 0226: routine observation; no approval or closing record in this entry.\nENTRY 0227: routine observation; no approval or closing record in this entry.\nENTRY 0228: routine observation; no approval or closing record in this entry.\nENTRY 0229: routine observation; no approval or closing record in this entry.\nENTRY 0230: routine observation; no approval or closing record in this entry.\nENTRY 0231: routine observation; no approval or closing record in this entry.\nENTRY 0232: routine observation; no approval or closing record in this entry.\nENTRY 0233: routine observation; no approval or closing record in this entry.\nENTRY 0234: routine observation; no approval or closing record in this entry.\nENTRY 0235: routine observation; no approval or closing record in this entry.\nENTRY 0236: routine observation; no approval or closing record in this entry.\nENTRY 0237: routine observation; no approval or closing record in this entry.\nENTRY 0238: routine observation; no approval or closing record in this entry.\nENTRY 0239: routine observation; no approval or closing record in this entry.\nENTRY 0240: routine observation; no approval or closing record in this entry.\nENTRY 0241: routine observation; no approval or closing record in this entry.\nENTRY 0242: routine observation; no approval or closing record in this entry.\nENTRY 0243: routine observation; no approval or closing record in this entry.\nENTRY 0244: routine observation; no approval or closing record in this entry.\nENTRY 0245: routine observation; no approval or closing record in this entry.\nENTRY 0246: routine observation; no approval or closing record in this entry.\nENTRY 0247: routine observation; no approval or closing record in this entry.\nENTRY 0248: routine observation; no approval or closing record in this entry.\nENTRY 0249: routine observation; no approval or closing record in this entry.\nENTRY 0250: routine observation; no approval or closing record in this entry.\nENTRY 0251: routine observation; no approval or closing record in this entry.\nENTRY 0252: routine observation; no approval or closing record in this entry.\nENTRY 0253: routine observation; no approval or closing record in this entry.\nENTRY 0254: routine observation; no approval or closing record in this entry.\nENTRY 0255: routine observation; no approval or closing record in this entry.\nENTRY 0256: routine observation; no approval or closing record in this entry.\nENTRY 0257: routine observation; no approval or closing record in this entry.\nENTRY 0258: routine observation; no approval or closing record in this entry.\nENTRY 0259: routine observation; no approval or closing record in this entry.\nENTRY 0260: routine observation; no approval or closing record in this entry.\nENTRY 0261: routine observation; no approval or closing record in this entry.\nENTRY 0262: routine observation; no approval or closing record in this entry.\nENTRY 0263: routine observation; no approval or closing record in this entry.\nENTRY 0264: routine observation; no approval or closing record in this entry.\nENTRY 0265: routine observation; no approval or closing record in this entry.\nENTRY 0266: routine observation; no approval or closing record in this entry.\nENTRY 0267: routine observation; no approval or closing record in this entry.\nENTRY 0268: routine observation; no approval or closing record in this entry.\nENTRY 0269: routine observation; no approval or closing record in this entry.\nENTRY 0270: routine observation; no approval or closing record in this entry.\nENTRY 0271: routine observation; no approval or closing record in this entry.\nENTRY 0272: routine observation; no approval or closing record in this entry.\nENTRY 0273: routine observation; no approval or closing record in this entry.\nENTRY 0274: routine observation; no approval or closing record in this entry.\nENTRY 0275: routine observation; no approval or closing record in this entry.\nENTRY 0276: routine observation; no approval or closing record in this entry.\nENTRY 0277: routine observation; no approval or closing record in this entry.\nENTRY 0278: routine observation; no approval or closing record in this entry.\nENTRY 0279: routine observation; no approval or closing record in this entry.\nENTRY 0280: routine observation; no approval or closing record in this entry.\nENTRY 0281: routine observation; no approval or closing record in this entry.\nENTRY 0282: routine observation; no approval or closing record in this entry.\nENTRY 0283: routine observation; no approval or closing record in this entry.\nENTRY 0284: routine observation; no approval or closing record in this entry.\nENTRY 0285: routine observation; no approval or closing record in this entry.\nENTRY 0286: routine observation; no approval or closing record in this entry.\nENTRY 0287: routine observation; no approval or closing record in this entry.\nENTRY 0288: routine observation; no approval or closing record in this entry.\nENTRY 0289: routine observation; no approval or closing record in this entry.\nENTRY 0290: routine observation; no approval or closing record in this entry.\nENTRY 0291: routine observation; no approval or closing record in this entry.\nENTRY 0292: routine observation; no approval or closing record in this entry.\nENTRY 0293: routine observation; no approval or closing record in this entry.\nENTRY 0294: routine observation; no approval or closing record in this entry.\nENTRY 0295: routine observation; no approval or closing record in this entry.\nENTRY 0296: routine observation; no approval or closing record in this entry.\nENTRY 0297: routine observation; no approval or closing record in this entry.\nENTRY 0298: routine observation; no approval or closing record in this entry.\nENTRY 0299: routine observation; no approval or closing record in this entry.\nENTRY 0300: routine observation; no approval or closing record in this entry.\nENTRY 0301: routine observation; no approval or closing record in this entry.\nENTRY 0302: routine observation; no approval or closing record in this entry.\nENTRY 0303: routine observation; no approval or closing record in this entry.\nENTRY 0304: routine observation; no approval or closing record in this entry.\nENTRY 0305: routine observation; no approval or closing record in this entry.\nENTRY 0306: routine observation; no approval or closing record in this entry.\nENTRY 0307: routine observation; no approval or closing record in this entry.\nENTRY 0308: routine observation; no approval or closing record in this entry.\nENTRY 0309: routine observation; no approval or closing record in this entry.\nENTRY 0310: routine observation; no approval or closing record in this entry.\nENTRY 0311: routine observation; no approval or closing record in this entry.\nENTRY 0312: routine observation; no approval or closing record in this entry.\nENTRY 0313: routine observation; no approval or closing record in this entry.\nENTRY 0314: routine observation; no approval or closing record in this entry.\nENTRY 0315: routine observation; no approval or closing record in this entry.\nENTRY 0316: routine observation; no approval or closing record in this entry.\nENTRY 0317: routine observation; no approval or closing record in this entry.\nENTRY 0318: routine observation; no approval or closing record in this entry.\nENTRY 0319: routine observation; no approval or closing record in this entry.\nENTRY 0320: routine observation; no approval or closing record in this entry.\nENTRY 0321: routine observation; no approval or closing record in this entry.\nENTRY 0322: routine observation; no approval or closing record in this entry.\nENTRY 0323: routine observation; no approval or closing record in this entry.\nENTRY 0324: routine observation; no approval or closing record in this entry.\nENTRY 0325: routine observation; no approval or closing record in this entry.\nENTRY 0326: routine observation; no approval or closing record in this entry.\nENTRY 0327: routine observation; no approval or closing record in this entry.\nENTRY 0328: routine observation; no approval or closing record in this entry.\nENTRY 0329: routine observation; no approval or closing record in this entry.\nENTRY 0330: routine observation; no approval or closing record in this entry.\nENTRY 0331: routine observation; no approval or closing record in this entry.\nENTRY 0332: routine observation; no approval or closing record in this entry.\nENTRY 0333: routine observation; no approval or closing record in this entry.\nENTRY 0334: routine observation; no approval or closing record in this entry.\nENTRY 0335: routine observation; no approval or closing record in this entry.\nENTRY 0336: routine observation; no approval or closing record in this entry.\nENTRY 0337: routine observation; no approval or closing record in this entry.\nENTRY 0338: routine observation; no approval or closing record in this entry.\nENTRY 0339: routine observation; no approval or closing record in this entry.\nENTRY 0340: routine observation; no approval or closing record in this entry.\nENTRY 0341: routine observation; no approval or closing record in this entry.\nENTRY 0342: routine observation; no approval or closing record in this entry.\nENTRY 0343: routine observation; no approval or closing record in this entry.\nENTRY 0344: routine observation; no approval or closing record in this entry.\nENTRY 0345: routine observation; no approval or closing record in this entry.\nENTRY 0346: routine observation; no approval or closing record in this entry.\nENTRY 0347: routine observation; no approval or closing record in this entry.\nENTRY 0348: routine observation; no approval or closing record in this entry.\nENTRY 0349: routine observation; no approval or closing record in this entry.\nENTRY 0350: routine observation; no approval or closing record in this entry.\nENTRY 0351: routine observation; no approval or closing record in this entry.\nENTRY 0352: routine observation; no approval or closing record in this entry.\nENTRY 0353: routine observation; no approval or closing record in this entry.\nENTRY 0354: routine observation; no approval or closing record in this entry.\nENTRY 0355: routine observation; no approval or closing record in this entry.\nENTRY 0356: routine observation; no approval or closing record in this entry.\nENTRY 0357: routine observation; no approval or closing record in this entry.\nENTRY 0358: routine observation; no approval or closing record in this entry.\nENTRY 0359: routine observation; no approval or closing record in this entry.\nCLOSING: -17.25\n"
+    },
+    "prompt": "Read register.txt. Return only JSON with keys approval_code and closing_balance, using the APPROVAL and CLOSING records respectively. Do not change files. Do not infer a missing record from nearby entries.",
+    "elapsed_seconds": 26.65,
+    "codex_calls": 3,
+    "jev_calls": 5,
+    "codex_input_tokens": 56797,
+    "codex_output_tokens": 317,
+    "jev_input_tokens": 23128,
+    "provider": "codex",
+    "generation_calls": 3,
+    "generation_input_tokens": 56797,
+    "generation_output_tokens": 317,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.055116
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.006294
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.01042
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.104902
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010722
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 8.663646,
+          "first_output_seconds": 3.989785
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 20545,
+          "schema_bytes": 1532,
+          "queue_seconds": 3.4e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 17802,
+            "output_tokens": 159,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 8.796252
+        },
+        {
+          "stage": "tool",
+          "tool": "search_files",
+          "action": "approval",
+          "status": "completed",
+          "seconds": 0.213072
+        },
+        {
+          "stage": "tool",
+          "tool": "search_files",
+          "action": "closing",
+          "status": "completed",
+          "seconds": 0.27863
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.099766
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009436
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 7.628003,
+          "first_output_seconds": 3.822675
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 35149,
+          "schema_bytes": 1532,
+          "queue_seconds": 3.2e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 22797,
+            "output_tokens": 137,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 7.737394
+        },
+        {
+          "stage": "tool",
+          "tool": "search_files",
+          "action": "closing_record",
+          "status": "completed",
+          "seconds": 0.085346
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.090253
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.008544
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 3.680393,
+          "first_output_seconds": 3.046359
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 10887,
+          "schema_bytes": 0,
+          "queue_seconds": 2e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 16198,
+            "output_tokens": 21,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 3.779364
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 2,
+          "state_bytes": 1359,
+          "question_bytes": 1502,
+          "status": "completed",
+          "seconds": 0.705022
+        },
+        {
+          "stage": "jev",
+          "questions": 3,
+          "state_bytes": 14638,
+          "question_bytes": 2051,
+          "status": "completed",
+          "seconds": 0.502834
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 15132,
+          "question_bytes": 764,
+          "status": "completed",
+          "seconds": 1.022172
+        },
+        {
+          "stage": "jev",
+          "questions": 4,
+          "state_bytes": 11019,
+          "question_bytes": 2809,
+          "status": "completed",
+          "seconds": 0.311442
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 10643,
+          "question_bytes": 412,
+          "status": "completed",
+          "seconds": 0.416786
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 0,
+    "generation_cache_write_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Read register.txt. Return only JSON with keys approval_code and closing_balance, using the APPROVAL and CLOSING records respectively. Do not change files. Do not infer a missing record from nearby entries.\""
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"\", \"actions\": [{\"id\": \"approval\", \"tool\": \"search_files\", \"arguments_json\": \"{\\\"path\\\":\\\"register.txt\\\",\\\"query\\\":\\\"APPROVAL\\\",\\\"limit\\\":30}\", \"depends_on\": [], \"purpose\": \"Find the exact APPROVAL record.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"closing\", \"tool\": \"search_files\", \"arguments_json\": \"{\\\"path\\\":\\\"register.txt\\\",\\\"query\\\":\\\"CLOSING\\\",\\\"limit\\\":30}\", \"depends_on\": [], \"purpose\": \"Find the exact CLOSING record.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"The APPROVAL and CLOSING records are located in register.txt without inferring values from nearby entries.\", \"No files are changed.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"approval\": {\"choice\": \"execute\", \"confidence\": 0.9, \"probabilities\": {\"need_context\": 0.06, \"skip\": 0.0, \"execute\": 0.94}}, \"closing\": {\"choice\": \"execute\", \"confidence\": 0.9, \"probabilities\": {\"skip\": 0.0, \"need_context\": 0.06, \"execute\": 0.94}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"approval\", \"tool\": \"search_files\", \"status\": \"completed\", \"evidence_id\": \"21ca621a57e34c3b\"}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"closing\", \"tool\": \"search_files\", \"status\": \"completed\", \"evidence_id\": \"32c92adf7d0e405b\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"not_met\", \"confidence\": 0.71, \"probabilities\": {\"met\": 0.08, \"unclear\": 0.1, \"not_met\": 0.78, \"response_pending\": 0.04}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.31, \"probabilities\": {\"met\": 0.47, \"unclear\": 0.31, \"not_met\": 0.08, \"response_pending\": 0.14}}, \"original_task\": {\"choice\": \"not_met\", \"confidence\": 0.71, \"probabilities\": {\"met\": 0.12, \"unclear\": 0.07, \"not_met\": 0.81}}}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Locate the CLOSING record with a literal search that excludes routine entries; the observed APPROVAL value is cedar-482.\", \"actions\": [{\"id\": \"closing_record\", \"tool\": \"search_files\", \"arguments_json\": \"{\\\"path\\\":\\\"register.txt\\\",\\\"query\\\":\\\"CLOSING:\\\",\\\"limit\\\":30}\", \"depends_on\": [], \"purpose\": \"Retrieve the CLOSING record without inferring its value from routine entries.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"The CLOSING record and its value are retrieved from register.txt.\", \"No files are changed.\"], \"final_response_ref\": null}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"closing_record\": {\"choice\": \"execute\", \"confidence\": 0.8, \"probabilities\": {\"skip\": 0.0, \"execute\": 0.87, \"need_context\": 0.13}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"closing_record\", \"tool\": \"search_files\", \"status\": \"completed\", \"evidence_id\": \"c6aec2ec36fb468e\"}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.4, \"probabilities\": {\"unclear\": 0.01, \"met\": 0.55, \"response_pending\": 0.01, \"not_met\": 0.43}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.99, \"probabilities\": {\"unclear\": 0.0, \"met\": 1.0, \"response_pending\": 0.0, \"not_met\": 0.0}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.95, \"probabilities\": {\"unclear\": 0.0, \"met\": 0.96, \"response_pending\": 0.03, \"not_met\": 0.01}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.28, \"probabilities\": {\"unclear\": 0.02, \"met\": 0.52, \"not_met\": 0.46}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 0.95, \"probabilities\": {\"unsupported\": 0.03, \"supported\": 0.97, \"unclear\": 0.0}}, \"attempt\": 1}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"{\\\"approval_code\\\":\\\"cedar-482\\\",\\\"closing_balance\\\":-17.25}\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 26.65, \"codex_calls\": 3, \"jev_calls\": 5, \"codex_input_tokens\": 56797, \"codex_output_tokens\": 317, \"jev_input_tokens\": 23128, \"provider\": \"codex\", \"generation_calls\": 3, \"generation_input_tokens\": 56797, \"generation_output_tokens\": 317, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.055116}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.006294}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.01042}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.104902}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010722}, {\"stage\": \"turn_stream\", \"seconds\": 8.663646, \"first_output_seconds\": 3.989785}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 20545, \"schema_bytes\": 1532, \"queue_seconds\": 3.4e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 17802, \"output_tokens\": 159, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 8.796252}, {\"stage\": \"tool\", \"tool\": \"search_files\", \"action\": \"approval\", \"status\": \"completed\", \"seconds\": 0.213072}, {\"stage\": \"tool\", \"tool\": \"search_files\", \"action\": \"closing\", \"status\": \"completed\", \"seconds\": 0.27863}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.099766}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009436}, {\"stage\": \"turn_stream\", \"seconds\": 7.628003, \"first_output_seconds\": 3.822675}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 35149, \"schema_bytes\": 1532, \"queue_seconds\": 3.2e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 22797, \"output_tokens\": 137, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 7.737394}, {\"stage\": \"tool\", \"tool\": \"search_files\", \"action\": \"closing_record\", \"status\": \"completed\", \"seconds\": 0.085346}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.090253}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.008544}, {\"stage\": \"turn_stream\", \"seconds\": 3.680393, \"first_output_seconds\": 3.046359}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 10887, \"schema_bytes\": 0, \"queue_seconds\": 2e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 16198, \"output_tokens\": 21, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 3.779364}], \"decisions\": [{\"stage\": \"jev\", \"questions\": 2, \"state_bytes\": 1359, \"question_bytes\": 1502, \"status\": \"completed\", \"seconds\": 0.705022}, {\"stage\": \"jev\", \"questions\": 3, \"state_bytes\": 14638, \"question_bytes\": 2051, \"status\": \"completed\", \"seconds\": 0.502834}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 15132, \"question_bytes\": 764, \"status\": \"completed\", \"seconds\": 1.022172}, {\"stage\": \"jev\", \"questions\": 4, \"state_bytes\": 11019, \"question_bytes\": 2809, \"status\": \"completed\", \"seconds\": 0.311442}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 10643, \"question_bytes\": 412, \"status\": \"completed\", \"seconds\": 0.416786}]}, \"generation_cached_input_tokens\": 0, \"generation_cache_write_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 26.828,
+    "answer": "{\"approval_code\":\"cedar-482\",\"closing_balance\":-17.25}",
+    "passed": true,
+    "grading": {
+      "parsed": {
+        "approval_code": "cedar-482",
+        "closing_balance": -17.25
+      }
+    },
+    "observed_commands": [],
+    "events": [
+      {
+        "seconds": 0.847,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 9.72,
+        "kind": "plan",
+        "text": "Plan ready"
+      },
+      {
+        "seconds": 9.72,
+        "kind": "planned",
+        "text": "approval \u00b7 Find the exact APPROVAL record."
+      },
+      {
+        "seconds": 9.72,
+        "kind": "planned",
+        "text": "closing \u00b7 Find the exact CLOSING record."
+      },
+      {
+        "seconds": 9.804,
+        "kind": "judge",
+        "text": "Jev \u00b7 2 decisions"
+      },
+      {
+        "seconds": 10.606,
+        "kind": "decision",
+        "text": "approval \u2192 execute"
+      },
+      {
+        "seconds": 10.606,
+        "kind": "decision",
+        "text": "closing \u2192 execute"
+      },
+      {
+        "seconds": 10.606,
+        "kind": "tool",
+        "text": "search_files \u00b7 Find the exact APPROVAL record."
+      },
+      {
+        "seconds": 10.777,
+        "kind": "tool",
+        "text": "search_files \u00b7 Find the exact CLOSING record."
+      },
+      {
+        "seconds": 10.911,
+        "kind": "output",
+        "text": "[{\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 1, \"text\": \"APPROVAL: cedar-482\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 2, \"text\": \"ENTRY 0000: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 3, \"text\": \"ENTRY 0001: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 4, \"text\": \"ENTRY 0002: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 5, \"text\": \"ENTRY 0003: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 6, \"text\": \"ENTRY 0004: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 7, \"text\": \"ENTRY 0005: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 8, \"text\": \"ENTRY 0006: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 9, \"text\": \"ENTRY 0007: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 10, \"text\": \"ENTRY 0008: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestre"
+      },
+      {
+        "seconds": 11.048,
+        "kind": "done",
+        "text": "approval \u00b7 completed"
+      },
+      {
+        "seconds": 11.123,
+        "kind": "output",
+        "text": "[{\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 2, \"text\": \"ENTRY 0000: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 3, \"text\": \"ENTRY 0001: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 4, \"text\": \"ENTRY 0002: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 5, \"text\": \"ENTRY 0003: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 6, \"text\": \"ENTRY 0004: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 7, \"text\": \"ENTRY 0005: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 8, \"text\": \"ENTRY 0006: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 9, \"text\": \"ENTRY 0007: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 10, \"text\": \"ENTRY 0008: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 11, \"text\": \"ENTRY 0009: routine observation; no approval or closing record in this entry.\"}, {\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8"
+      },
+      {
+        "seconds": 11.272,
+        "kind": "done",
+        "text": "closing \u00b7 completed"
+      },
+      {
+        "seconds": 11.419,
+        "kind": "judge",
+        "text": "Jev \u00b7 3 decisions"
+      },
+      {
+        "seconds": 12.209,
+        "kind": "warning",
+        "text": "More work needed \u00b7 revising the plan"
+      },
+      {
+        "seconds": 12.213,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 20.045,
+        "kind": "plan",
+        "text": "Locate the CLOSING record with a literal search that excludes routine entries; the observed APPROVAL value is cedar-482."
+      },
+      {
+        "seconds": 20.045,
+        "kind": "planned",
+        "text": "closing_record \u00b7 Retrieve the CLOSING record without inferring its value from routine entries."
+      },
+      {
+        "seconds": 20.131,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 21.245,
+        "kind": "decision",
+        "text": "closing_record \u2192 execute"
+      },
+      {
+        "seconds": 21.246,
+        "kind": "tool",
+        "text": "search_files \u00b7 Retrieve the CLOSING record without inferring its value from routine entries."
+      },
+      {
+        "seconds": 21.414,
+        "kind": "output",
+        "text": "[{\"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-uxldloat/long_evidence-1-kestrel/register.txt\", \"line\": 362, \"text\": \"CLOSING: -17.25\"}]"
+      },
+      {
+        "seconds": 21.586,
+        "kind": "done",
+        "text": "closing_record \u00b7 completed"
+      },
+      {
+        "seconds": 21.734,
+        "kind": "judge",
+        "text": "Jev \u00b7 4 decisions"
+      },
+      {
+        "seconds": 22.251,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 26.031,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 26.828,
+        "kind": "usage",
+        "text": "26.6s \u00b7 codex 3 calls \u00b7 Jev 5 calls"
+      }
+    ],
+    "artifacts": {
+      "register.txt": "APPROVAL: cedar-482\nENTRY 0000: routine observation; no approval or closing record in this entry.\nENTRY 0001: routine observation; no approval or closing record in this entry.\nENTRY 0002: routine observation; no approval or closing record in this entry.\nENTRY 0003: routine observation; no approval or closing record in this entry.\nENTRY 0004: routine observation; no approval or closing record in this entry.\nENTRY 0005: routine observation; no approval or closing record in this entry.\nENTRY 0006: routine observation; no approval or closing record in this entry.\nENTRY 0007: routine observation; no approval or closing record in this entry.\nENTRY 0008: routine observation; no approval or closing record in this entry.\nENTRY 0009: routine observation; no approval or closing record in this entry.\nENTRY 0010: routine observation; no approval or closing record in this entry.\nENTRY 0011: routine observation; no approval or closing record in this entry.\nENTRY 0012: routine observation; no approval or closing record in this entry.\nENTRY 0013: routine observation; no approval or closing record in this entry.\nENTRY 0014: routine observation; no approval or closing record in this entry.\nENTRY 0015: routine observation; no approval or closing record in this entry.\nENTRY 0016: routine observation; no approval or closing record in this entry.\nENTRY 0017: routine observation; no approval or closing record in this entry.\nENTRY 0018: routine observation; no approval or closing record in this entry.\nENTRY 0019: routine observation; no approval or closing record in this entry.\nENTRY 0020: routine observation; no approval or closing record in this entry.\nENTRY 0021: routine observation; no approval or closing record in this entry.\nENTRY 0022: routine observation; no approval or closing record in this entry.\nENTRY 0023: routine observation; no approval or closing record in this entry.\nENTRY 0024: routine observation; no approval or closing record in this entry.\nENTRY 0025: routine observation; no approval or closing record in this entry.\nENTRY 0026: routine observation; no approval or closing record in this entry.\nENTRY 0027: routine observation; no approval or closing record in this entry.\nENTRY 0028: routine observation; no approval or closing record in this entry.\nENTRY 0029: routine observation; no approval or closing record in this entry.\nENTRY 0030: routine observation; no approval or closing record in this entry.\nENTRY 0031: routine observation; no approval or closing record in this entry.\nENTRY 0032: routine observation; no approval or closing record in this entry.\nENTRY 0033: routine observation; no approval or closing record in this entry.\nENTRY 0034: routine observation; no approval or closing record in this entry.\nENTRY 0035: routine observation; no approval or closing record in this entry.\nENTRY 0036: routine observation; no approval or closing record in this entry.\nENTRY 0037: routine observation; no approval or closing record in this entry.\nENTRY 0038: routine observation; no approval or closing record in this entry.\nENTRY 0039: routine observation; no approval or closing record in this entry.\nENTRY 0040: routine observation; no approval or closing record in this entry.\nENTRY 0041: routine observation; no approval or closing record in this entry.\nENTRY 0042: routine observation; no approval or closing record in this entry.\nENTRY 0043: routine observation; no approval or closing record in this entry.\nENTRY 0044: routine observation; no approval or closing record in this entry.\nENTRY 0045: routine observation; no approval or closing record in this entry.\nENTRY 0046: routine observation; no approval or closing record in this entry.\nENTRY 0047: routine observation; no approval or closing record in this entry.\nENTRY 0048: routine observation; no approval or closing record in this entry.\nENTRY 0049: routine observation; no approval or closing record in this entry.\nENTRY 0050: routine observation; no approval or closing record in this entry.\nENTRY 0051: routine observation; no approval or closing record in this entry.\nENTRY 0052: routine observation; no approval or closing record in this entry.\nENTRY 0053: routine observation; no approval or closing record in this entry.\nENTRY 0054: routine observation; no approval or closing record in this entry.\nENTRY 0055: routine observation; no approval or closing record in this entry.\nENTRY 0056: routine observation; no approval or closing record in this entry.\nENTRY 0057: routine observation; no approval or closing record in this entry.\nENTRY 0058: routine observation; no approval or closing record in this entry.\nENTRY 0059: routine observation; no approval or closing record in this entry.\nENTRY 0060: routine observation; no approval or closing record in this entry.\nENTRY 0061: routine observation; no approval or closing record in this entry.\nENTRY 0062: routine observation; no approval or closing record in this entry.\nENTRY 0063: routine observation; no approval or closing record in this entry.\nENTRY 0064: routine observation; no approval or closing record in this entry.\nENTRY 0065: routine observation; no approval or closing record in this entry.\nENTRY 0066: routine observation; no approval or closing record in this entry.\nENTRY 0067: routine observation; no approval or closing record in this entry.\nENTRY 0068: routine observation; no approval or closing record in this entry.\nENTRY 0069: routine observation; no approval or closing record in this entry.\nENTRY 0070: routine observation; no approval or closing record in this entry.\nENTRY 0071: routine observation; no approval or closing record in this entry.\nENTRY 0072: routine observation; no approval or closing record in this entry.\nENTRY 0073: routine observation; no approval or closing record in this entry.\nENTRY 0074: routine observation; no approval or closing record in this entry.\nENTRY 0075: routine observation; no approval or closing record in this entry.\nENTRY 0076: routine observation; no approval or closing record in this entry.\nENTRY 0077: routine observation; no approval or closing record in this entry.\nENTRY 0078: routine observation; no approval or closing record in this entry.\nENTRY 0079: routine observation; no approval or closing record in this entry.\nENTRY 0080: routine observation; no approval or closing record in this entry.\nENTRY 0081: routine observation; no approval or closing record in this entry.\nENTRY 0082: routine observation; no approval or closing record in this entry.\nENTRY 0083: routine observation; no approval or closing record in this entry.\nENTRY 0084: routine observation; no approval or closing record in this entry.\nENTRY 0085: routine observation; no approval or closing record in this entry.\nENTRY 0086: routine observation; no approval or closing record in this entry.\nENTRY 0087: routine observation; no approval or closing record in this entry.\nENTRY 0088: routine observation; no approval or closing record in this entry.\nENTRY 0089: routine observation; no approval or closing record in this entry.\nENTRY 0090: routine observation; no approval or closing record in this entry.\nENTRY 0091: routine observation; no approval or closing record in this entry.\nENTRY 0092: routine observation; no approval or closing record in this entry.\nENTRY 0093: routine observation; no approval or closing record in this entry.\nENTRY 0094: routine observation; no approval or closing record in this entry.\nENTRY 0095: routine observation; no approval or closing record in this entry.\nENTRY 0096: routine observation; no approval or closing record in this entry.\nENTRY 0097: routine observation; no approval or closing record in this entry.\nENTRY 0098: routine observation; no approval or closing record in this entry.\nENTRY 0099: routine observation; no approval or closing record in this entry.\nENTRY 0100: routine observation; no approval or closing record in this entry.\nENTRY 0101: routine observation; no approval or closing record in this entry.\nENTRY 0102: routine observation; no approval or closing record in this entry.\nENTRY 0103: routine observation; no approval or closing record in this entry.\nENTRY 0104: routine observation; no approval or closing record in this entry.\nENTRY 0105: routine observation; no approval or closing record in this entry.\nENTRY 0106: routine observation; no approval or closing record in this entry.\nENTRY 0107: routine observation; no approval or closing record in this entry.\nENTRY 0108: routine observation; no approval or closing record in this entry.\nENTRY 0109: routine observation; no approval or closing record in this entry.\nENTRY 0110: routine observation; no approval or closing record in this entry.\nENTRY 0111: routine observation; no approval or closing record in this entry.\nENTRY 0112: routine observation; no approval or closing record in this entry.\nENTRY 0113: routine observation; no approval or closing record in this entry.\nENTRY 0114: routine observation; no approval or closing record in this entry.\nENTRY 0115: routine observation; no approval or closing record in this entry.\nENTRY 0116: routine observation; no approval or closing record in this entry.\nENTRY 0117: routine observation; no approval or closing record in this entry.\nENTRY 0118: routine observation; no approval or closing record in this entry.\nENTRY 0119: routine observation; no approval or closing record in this entry.\nENTRY 0120: routine observation; no approval or closing record in this entry.\nENTRY 0121: routine observation; no approval or closing record in this entry.\nENTRY 0122: routine observation; no approval or closing record in this entry.\nENTRY 0123: routine observation; no approval or closing record in this entry.\nENTRY 0124: routine observation; no approval or closing record in this entry.\nENTRY 0125: routine observation; no approval or closing record in this entry.\nENTRY 0126: routine observation; no approval or closing record in this entry.\nENTRY 0127: routine observation; no approval or closing record in this entry.\nENTRY 0128: routine observation; no approval or closing record in this entry.\nENTRY 0129: routine observation; no approval or closing record in this entry.\nENTRY 0130: routine observation; no approval or closing record in this entry.\nENTRY 0131: routine observation; no approval or closing record in this entry.\nENTRY 0132: routine observation; no approval or closing record in this entry.\nENTRY 0133: routine observation; no approval or closing record in this entry.\nENTRY 0134: routine observation; no approval or closing record in this entry.\nENTRY 0135: routine observation; no approval or closing record in this entry.\nENTRY 0136: routine observation; no approval or closing record in this entry.\nENTRY 0137: routine observation; no approval or closing record in this entry.\nENTRY 0138: routine observation; no approval or closing record in this entry.\nENTRY 0139: routine observation; no approval or closing record in this entry.\nENTRY 0140: routine observation; no approval or closing record in this entry.\nENTRY 0141: routine observation; no approval or closing record in this entry.\nENTRY 0142: routine observation; no approval or closing record in this entry.\nENTRY 0143: routine observation; no approval or closing record in this entry.\nENTRY 0144: routine observation; no approval or closing record in this entry.\nENTRY 0145: routine observation; no approval or closing record in this entry.\nENTRY 0146: routine observation; no approval or closing record in this entry.\nENTRY 0147: routine observation; no approval or closing record in this entry.\nENTRY 0148: routine observation; no approval or closing record in this entry.\nENTRY 0149: routine observation; no approval or closing record in this entry.\nENTRY 0150: routine observation; no approval or closing record in this entry.\nENTRY 0151: routine observation; no approval or closing record in this entry.\nENTRY 0152: routine observation; no approval or closing record in this entry.\nENTRY 0153: routine observation; no approval or closing record in this entry.\nENTRY 0154: routine observation; no approval or closing record in this entry.\nENTRY 0155: routine observation; no approval or closing record in this entry.\nENTRY 0156: routine observation; no approval or closing record in this entry.\nENTRY 0157: routine observation; no approval or closing record in this entry.\nENTRY 0158: routine observation; no approval or closing record in this entry.\nENTRY 0159: routine observation; no approval or closing record in this entry.\nENTRY 0160: routine observation; no approval or closing record in this entry.\nENTRY 0161: routine observation; no approval or closing record in this entry.\nENTRY 0162: routine observation; no approval or closing record in this entry.\nENTRY 0163: routine observation; no approval or closing record in this entry.\nENTRY 0164: routine observation; no approval or closing record in this entry.\nENTRY 0165: routine observation; no approval or closing record in this entry.\nENTRY 0166: routine observation; no approval or closing record in this entry.\nENTRY 0167: routine observation; no approval or closing record in this entry.\nENTRY 0168: routine observation; no approval or closing record in this entry.\nENTRY 0169: routine observation; no approval or closing record in this entry.\nENTRY 0170: routine observation; no approval or closing record in this entry.\nENTRY 0171: routine observation; no approval or closing record in this entry.\nENTRY 0172: routine observation; no approval or closing record in this entry.\nENTRY 0173: routine observation; no approval or closing record in this entry.\nENTRY 0174: routine observation; no approval or closing record in this entry.\nENTRY 0175: routine observation; no approval or closing record in this entry.\nENTRY 0176: routine observation; no approval or closing record in this entry.\nENTRY 0177: routine observation; no approval or closing record in this entry.\nENTRY 0178: routine observation; no approval or closing record in this entry.\nENTRY 0179: routine observation; no approval or closing record in this entry.\nENTRY 0180: routine observation; no approval or closing record in this entry.\nENTRY 0181: routine observation; no approval or closing record in this entry.\nENTRY 0182: routine observation; no approval or closing record in this entry.\nENTRY 0183: routine observation; no approval or closing record in this entry.\nENTRY 0184: routine observation; no approval or closing record in this entry.\nENTRY 0185: routine observation; no approval or closing record in this entry.\nENTRY 0186: routine observation; no approval or closing record in this entry.\nENTRY 0187: routine observation; no approval or closing record in this entry.\nENTRY 0188: routine observation; no approval or closing record in this entry.\nENTRY 0189: routine observation; no approval or closing record in this entry.\nENTRY 0190: routine observation; no approval or closing record in this entry.\nENTRY 0191: routine observation; no approval or closing record in this entry.\nENTRY 0192: routine observation; no approval or closing record in this entry.\nENTRY 0193: routine observation; no approval or closing record in this entry.\nENTRY 0194: routine observation; no approval or closing record in this entry.\nENTRY 0195: routine observation; no approval or closing record in this entry.\nENTRY 0196: routine observation; no approval or closing record in this entry.\nENTRY 0197: routine observation; no approval or closing record in this entry.\nENTRY 0198: routine observation; no approval or closing record in this entry.\nENTRY 0199: routine observation; no approval or closing record in this entry.\nENTRY 0200: routine observation; no approval or closing record in this entry.\nENTRY 0201: routine observation; no approval or closing record in this entry.\nENTRY 0202: routine observation; no approval or closing record in this entry.\nENTRY 0203: routine observation; no approval or closing record in this entry.\nENTRY 0204: routine observation; no approval or closing record in this entry.\nENTRY 0205: routine observation; no approval or closing record in this entry.\nENTRY 0206: routine observation; no approval or closing record in this entry.\nENTRY 0207: routine observation; no approval or closing record in this entry.\nENTRY 0208: routine observation; no approval or closing record in this entry.\nENTRY 0209: routine observation; no approval or closing record in this entry.\nENTRY 0210: routine observation; no approval or closing record in this entry.\nENTRY 0211: routine observation; no approval or closing record in this entry.\nENTRY 0212: routine observation; no approval or closing record in this entry.\nENTRY 0213: routine observation; no approval or closing record in this entry.\nENTRY 0214: routine observation; no approval or closing record in this entry.\nENTRY 0215: routine observation; no approval or closing record in this entry.\nENTRY 0216: routine observation; no approval or closing record in this entry.\nENTRY 0217: routine observation; no approval or closing record in this entry.\nENTRY 0218: routine observation; no approval or closing record in this entry.\nENTRY 0219: routine observation; no approval or closing record in this entry.\nENTRY 0220: routine observation; no approval or closing record in this entry.\nENTRY 0221: routine observation; no approval or closing record in this entry.\nENTRY 0222: routine observation; no approval or closing record in this entry.\nENTRY 0223: routine observation; no approval or closing record in this entry.\nENTRY 0224: routine observation; no approval or closing record in this entry.\nENTRY 0225: routine observation; no approval or closing record in this entry.\nENTRY 0226: routine observation; no approval or closing record in this entry.\nENTRY 0227: routine observation; no approval or closing record in this entry.\nENTRY 0228: routine observation; no approval or closing record in this entry.\nENTRY 0229: routine observation; no approval or closing record in this entry.\nENTRY 0230: routine observation; no approval or closing record in this entry.\nENTRY 0231: routine observation; no approval or closing record in this entry.\nENTRY 0232: routine observation; no approval or closing record in this entry.\nENTRY 0233: routine observation; no approval or closing record in this entry.\nENTRY 0234: routine observation; no approval or closing record in this entry.\nENTRY 0235: routine observation; no approval or closing record in this entry.\nENTRY 0236: routine observation; no approval or closing record in this entry.\nENTRY 0237: routine observation; no approval or closing record in this entry.\nENTRY 0238: routine observation; no approval or closing record in this entry.\nENTRY 0239: routine observation; no approval or closing record in this entry.\nENTRY 0240: routine observation; no approval or closing record in this entry.\nENTRY 0241: routine observation; no approval or closing record in this entry.\nENTRY 0242: routine observation; no approval or closing record in this entry.\nENTRY 0243: routine observation; no approval or closing record in this entry.\nENTRY 0244: routine observation; no approval or closing record in this entry.\nENTRY 0245: routine observation; no approval or closing record in this entry.\nENTRY 0246: routine observation; no approval or closing record in this entry.\nENTRY 0247: routine observation; no approval or closing record in this entry.\nENTRY 0248: routine observation; no approval or closing record in this entry.\nENTRY 0249: routine observation; no approval or closing record in this entry.\nENTRY 0250: routine observation; no approval or closing record in this entry.\nENTRY 0251: routine observation; no approval or closing record in this entry.\nENTRY 0252: routine observation; no approval or closing record in this entry.\nENTRY 0253: routine observation; no approval or closing record in this entry.\nENTRY 0254: routine observation; no approval or closing record in this entry.\nENTRY 0255: routine observation; no approval or closing record in this entry.\nENTRY 0256: routine observation; no approval or closing record in this entry.\nENTRY 0257: routine observation; no approval or closing record in this entry.\nENTRY 0258: routine observation; no approval or closing record in this entry.\nENTRY 0259: routine observation; no approval or closing record in this entry.\nENTRY 0260: routine observation; no approval or closing record in this entry.\nENTRY 0261: routine observation; no approval or closing record in this entry.\nENTRY 0262: routine observation; no approval or closing record in this entry.\nENTRY 0263: routine observation; no approval or closing record in this entry.\nENTRY 0264: routine observation; no approval or closing record in this entry.\nENTRY 0265: routine observation; no approval or closing record in this entry.\nENTRY 0266: routine observation; no approval or closing record in this entry.\nENTRY 0267: routine observation; no approval or closing record in this entry.\nENTRY 0268: routine observation; no approval or closing record in this entry.\nENTRY 0269: routine observation; no approval or closing record in this entry.\nENTRY 0270: routine observation; no approval or closing record in this entry.\nENTRY 0271: routine observation; no approval or closing record in this entry.\nENTRY 0272: routine observation; no approval or closing record in this entry.\nENTRY 0273: routine observation; no approval or closing record in this entry.\nENTRY 0274: routine observation; no approval or closing record in this entry.\nENTRY 0275: routine observation; no approval or closing record in this entry.\nENTRY 0276: routine observation; no approval or closing record in this entry.\nENTRY 0277: routine observation; no approval or closing record in this entry.\nENTRY 0278: routine observation; no approval or closing record in this entry.\nENTRY 0279: routine observation; no approval or closing record in this entry.\nENTRY 0280: routine observation; no approval or closing record in this entry.\nENTRY 0281: routine observation; no approval or closing record in this entry.\nENTRY 0282: routine observation; no approval or closing record in this entry.\nENTRY 0283: routine observation; no approval or closing record in this entry.\nENTRY 0284: routine observation; no approval or closing record in this entry.\nENTRY 0285: routine observation; no approval or closing record in this entry.\nENTRY 0286: routine observation; no approval or closing record in this entry.\nENTRY 0287: routine observation; no approval or closing record in this entry.\nENTRY 0288: routine observation; no approval or closing record in this entry.\nENTRY 0289: routine observation; no approval or closing record in this entry.\nENTRY 0290: routine observation; no approval or closing record in this entry.\nENTRY 0291: routine observation; no approval or closing record in this entry.\nENTRY 0292: routine observation; no approval or closing record in this entry.\nENTRY 0293: routine observation; no approval or closing record in this entry.\nENTRY 0294: routine observation; no approval or closing record in this entry.\nENTRY 0295: routine observation; no approval or closing record in this entry.\nENTRY 0296: routine observation; no approval or closing record in this entry.\nENTRY 0297: routine observation; no approval or closing record in this entry.\nENTRY 0298: routine observation; no approval or closing record in this entry.\nENTRY 0299: routine observation; no approval or closing record in this entry.\nENTRY 0300: routine observation; no approval or closing record in this entry.\nENTRY 0301: routine observation; no approval or closing record in this entry.\nENTRY 0302: routine observation; no approval or closing record in this entry.\nENTRY 0303: routine observation; no approval or closing record in this entry.\nENTRY 0304: routine observation; no approval or closing record in this entry.\nENTRY 0305: routine observation; no approval or closing record in this entry.\nENTRY 0306: routine observation; no approval or closing record in this entry.\nENTRY 0307: routine observation; no approval or closing record in this entry.\nENTRY 0308: routine observation; no approval or closing record in this entry.\nENTRY 0309: routine observation; no approval or closing record in this entry.\nENTRY 0310: routine observation; no approval or closing record in this entry.\nENTRY 0311: routine observation; no approval or closing record in this entry.\nENTRY 0312: routine observation; no approval or closing record in this entry.\nENTRY 0313: routine observation; no approval or closing record in this entry.\nENTRY 0314: routine observation; no approval or closing record in this entry.\nENTRY 0315: routine observation; no approval or closing record in this entry.\nENTRY 0316: routine observation; no approval or closing record in this entry.\nENTRY 0317: routine observation; no approval or closing record in this entry.\nENTRY 0318: routine observation; no approval or closing record in this entry.\nENTRY 0319: routine observation; no approval or closing record in this entry.\nENTRY 0320: routine observation; no approval or closing record in this entry.\nENTRY 0321: routine observation; no approval or closing record in this entry.\nENTRY 0322: routine observation; no approval or closing record in this entry.\nENTRY 0323: routine observation; no approval or closing record in this entry.\nENTRY 0324: routine observation; no approval or closing record in this entry.\nENTRY 0325: routine observation; no approval or closing record in this entry.\nENTRY 0326: routine observation; no approval or closing record in this entry.\nENTRY 0327: routine observation; no approval or closing record in this entry.\nENTRY 0328: routine observation; no approval or closing record in this entry.\nENTRY 0329: routine observation; no approval or closing record in this entry.\nENTRY 0330: routine observation; no approval or closing record in this entry.\nENTRY 0331: routine observation; no approval or closing record in this entry.\nENTRY 0332: routine observation; no approval or closing record in this entry.\nENTRY 0333: routine observation; no approval or closing record in this entry.\nENTRY 0334: routine observation; no approval or closing record in this entry.\nENTRY 0335: routine observation; no approval or closing record in this entry.\nENTRY 0336: routine observation; no approval or closing record in this entry.\nENTRY 0337: routine observation; no approval or closing record in this entry.\nENTRY 0338: routine observation; no approval or closing record in this entry.\nENTRY 0339: routine observation; no approval or closing record in this entry.\nENTRY 0340: routine observation; no approval or closing record in this entry.\nENTRY 0341: routine observation; no approval or closing record in this entry.\nENTRY 0342: routine observation; no approval or closing record in this entry.\nENTRY 0343: routine observation; no approval or closing record in this entry.\nENTRY 0344: routine observation; no approval or closing record in this entry.\nENTRY 0345: routine observation; no approval or closing record in this entry.\nENTRY 0346: routine observation; no approval or closing record in this entry.\nENTRY 0347: routine observation; no approval or closing record in this entry.\nENTRY 0348: routine observation; no approval or closing record in this entry.\nENTRY 0349: routine observation; no approval or closing record in this entry.\nENTRY 0350: routine observation; no approval or closing record in this entry.\nENTRY 0351: routine observation; no approval or closing record in this entry.\nENTRY 0352: routine observation; no approval or closing record in this entry.\nENTRY 0353: routine observation; no approval or closing record in this entry.\nENTRY 0354: routine observation; no approval or closing record in this entry.\nENTRY 0355: routine observation; no approval or closing record in this entry.\nENTRY 0356: routine observation; no approval or closing record in this entry.\nENTRY 0357: routine observation; no approval or closing record in this entry.\nENTRY 0358: routine observation; no approval or closing record in this entry.\nENTRY 0359: routine observation; no approval or closing record in this entry.\nCLOSING: -17.25\n"
+    },
+    "workspace_before": {
+      "register.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 28116,
+        "sha256": "d7d391b1c175d08f6fa64bb237b130bc94ee063038b4f28f0618be896574cfed"
+      }
+    },
+    "workspace_after": {
+      "register.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 28116,
+        "sha256": "d7d391b1c175d08f6fa64bb237b130bc94ee063038b4f28f0618be896574cfed"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  }
+]
