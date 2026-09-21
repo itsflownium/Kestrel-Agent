@@ -48,6 +48,17 @@ def api_key(settings: Settings) -> str:
     return json.loads(path.read_text()).get(credential_id(settings), '') if path.exists() else ''
 
 
+def usage_tokens(usage, input_key, output_key):
+    if usage is None:
+        return 0, 0
+    if not isinstance(usage, dict):
+        raise RuntimeError('Provider returned invalid usage accounting.')
+    result = tuple(usage.get(key, 0) for key in (input_key, output_key))
+    if any(type(value) is not int or value < 0 for value in result):
+        raise RuntimeError('Provider returned invalid usage accounting.')
+    return result
+
+
 class HTTPGenerator:
     def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None):
         self.settings = settings
@@ -69,15 +80,24 @@ class HTTPGenerator:
             headers[header] = 'Bearer ' + key if header == 'authorization' else key
         if self.client is None:
             self.client = httpx.AsyncClient(timeout=self.settings.provider_timeout_seconds, follow_redirects=False)
-        response = await self.client.request(method, base + path, headers=headers, json=body)
+        response = await self.client.request(method, base + path, headers=headers, json=body, follow_redirects=False)
         if response.status_code >= 300:
             # Do not log response bodies/headers that can contain credentials or private prompts.
             raise RuntimeError(f'{self.settings.provider} returned HTTP {response.status_code}. Check endpoint, model, credentials, and JSON mode.')
-        return response.json()
+        try:
+            data = response.json()
+        except ValueError:
+            raise RuntimeError('Provider returned invalid JSON.') from None
+        if not isinstance(data, dict):
+            raise RuntimeError('Provider returned an invalid response object.')
+        return data
 
     async def models(self) -> list[str]:
         data = await self.request('GET', '/models')
-        return [row['id'] for row in data.get('data', []) if isinstance(row, dict) and isinstance(row.get('id'), str)]
+        rows = data.get('data')
+        if not isinstance(rows, list):
+            raise RuntimeError('Provider returned an invalid model list.')
+        return [row['id'] for row in rows if isinstance(row, dict) and isinstance(row.get('id'), str)]
 
     async def complete(self, prompt: str, schema: dict | None = None) -> tuple[str, int, int]:
         settings = self.settings
@@ -92,9 +112,17 @@ class HTTPGenerator:
             data = await self.request('POST', '/messages', body)
             if data.get('stop_reason') != 'end_turn':
                 raise RuntimeError('Provider did not finish a text answer (truncation, refusal, or unsupported tool request).')
-            text = ''.join(block.get('text', '') for block in data.get('content', []) if block.get('type') == 'text')
+            content = data.get('content')
+            if not isinstance(content, list) or any(not isinstance(block, dict) for block in content):
+                raise RuntimeError('Provider returned invalid content blocks.')
+            if any(block.get('type') in {'tool_use', 'server_tool_use', 'refusal'} for block in content):
+                raise RuntimeError('Provider returned a refusal or unsupported tool request.')
+            pieces = [block.get('text') for block in content if block.get('type') == 'text']
+            if any(not isinstance(piece, str) for piece in pieces):
+                raise RuntimeError('Provider returned invalid text content.')
+            text = ''.join(pieces)
             usage = data.get('usage', {})
-            tokens = usage.get('input_tokens', 0), usage.get('output_tokens', 0)
+            tokens = usage_tokens(usage, 'input_tokens', 'output_tokens')
         else:
             body = {'model': settings.model, settings.provider_token_parameter: settings.provider_max_tokens,
                     'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': prompt}]}
@@ -106,11 +134,16 @@ class HTTPGenerator:
                 body['response_format'] = {'type': 'json_schema', 'json_schema': {'name': 'kestrel_plan', 'strict': True, 'schema': schema}}
             data = await self.request('POST', '/chat/completions', body)
             choices = data.get('choices') or []
-            if not choices or choices[0].get('finish_reason') != 'stop':
+            if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict) or choices[0].get('finish_reason') != 'stop':
                 raise RuntimeError('Provider did not finish a text answer (truncation, refusal, or unsupported tool request).')
-            text = choices[0].get('message', {}).get('content')
+            message = choices[0].get('message')
+            if not isinstance(message, dict):
+                raise RuntimeError('Provider returned an invalid message.')
+            if message.get('refusal') or message.get('tool_calls') or message.get('function_call'):
+                raise RuntimeError('Provider returned a refusal or unsupported tool request.')
+            text = message.get('content')
             usage = data.get('usage', {})
-            tokens = usage.get('prompt_tokens', 0), usage.get('completion_tokens', 0)
+            tokens = usage_tokens(usage, 'prompt_tokens', 'completion_tokens')
         if not isinstance(text, str) or not text.strip():
             raise RuntimeError('Provider returned no text answer.')
         # Normalize a single fenced JSON response; validation remains with Plan.
@@ -118,7 +151,7 @@ class HTTPGenerator:
             lines = text.strip().splitlines()
             if lines[-1].strip() == '```':
                 text = '\n'.join(lines[1:-1])
-        return text, int(tokens[0] or 0), int(tokens[1] or 0)
+        return text, tokens[0], tokens[1]
 
     async def close(self):
         if self.client and self.owns_client:

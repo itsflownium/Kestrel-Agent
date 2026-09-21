@@ -28,3 +28,7 @@ Full suite with the browser extra and matching runtime: **286 passed in 60.91 se
 ## Docker process lifecycle follow-up
 
 Fixed ignored nonzero cleanup exit codes, retained unresolved container names for retry, prevented new commands before cleanup confirmation, and made runtime shutdown close remaining clients after a cleanup error. Six process-level tests use a fake Docker executable to exercise actual subprocess cancellation/output handling and failure paths. They do not establish container isolation or replace a live Docker daemon test. The configured Colima socket remains unavailable.
+
+## HTTP provider fault contracts
+
+51 provider/generation tests pass after rejecting malformed response objects, malformed messages/content blocks, explicit refusals and unexpected tool calls, and invalid token counters. HTTP redirects remain disabled even if an injected client enables them, and invalid JSON errors do not echo response bodies. These are protocol fixtures, not live conformance claims for every named provider. Missing usage still maps to zero in the existing adapter and must not be interpreted as a verified zero cost.
