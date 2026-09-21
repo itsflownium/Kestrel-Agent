@@ -30,10 +30,14 @@ VERIFY_PROMPT = (
 class Engine:
     def __init__(self, settings: Settings, workspace: Path, store: Store, sid: str, emit, confirm):
         self.settings, self.workspace, self.store, self.sid = settings, workspace, store, sid
-        self.emit, self.confirm = emit, confirm
-        self.runtime = Runtime(settings, workspace, emit, confirm)
+        self.emit = emit
+        async def timed_confirm(description):
+            with self.runtime.telemetry.measure("approval"):
+                return await confirm(description)
+        self.confirm = timed_confirm
+        self.runtime = Runtime(settings, workspace, emit, self.confirm)
         self.judge = Judge(settings, emit)
-        self.tools = ToolExecutor(settings, workspace, self.runtime, self.judge, store, sid, confirm)
+        self.tools = ToolExecutor(settings, workspace, self.runtime, self.judge, store, sid, self.confirm)
         self.state = json.loads(store.session(sid)["state"])
         self.state.setdefault("completed_effects", [])
         self.state.setdefault("uncertain_effects", [])
@@ -62,6 +66,8 @@ class Engine:
         return {"request": self.state.get("request", ""), "observations": selected}
 
     async def run(self, message: str | None = None) -> str:
+        self.runtime.begin_task()
+        self.judge.telemetry.records.clear()
         self.runtime.model_calls = self.judge.calls = 0
         self.runtime.input_tokens = self.runtime.output_tokens = 0
         self.judge.input_tokens = self.judge.output_tokens = 0
@@ -113,6 +119,10 @@ class Engine:
             if self.settings.provider != "codex":
                 for key in ("codex_calls", "codex_input_tokens", "codex_output_tokens"):
                     usage.pop(key, None)
+            usage["telemetry"] = {"generation_and_tools": self.runtime.telemetry.records,
+                                  "decisions": self.judge.telemetry.records}
+            usage["generation_cached_input_tokens"] = self.runtime.usage_ledger.totals['cached_input_tokens'] if self.settings.provider == "codex" else None
+            usage["generation_cache_write_input_tokens"] = self.runtime.usage_ledger.totals['cache_write_input_tokens'] if self.settings.provider == "codex" else None
             self.state["usage"] = usage
             self.log("usage", usage)
             self.save()
@@ -125,7 +135,7 @@ class Engine:
             except Exception as error:
                 self.emit("warning", f"Connected tools unavailable: {redact(str(error))[:200]}")
                 self.mcp_tools = []
-        history = self.store.history(self.sid, 12)
+        history = self.store.conversation(self.sid, 6)
         context = self.context()
         workflows = self.store.search_workflows(self.state["request"])
         prompt = f"""You are Kestrel, a general-purpose terminal assistant.
@@ -205,6 +215,17 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                     self.log("completion_guard", check)
                     if check["original_task"]["choice"] != "met" or check.get("answer_support", {}).get("choice") != "supported":
                         feedback = {"remaining_work": check, "instruction": "Finish the original request. A diagnosis or proposed action is not completion."}
+                        self.state["plan"] = None
+                        self.save()
+                        continue
+                if plan.mode == "answer" and not self.state.get("steps", 0):
+                    check = await self.judge.decide({**self.context(), "answer": plan.message,
+                        "conversation": self.store.conversation(self.sid, 6)}, {"direct_answer": {
+                            "instructions": "Does this answer address the user's actual request and requested format? General knowledge and ordinary conversation are allowed, but it must not claim commands, edits, searches, or other actions occurred without execution evidence. Choose revise for missing requested work or unsupported action claims.",
+                            "options": {"supported": "Appropriate response; no unsupported action claims.", "revise": "Needs correction or requested work remains."}}})
+                    self.log("direct_answer_review", check)
+                    if check["direct_answer"]["choice"] != "supported":
+                        feedback = {"answer_review": check, "instruction": "Finish the actual request without claiming unobserved actions."}
                         self.state["plan"] = None
                         self.save()
                         continue
@@ -344,7 +365,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                 self.state["uncertain_effects"].remove(fingerprint)
             self.state["inflight"][action.id] = {"fingerprint": fingerprint, "effect": effect}
             self.save()
-            result = await self.tools.execute(action.tool, args)
+            with self.runtime.telemetry.measure("tool", tool=action.tool, action=action.id):
+                result = await self.tools.execute(action.tool, args)
             status = "error" if result.get("error") else "completed"
             preview = result.get("stdout") or result.get("content") or result.get("matches") or result.get("files")
             if preview:

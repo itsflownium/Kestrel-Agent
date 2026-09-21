@@ -100,7 +100,7 @@ async def test_engine_uses_http_provider_for_validated_plan(setup):
     settings=Settings(provider='openai-compatible', model='custom-model')
     store=Store(settings)
     engine=Engine(settings,setup,store,store.create(setup),lambda *args:None,AsyncMock(return_value=False))
-    engine.judge.decide=AsyncMock(return_value={'route':{'choice':'model'}})
+    engine.judge.decide=AsyncMock(return_value={'direct_answer':{'choice':'supported'}})
     engine.runtime.generator.complete=AsyncMock(return_value=(json.dumps({'mode':'answer','message':'Provider worked','actions':[],'success_criteria':[]}),20,10))
     try:
         assert await engine.run('Explain a concept')=='Provider worked'

@@ -62,6 +62,10 @@ class Store:
         rows = self.db.execute("SELECT kind,body FROM events WHERE session=? ORDER BY id DESC LIMIT ?", (sid, limit))
         return [{"kind": r[0], "body": json.loads(r[1])} for r in reversed(list(rows))]
 
+    def conversation(self, sid: str, limit: int = 6) -> list[dict]:
+        rows = self.db.execute("SELECT kind,body FROM events WHERE session=? AND kind IN ('user','assistant') ORDER BY id DESC LIMIT ?", (sid, limit))
+        return [{"kind": r[0], "body": json.loads(r[1])} for r in reversed(list(rows))]
+
     def evidence(self, sid: str, body: Any) -> str:
         text = redact(json.dumps(body, ensure_ascii=False, default=str))
         if len(text.encode()) > 1_000_000:
