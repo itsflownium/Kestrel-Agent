@@ -162,12 +162,12 @@ These commands make requests only when explicitly invoked:
 
 ```sh
 kestrel eval examples/decisions.jsonl --component verify
-kestrel optimize --train train.jsonl --validation validation.jsonl --component verify --budget 30
-# Evaluate separately on held-out examples before activation:
+kestrel optimize --train train.jsonl --validation validation.jsonl --test test.jsonl --component verify --budget 30
+# Review the candidate; promotion checks the recorded independent evaluation:
 kestrel promote-prompt /absolute/path/to/reviewed-candidate.json
 ```
 
-Train/validation sets must not overlap. GEPA saves inactive candidates for review and never replays real shell/MCP actions. Its reflection callable uses the selected generation provider. Promotion preserves a previous prompt version.
+Train, validation, and final-test sets must have disjoint inputs and task families. GEPA saves inactive candidates for review and never replays real shell/MCP actions. Its reflection callable uses the selected generation provider. Promotion preserves a previous prompt version.
 
 ## Storage
 
@@ -193,3 +193,11 @@ uv run pytest
 No automatic test CI is enabled. Live benchmarks run only when explicitly invoked.
 
 MIT licensed. Kestrel is independent; Codex and Jev have their own access requirements and usage limits.
+
+
+Prompt optimization requires three disjoint task-family splits. In addition to the evaluation fields above, each optimization row needs a nonempty `family` and a `label`: either `{"kind":"human","reviewer":"name","reason":"independent review"}` or `{"kind":"exact_match","actual":true,"expected":true,"on_match":"yes","on_mismatch":"no"}`. Exact-match labels are derived from supplied outcomes; Kestrel does not attest that the external oracle ran. Agent verdicts alone are not accepted as labels.
+
+GEPA sees only training and validation data. After selecting a fixed prompt, Kestrel evaluates the baseline and candidate on the final test set. Test inputs and families are consumed once in the local store, including interrupted runs. Promotion requires the exact evaluated prompt and unchanged baseline, no validation accuracy regression, and no lost previously correct test example. Editing scores in candidate JSON cannot bypass the recorded evaluation. This is local experimental bookkeeping, not tamper-proof attestation or a guarantee of unseen-task quality. Backups preserve prior prompt text; activating a backup requires a new evaluation. Optimization never activates a prompt or trains model weights.
+
+
+Execution plans can declare deterministic completion checks for exact result values, JSON output, and saved text/JSON artifacts. Kestrel evaluates these without another model call and retains failures across replanning and resume. Jev still checks original-task coverage and semantic correctness; a passing equality check alone does not prove the whole task is complete. File checks reread current artifacts through the existing path permissions. They accept complete UTF-8 text up to 40,000 characters and 1,000 lines; expected literals are limited to 4,000 characters, with at most 8 checks per plan and 16 retained per task. No generated verifier code runs. Checks reject ambiguous JSON duplicate keys and non-finite values, and distinguish booleans from numbers. A changed expectation requires a new user request; recovery may bind a result check to a new action without weakening its target.

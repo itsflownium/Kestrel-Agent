@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+import uuid
 from pathlib import Path
 
 from .config import Settings, atomic_write, home
@@ -30,10 +31,13 @@ async def learn_workflow(store: Store, settings: Settings, sid: str, emit) -> st
         await runtime.close()
 
 
-def load_examples(path: Path) -> list[dict]:
+def load_examples(path: Path, *, require_labels: bool = False) -> list[dict]:
     examples = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     if not examples:
         raise ValueError("The dataset is empty.")
+    if require_labels:
+        from .learning_guards import labeled_examples
+        examples = labeled_examples(examples)
     for example in examples:
         if not all(k in example for k in ("state", "question", "options", "expected")):
             raise ValueError("Each JSONL example needs state, question, options, and expected.")
@@ -55,22 +59,23 @@ async def evaluate(settings: Settings, examples: list[dict], instructions: str, 
         await judge.close()
 
 
-def optimize(settings: Settings, train_path: Path, validation_path: Path, component: str, budget: int, emit) -> Path:
+def optimize(settings: Settings, train_path: Path, validation_path: Path, component: str, budget: int, emit, *, test_path: Path) -> Path:
     """Explicit, bounded offline optimization. It never executes task tools."""
     try:
         import gepa
     except ImportError as error:
         raise RuntimeError("Install the learning extra first: uv pip install -e '.[learning]'") from error
-    train, validation = load_examples(train_path), load_examples(validation_path)
-    signatures = {json.dumps(e, sort_keys=True) for e in train}
-    if any(json.dumps(e, sort_keys=True) in signatures for e in validation):
-        raise ValueError("Training and validation examples must not overlap.")
+    from .learning_guards import digest, isolated_splits, reserve_test, save_report
+    train, validation, test = [load_examples(path, require_labels=True) for path in (train_path, validation_path, test_path)]
+    isolated_splits(train, validation, test)
+    run = uuid.uuid4().hex
     defaults = {"gate": GATE_PROMPT, "verify": VERIFY_PROMPT}
     if component not in defaults:
         raise ValueError("Component must be gate or verify.")
     store = Store(settings)
     try:
         initial = store.template(component, defaults[component])
+        reserve_test(store.db, run, test)
     finally:
         store.close()
     reflections = 0
@@ -113,9 +118,22 @@ def optimize(settings: Settings, train_path: Path, validation_path: Path, compon
     candidate = result.best_candidate["instructions"]
     baseline = asyncio.run(evaluate(settings, validation, initial, emit))
     updated = asyncio.run(evaluate(settings, validation, candidate, emit))
-    destination = home() / "candidates" / f"{component}-{int(time.time())}.json"
+    # The candidate is fixed before either final-test evaluation. Test content
+    # and results never reach GEPA selection or reflection.
+    test_baseline = asyncio.run(evaluate(settings, test, initial, emit))
+    test_updated = asyncio.run(evaluate(settings, test, candidate, emit))
+    report = {"component": component, "candidate_hash": digest(candidate), "baseline_hash": digest(initial),
+              "split_hashes": {"train": digest(train), "validation": digest(validation), "test": digest(test)},
+              "validation_baseline": baseline, "validation_candidate": updated,
+              "test_baseline": test_baseline, "test_candidate": test_updated}
+    store = Store(settings)
+    try:
+        save_report(store.db, run, report)
+    finally:
+        store.close()
+    destination = home() / "candidates" / f"{component}-{run}.json"
     destination.parent.mkdir(parents=True, exist_ok=True)
     atomic_write(destination, json.dumps({"component": component, "instructions": candidate,
         "baseline_accuracy": baseline["accuracy"], "validation_accuracy": updated["accuracy"],
-        "codex_reflection_calls": reflections, "review_required": True}, indent=2))
+        "codex_reflection_calls": reflections, "evaluation_id": run, "review_required": True}, indent=2))
     return destination
