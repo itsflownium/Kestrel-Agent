@@ -25,6 +25,7 @@ from rich.table import Table
 from rich.text import Text
 
 from . import __version__
+from .dashboard import newline_shortcut
 from .config import Settings, redact, load_secrets, home, atomic_write
 from .engine import Engine
 from .store import Store
@@ -249,7 +250,7 @@ class Terminal:
                 ("/permissions [read-only|workspace|full]", "View or change access profile"),
                 ("/config", "Inspect settings; use kestrel config set KEY VALUE to edit"),
                 ("/tools", "List built-in capabilities and connected MCP tools"), ("/status", "Show checkpoint and usage"),
-                ("/clear · /exit", "Clear the screen or leave"), ("Ctrl+C · Alt+Enter", "Stop a task or quit when idle · insert newline")]:
+                ("/clear · /exit", "Clear the screen or leave"), (f"Ctrl+C · {newline_shortcut()}", "Stop or quit · newline (also Esc, then Enter)")]:
                 if not argument or argument.lower() in (command + " " + meaning).lower():
                     table.add_row(command, meaning)
             self.console.print(table)
