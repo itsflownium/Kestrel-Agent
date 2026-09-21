@@ -1,0 +1,949 @@
+{
+  "kind": "live-browser-smoke",
+  "harness_sha256": "18900f8a81e8343c157e0bfe91572980244a0e2d6e0778bb4a03c7635ac7cc1b",
+  "mode": "jev",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "target": "Record-33db7c31",
+  "baseline": null,
+  "prompt": "Using the connected browser, open http://127.0.0.1:49153/fixture. Enter Record-33db7c31 in Record name and save the record exactly once. Verify the visible saved message and report the record name. Do not edit files or use other services.",
+  "answer": "Saved **Record-33db7c31** exactly once. Verified the visible confirmation: \u201cSaved record: Record-33db7c31\u201d.",
+  "elapsed_seconds": 49.771,
+  "usage": {
+    "elapsed_seconds": 49.46,
+    "codex_calls": 3,
+    "jev_calls": 10,
+    "codex_input_tokens": 52330,
+    "codex_output_tokens": 715,
+    "jev_input_tokens": 32466,
+    "agent_mode": "jev",
+    "decision_provider": "jev",
+    "decision_calls": 10,
+    "decision_input_tokens": 32466,
+    "decision_output_tokens": 646,
+    "provider_model_calls": 3,
+    "provider": "codex",
+    "generation_calls": 3,
+    "generation_input_tokens": 52330,
+    "generation_output_tokens": 715,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.299405
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 0.299422
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.008615
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.016445
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.579534
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.018155
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 10.090844,
+          "first_output_seconds": 4.469703
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 16657,
+          "schema_bytes": 2369,
+          "queue_seconds": 6.3e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 16619,
+            "output_tokens": 197,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 11.013248
+        },
+        {
+          "stage": "tool",
+          "tool": "load_skill",
+          "action": "skill",
+          "status": "completed",
+          "seconds": 0.136396
+        },
+        {
+          "stage": "approval",
+          "status": "completed",
+          "seconds": 3e-06
+        },
+        {
+          "stage": "tool",
+          "tool": "mcp",
+          "action": "open",
+          "status": "completed",
+          "seconds": 1.100466
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.437687
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010375
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 19.328726,
+          "first_output_seconds": 7.456696
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 22301,
+          "schema_bytes": 2369,
+          "queue_seconds": 5.2e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 18278,
+            "output_tokens": 484,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 75
+          },
+          "seconds": 19.776912
+        },
+        {
+          "stage": "approval",
+          "status": "completed",
+          "seconds": 3e-06
+        },
+        {
+          "stage": "tool",
+          "tool": "mcp",
+          "action": "fill",
+          "status": "completed",
+          "seconds": 0.18204
+        },
+        {
+          "stage": "tool",
+          "tool": "choose",
+          "action": "save_target",
+          "status": "completed",
+          "seconds": 0.423548
+        },
+        {
+          "stage": "approval",
+          "status": "completed",
+          "seconds": 3e-06
+        },
+        {
+          "stage": "tool",
+          "tool": "mcp",
+          "action": "save",
+          "status": "completed",
+          "seconds": 0.22648
+        },
+        {
+          "stage": "approval",
+          "status": "completed",
+          "seconds": 3e-06
+        },
+        {
+          "stage": "tool",
+          "tool": "mcp",
+          "action": "verify",
+          "status": "completed",
+          "seconds": 0.149061
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.485302
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010336
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 4.168987,
+          "first_output_seconds": 3.151611
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 15518,
+          "schema_bytes": 0,
+          "queue_seconds": 2.1e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 17433,
+            "output_tokens": 34,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 4.664704
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 1049,
+          "question_bytes": 746,
+          "status": "completed",
+          "seconds": 0.729925
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 3560,
+          "question_bytes": 744,
+          "status": "completed",
+          "seconds": 0.272144
+        },
+        {
+          "stage": "jev",
+          "questions": 2,
+          "state_bytes": 5928,
+          "question_bytes": 1298,
+          "status": "completed",
+          "seconds": 0.266466
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 6731,
+          "question_bytes": 744,
+          "status": "completed",
+          "seconds": 0.678253
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 9498,
+          "question_bytes": 758,
+          "status": "completed",
+          "seconds": 0.29158
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 446,
+          "question_bytes": 598,
+          "status": "completed",
+          "seconds": 0.279409
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 10717,
+          "question_bytes": 744,
+          "status": "completed",
+          "seconds": 0.375498
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 13428,
+          "question_bytes": 748,
+          "status": "completed",
+          "seconds": 0.336021
+        },
+        {
+          "stage": "jev",
+          "questions": 5,
+          "state_bytes": 15653,
+          "question_bytes": 3525,
+          "status": "completed",
+          "seconds": 0.323308
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 15331,
+          "question_bytes": 412,
+          "status": "completed",
+          "seconds": 0.287808
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 0,
+    "generation_cache_write_input_tokens": 0,
+    "decision_cached_input_tokens": null
+  },
+  "status": "completed",
+  "submitted": [
+    {
+      "name": "Record-33db7c31"
+    }
+  ],
+  "unexpected_files": [],
+  "passed": true,
+  "events": [
+    {
+      "kind": "user",
+      "body": "Using the connected browser, open http://127.0.0.1:49153/fixture. Enter Record-33db7c31 in Record name and save the record exactly once. Verify the visible saved message and report the record name. Do not edit files or use other services."
+    },
+    {
+      "kind": "plan",
+      "body": {
+        "mode": "plan",
+        "message": "I\u2019ll open the page, inspect the form, and save the named record exactly once before verifying the visible confirmation.",
+        "actions": [
+          {
+            "id": "skill",
+            "tool": "load_skill",
+            "arguments_json": "{\"name\":\"browser-workflow\",\"reference\":null}",
+            "depends_on": [],
+            "purpose": "Load the browser workflow guidance.",
+            "condition": "always",
+            "after": "success"
+          },
+          {
+            "id": "open",
+            "tool": "mcp",
+            "arguments_json": "{\"server\":\"direct:browser\",\"tool\":\"browser_open\",\"arguments\":{\"url\":\"http://127.0.0.1:49153/fixture\"}}",
+            "depends_on": [
+              "skill"
+            ],
+            "purpose": "Observe the form and its current targets before entering Record-33db7c31 and saving exactly once.",
+            "condition": "always",
+            "after": "success"
+          }
+        ],
+        "success_criteria": [
+          "The requested page is opened and current form targets are observed."
+        ],
+        "final_response_ref": null,
+        "completion_checks": []
+      }
+    },
+    {
+      "kind": "decisions",
+      "body": {
+        "skill": {
+          "choice": "execute",
+          "confidence": 0.9,
+          "probabilities": {
+            "need_context": 0.04,
+            "skip": 0.02,
+            "execute": 0.94
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "body": {
+        "id": "skill",
+        "tool": "load_skill",
+        "status": "completed",
+        "evidence_id": "0381636b7c7f4459"
+      }
+    },
+    {
+      "kind": "decisions",
+      "body": {
+        "open": {
+          "choice": "execute",
+          "confidence": 0.99,
+          "probabilities": {
+            "need_context": 0.01,
+            "skip": 0.0,
+            "execute": 0.99
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "body": {
+        "id": "open",
+        "tool": "mcp",
+        "status": "completed",
+        "evidence_id": "6f662d096bff46d5"
+      }
+    },
+    {
+      "kind": "completion_checks",
+      "body": {}
+    },
+    {
+      "kind": "verification",
+      "body": {
+        "criterion_0": {
+          "choice": "met",
+          "confidence": 1.0,
+          "probabilities": {
+            "response_pending": 0.0,
+            "not_met": 0.0,
+            "met": 1.0,
+            "unclear": 0.0
+          }
+        },
+        "original_task": {
+          "choice": "not_met",
+          "confidence": 0.99,
+          "probabilities": {
+            "not_met": 1.0,
+            "met": 0.0,
+            "unclear": 0.0
+          }
+        }
+      }
+    },
+    {
+      "kind": "plan",
+      "body": {
+        "mode": "plan",
+        "message": "Enter the record name, save once, and verify the visible confirmation.",
+        "actions": [
+          {
+            "id": "fill",
+            "tool": "mcp",
+            "arguments_json": "{\"server\":\"direct:browser\",\"tool\":\"browser_act\",\"arguments\":{\"tab\":\"94c14ec66d\",\"observation\":\"a2aee4bc101e4bbeafcc4ea3bb07bd41\",\"target\":\"e1\",\"operation\":\"fill\",\"value\":\"Record-33db7c31\"}}",
+            "depends_on": [],
+            "purpose": "Fill the observed Record name field.",
+            "condition": "always",
+            "after": "success"
+          },
+          {
+            "id": "save_target",
+            "tool": "choose",
+            "arguments_json": "{\"question\":\"Select the enabled Save record button from the updated observed targets.\",\"options\":\"${fill.structuredContent.targets}\"}",
+            "depends_on": [
+              "fill"
+            ],
+            "purpose": "Identify the save button in the fresh observation.",
+            "condition": "always",
+            "after": "success"
+          },
+          {
+            "id": "save",
+            "tool": "mcp",
+            "arguments_json": "{\"server\":\"direct:browser\",\"tool\":\"browser_act\",\"arguments\":{\"tab\":\"94c14ec66d\",\"observation\":\"${fill.structuredContent.observation}\",\"target\":\"${save_target.value.target}\",\"operation\":\"click\"}}",
+            "depends_on": [
+              "fill",
+              "save_target"
+            ],
+            "purpose": "Save the requested record exactly once.",
+            "condition": "always",
+            "after": "success"
+          },
+          {
+            "id": "verify",
+            "tool": "mcp",
+            "arguments_json": "{\"server\":\"direct:browser\",\"tool\":\"browser_snapshot\",\"arguments\":{\"tab\":\"94c14ec66d\"}}",
+            "depends_on": [
+              "save"
+            ],
+            "purpose": "Verify the visible saved message and record name without repeating the save.",
+            "condition": "always",
+            "after": "completion"
+          }
+        ],
+        "success_criteria": [
+          "Record name was filled with Record-33db7c31.",
+          "Save record was clicked exactly once.",
+          "A fresh observation shows a saved confirmation for Record-33db7c31."
+        ],
+        "final_response_ref": null,
+        "completion_checks": []
+      }
+    },
+    {
+      "kind": "decisions",
+      "body": {
+        "fill": {
+          "choice": "execute",
+          "confidence": 1.0,
+          "probabilities": {
+            "need_context": 0.0,
+            "skip": 0.0,
+            "execute": 1.0
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "body": {
+        "id": "fill",
+        "tool": "mcp",
+        "status": "completed",
+        "evidence_id": "e789012b6ad84c3c"
+      }
+    },
+    {
+      "kind": "decisions",
+      "body": {
+        "save_target": {
+          "choice": "execute",
+          "confidence": 0.87,
+          "probabilities": {
+            "skip": 0.01,
+            "need_context": 0.08,
+            "execute": 0.91
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "body": {
+        "id": "save_target",
+        "tool": "choose",
+        "status": "completed",
+        "evidence_id": "d177b79dd1164124"
+      }
+    },
+    {
+      "kind": "decisions",
+      "body": {
+        "save": {
+          "choice": "execute",
+          "confidence": 0.96,
+          "probabilities": {
+            "execute": 0.98,
+            "skip": 0.0,
+            "need_context": 0.02
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "body": {
+        "id": "save",
+        "tool": "mcp",
+        "status": "completed",
+        "evidence_id": "9bf5ddc8d1f04253"
+      }
+    },
+    {
+      "kind": "decisions",
+      "body": {
+        "verify": {
+          "choice": "execute",
+          "confidence": 0.98,
+          "probabilities": {
+            "need_context": 0.01,
+            "execute": 0.99,
+            "skip": 0.0
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "body": {
+        "id": "verify",
+        "tool": "mcp",
+        "status": "completed",
+        "evidence_id": "dddeaf869ddc4356"
+      }
+    },
+    {
+      "kind": "completion_checks",
+      "body": {}
+    },
+    {
+      "kind": "verification",
+      "body": {
+        "criterion_0": {
+          "choice": "met",
+          "confidence": 1.0,
+          "probabilities": {
+            "not_met": 0.0,
+            "unclear": 0.0,
+            "response_pending": 0.0,
+            "met": 1.0
+          }
+        },
+        "criterion_1": {
+          "choice": "met",
+          "confidence": 0.65,
+          "probabilities": {
+            "not_met": 0.12,
+            "unclear": 0.13,
+            "response_pending": 0.01,
+            "met": 0.74
+          }
+        },
+        "criterion_2": {
+          "choice": "met",
+          "confidence": 0.96,
+          "probabilities": {
+            "not_met": 0.01,
+            "unclear": 0.01,
+            "response_pending": 0.01,
+            "met": 0.97
+          }
+        },
+        "criterion_3": {
+          "choice": "met",
+          "confidence": 0.99,
+          "probabilities": {
+            "not_met": 0.0,
+            "unclear": 0.0,
+            "response_pending": 0.0,
+            "met": 1.0
+          }
+        },
+        "original_task": {
+          "choice": "met",
+          "confidence": 0.97,
+          "probabilities": {
+            "not_met": 0.02,
+            "unclear": 0.0,
+            "met": 0.98
+          }
+        }
+      }
+    },
+    {
+      "kind": "answer_review",
+      "body": {
+        "support": {
+          "choice": "supported",
+          "confidence": 0.96,
+          "probabilities": {
+            "unsupported": 0.03,
+            "supported": 0.97,
+            "unclear": 0.0
+          }
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "kind": "assistant",
+      "body": "Saved **Record-33db7c31** exactly once. Verified the visible confirmation: \u201cSaved record: Record-33db7c31\u201d."
+    },
+    {
+      "kind": "usage",
+      "body": {
+        "elapsed_seconds": 49.46,
+        "codex_calls": 3,
+        "jev_calls": 10,
+        "codex_input_tokens": 52330,
+        "codex_output_tokens": 715,
+        "jev_input_tokens": 32466,
+        "agent_mode": "jev",
+        "decision_provider": "jev",
+        "decision_calls": 10,
+        "decision_input_tokens": 32466,
+        "decision_output_tokens": 646,
+        "provider_model_calls": 3,
+        "provider": "codex",
+        "generation_calls": 3,
+        "generation_input_tokens": 52330,
+        "generation_output_tokens": 715,
+        "telemetry": {
+          "generation_and_tools": [
+            {
+              "stage": "app_server_start",
+              "status": "completed",
+              "seconds": 0.299405
+            },
+            {
+              "stage": "runtime_start",
+              "status": "completed",
+              "seconds": 0.299422
+            },
+            {
+              "stage": "account_check",
+              "status": "completed",
+              "seconds": 0.008615
+            },
+            {
+              "stage": "config_read",
+              "status": "completed",
+              "seconds": 0.016445
+            },
+            {
+              "stage": "thread_start",
+              "status": "completed",
+              "seconds": 0.579534
+            },
+            {
+              "stage": "turn_start",
+              "status": "completed",
+              "seconds": 0.018155
+            },
+            {
+              "stage": "turn_stream",
+              "seconds": 10.090844,
+              "first_output_seconds": 4.469703
+            },
+            {
+              "stage": "generation",
+              "provider": "codex",
+              "prompt_bytes": 16657,
+              "schema_bytes": 2369,
+              "queue_seconds": 6.3e-05,
+              "status": "completed",
+              "usage": {
+                "input_tokens": 16619,
+                "output_tokens": 197,
+                "cached_input_tokens": 0,
+                "cache_write_input_tokens": 0,
+                "reasoning_output_tokens": 0
+              },
+              "seconds": 11.013248
+            },
+            {
+              "stage": "tool",
+              "tool": "load_skill",
+              "action": "skill",
+              "status": "completed",
+              "seconds": 0.136396
+            },
+            {
+              "stage": "approval",
+              "status": "completed",
+              "seconds": 3e-06
+            },
+            {
+              "stage": "tool",
+              "tool": "mcp",
+              "action": "open",
+              "status": "completed",
+              "seconds": 1.100466
+            },
+            {
+              "stage": "runtime_start",
+              "status": "completed",
+              "seconds": 2e-06
+            },
+            {
+              "stage": "thread_start",
+              "status": "completed",
+              "seconds": 0.437687
+            },
+            {
+              "stage": "turn_start",
+              "status": "completed",
+              "seconds": 0.010375
+            },
+            {
+              "stage": "turn_stream",
+              "seconds": 19.328726,
+              "first_output_seconds": 7.456696
+            },
+            {
+              "stage": "generation",
+              "provider": "codex",
+              "prompt_bytes": 22301,
+              "schema_bytes": 2369,
+              "queue_seconds": 5.2e-05,
+              "status": "completed",
+              "usage": {
+                "input_tokens": 18278,
+                "output_tokens": 484,
+                "cached_input_tokens": 0,
+                "cache_write_input_tokens": 0,
+                "reasoning_output_tokens": 75
+              },
+              "seconds": 19.776912
+            },
+            {
+              "stage": "approval",
+              "status": "completed",
+              "seconds": 3e-06
+            },
+            {
+              "stage": "tool",
+              "tool": "mcp",
+              "action": "fill",
+              "status": "completed",
+              "seconds": 0.18204
+            },
+            {
+              "stage": "tool",
+              "tool": "choose",
+              "action": "save_target",
+              "status": "completed",
+              "seconds": 0.423548
+            },
+            {
+              "stage": "approval",
+              "status": "completed",
+              "seconds": 3e-06
+            },
+            {
+              "stage": "tool",
+              "tool": "mcp",
+              "action": "save",
+              "status": "completed",
+              "seconds": 0.22648
+            },
+            {
+              "stage": "approval",
+              "status": "completed",
+              "seconds": 3e-06
+            },
+            {
+              "stage": "tool",
+              "tool": "mcp",
+              "action": "verify",
+              "status": "completed",
+              "seconds": 0.149061
+            },
+            {
+              "stage": "runtime_start",
+              "status": "completed",
+              "seconds": 2e-06
+            },
+            {
+              "stage": "thread_start",
+              "status": "completed",
+              "seconds": 0.485302
+            },
+            {
+              "stage": "turn_start",
+              "status": "completed",
+              "seconds": 0.010336
+            },
+            {
+              "stage": "turn_stream",
+              "seconds": 4.168987,
+              "first_output_seconds": 3.151611
+            },
+            {
+              "stage": "generation",
+              "provider": "codex",
+              "prompt_bytes": 15518,
+              "schema_bytes": 0,
+              "queue_seconds": 2.1e-05,
+              "status": "completed",
+              "usage": {
+                "input_tokens": 17433,
+                "output_tokens": 34,
+                "cached_input_tokens": 0,
+                "cache_write_input_tokens": 0,
+                "reasoning_output_tokens": 0
+              },
+              "seconds": 4.664704
+            }
+          ],
+          "decisions": [
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 1049,
+              "question_bytes": 746,
+              "status": "completed",
+              "seconds": 0.729925
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 3560,
+              "question_bytes": 744,
+              "status": "completed",
+              "seconds": 0.272144
+            },
+            {
+              "stage": "jev",
+              "questions": 2,
+              "state_bytes": 5928,
+              "question_bytes": 1298,
+              "status": "completed",
+              "seconds": 0.266466
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 6731,
+              "question_bytes": 744,
+              "status": "completed",
+              "seconds": 0.678253
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 9498,
+              "question_bytes": 758,
+              "status": "completed",
+              "seconds": 0.29158
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 446,
+              "question_bytes": 598,
+              "status": "completed",
+              "seconds": 0.279409
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 10717,
+              "question_bytes": 744,
+              "status": "completed",
+              "seconds": 0.375498
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 13428,
+              "question_bytes": 748,
+              "status": "completed",
+              "seconds": 0.336021
+            },
+            {
+              "stage": "jev",
+              "questions": 5,
+              "state_bytes": 15653,
+              "question_bytes": 3525,
+              "status": "completed",
+              "seconds": 0.323308
+            },
+            {
+              "stage": "jev",
+              "questions": 1,
+              "state_bytes": 15331,
+              "question_bytes": 412,
+              "status": "completed",
+              "seconds": 0.287808
+            }
+          ]
+        },
+        "generation_cached_input_tokens": 0,
+        "generation_cache_write_input_tokens": 0,
+        "decision_cached_input_tokens": null
+      }
+    }
+  ]
+}
