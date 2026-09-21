@@ -166,3 +166,24 @@ async def test_schema_change_and_failed_turn_start_invalidate_thread(tmp_path):
         await runtime.complete('retry')
         assert runtime.codex.thread_start.await_count == 3
     finally:await runtime.close()
+
+
+@pytest.mark.asyncio
+async def test_compact_profile_keeps_sandbox_and_tool_controls(tmp_path):
+    from openai_codex import ApprovalMode, Sandbox
+    from kestrel_agent.providers import COMPACT_GENERATION_INSTRUCTIONS
+    runtime=Runtime(Settings(generation_prompt_profile='compact'),tmp_path,lambda *args:None)
+    runtime.start=AsyncMock();runtime.account=AsyncMock(return_value={'account':{'id':'dummy'}})
+    runtime.rpc=AsyncMock(return_value={'config':{'mcp_servers':{'connected':{}}}})
+    runtime.codex.thread_start=AsyncMock(return_value=FakeThread('one'))
+    try:
+        await runtime.complete('answer the task')
+        options=runtime.codex.thread_start.call_args.kwargs
+        assert options['base_instructions'] == COMPACT_GENERATION_INSTRUCTIONS
+        assert options['sandbox'] == Sandbox.read_only
+        assert options['approval_mode'] == ApprovalMode.deny_all
+        for key in ['features.shell_tool','features.unified_exec','features.code_mode','apps._default.enabled','mcp_servers.connected.enabled']:
+            assert options['config'][key] is False
+        assert options['config']['web_search'] == 'disabled'
+        assert 'host controller owns all actions' in options['developer_instructions']
+    finally:await runtime.close()

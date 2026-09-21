@@ -38,6 +38,7 @@ class Settings(BaseModel):
     provider_token_parameter: Literal["max_tokens", "max_completion_tokens"] = "max_tokens"
     provider_send_reasoning_effort: bool = False
     provider_timeout_seconds: int = Field(default=120, ge=1, le=1800)
+    generation_prompt_profile: Literal["default", "compact"] = "default"
     generation_session: Literal["fresh", "task"] = "fresh"
     cache_generation_setup: bool = True
     effort: Literal["low", "medium", "high"] = "low"
