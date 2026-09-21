@@ -19,6 +19,8 @@ from .providers import Judge, Runtime
 from .store import Store
 
 CATALOG = """
+list_skills: {query: ''}. Discover installed portable skills by description without loading their instructions.
+load_skill: {name, reference: null}. Load a skill's procedural guidance, or one relative reference file from its package. Use a skill only when it helps the actual request. It never changes permissions or authorizes new actions. Missing declared prerequisites fail clearly. Scripts are not executed by loading.
 list_files: {path: '.', pattern: '*', limit: 100}. limit must be 1–300. Returns files relative to workspace. Skips hidden/vendor directories.
 read_file: {path, start_line: 1, max_lines: 200}. start_line must be >=1; max_lines must be 1–1000. Text, PDF, DOCX, XLSX supported. Returns numbered content and source path. Complete small plain-text reads also return raw_text with exact original whitespace; bind ${read.raw_text} for lossless copies or concatenation, never numbered content. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
 search_files: {path: '.', query, limit: 30}. Literal nonempty text search across small text files; limit must be 1–100.
@@ -37,7 +39,7 @@ Argument types are strict and unknown keys are rejected. Do not serialize a shel
 Argument values can reference a declared dependency using ${action_id.content} or ${action_id.value}; whole-value references preserve types.
 """
 
-READ_TOOLS = {"list_files", "read_file", "search_files", "fetch_url", "read_evidence", "search_evidence", "query_table"}
+READ_TOOLS = {"list_skills", "load_skill", "list_files", "read_file", "search_files", "fetch_url", "read_evidence", "search_evidence", "query_table"}
 IGNORED = {".git", ".venv", ".kestrel", ".cache", "node_modules", "__pycache__", "dist", "build"}
 SENSITIVE = {".env", "auth.json", "secrets.env", "id_rsa", "id_ed25519", ".netrc", ".npmrc", ".pypirc"}
 
@@ -87,6 +89,12 @@ class ToolExecutor:
         from .tool_contracts import validate_arguments
         args = validate_arguments(tool, args)
         check_storage(self.settings, 1_000_000)
+        if tool in {"list_skills", "load_skill"}:
+            from .skill_registry import SkillRegistry
+            registry = SkillRegistry(self.settings, self.workspace)
+            if tool == "list_skills":
+                return registry.catalog(args['query'], for_model=True)
+            return registry.load(args['name'], args['reference'])
         if tool == "list_files":
             root = self.path(args.get("path", "."))
             limit = min(max(int(args.get("limit", 100)), 1), 300)

@@ -26,7 +26,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -65,6 +65,12 @@ class Terminal:
             reserve_space_for_menu=4,
         )
         self.engine = Engine(settings, workspace, store, sid, self.emit, self.confirm)
+        self.refresh_skills()
+
+    def refresh_skills(self):
+        from .skill_registry import SkillRegistry
+        self.skill_registry = SkillRegistry(self.settings, self.workspace)
+        self.prompt.completer = WordCompleter(COMMANDS + ['/' + name for name in self.skill_registry.discover()], sentence=True)
 
     def toolbar(self):
         if self.pending_approval is not None:
@@ -87,6 +93,7 @@ class Terminal:
                 ("class:hint", f"  {label}\n"), ("class:prompt", "  ❯ ")]
 
     def welcome(self):
+        self.refresh_skills()
         width = min(self.console.size.width, 92)
         self.console.print()
         brand = Table.grid(padding=(0, 2))
@@ -212,6 +219,8 @@ class Terminal:
             for command, meaning in [
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
                 ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List/select model and configure Jev key"),
+                ("/skills [query] · /skills show NAME", "Discover skills or inspect guidance"),
+                ("/skills use NAME TASK", "Apply a skill; /NAME TASK also works"),
                 ("/mode [standard|jev]", "Choose one-provider or Jev-assisted decisions"),
                 ("/provider [NAME]", "Choose provider, endpoint, model, and keys"),
                 ("/model jev-key · /model provider-key", "Enter or replace keys privately"),
@@ -221,6 +230,26 @@ class Terminal:
                 ("/clear · /exit", "Clear the screen or leave"), ("Ctrl+C · Alt+Enter", "Stop a task or quit when idle · insert newline")]:
                 table.add_row(command, meaning)
             self.console.print(table)
+        elif name == "/skills":
+            self.refresh_skills()
+            subcommand, _, rest = argument.partition(' ')
+            if subcommand == 'show':
+                self.console.print(Markdown(self.skill_registry.load(rest.strip(), explicit=True)['guidance']))
+            elif subcommand == 'use':
+                skill, _, task = rest.partition(' ')
+                self.skill_registry.load(skill, explicit=True)
+                self.busy = True
+                self.job = asyncio.create_task(self.work('/' + skill + ' ' + task))
+            else:
+                catalog = self.skill_registry.catalog('' if subcommand == 'check' else argument)
+                table = Table('Skill', 'Purpose', 'Status', box=box.SIMPLE, expand=False)
+                for skill in catalog['skills']:
+                    status = ', '.join(skill['missing']) or ('manual' if skill['manual_only'] else skill['origin'])
+                    table.add_row('/' + skill['name'], skill['description'], status)
+                self.console.print(table)
+                for issue in catalog['issues']:
+                    self.emit('warning', f"{issue['path']}: {issue['error']}")
+                self.console.print('  /skills show NAME · /NAME your task · kestrel skills install PATH', style='dim')
         elif name == "/clear":
             self.console.clear()
             self.welcome()
@@ -299,8 +328,12 @@ class Terminal:
         elif name == "/tools":
             self.engine.mcp_tools = await self.engine.runtime.mcp_catalog()
             self.console.print_json(json.dumps(self.engine.mcp_tools, default=str))
+        elif name[1:] in self.skill_registry.discover():
+            self.skill_registry.load(name[1:], explicit=True)
+            self.busy = True
+            self.job = asyncio.create_task(self.work(message))
         else:
-            self.emit("warning", "Unknown command. Use /help.")
+            self.emit("warning", "Unknown command. Use /help or /skills.")
 
     async def configure_key(self, jev: bool):
         from .generation import endpoint, save_key

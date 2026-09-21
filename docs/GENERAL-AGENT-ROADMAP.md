@@ -71,3 +71,11 @@ General-agent work will ship in successive reviewable PRs. The broader goal rema
 ## UI research update
 
 OpenCode documents discoverable slash commands, toggled tool details, file references and session switching; Aider documents concise command-driven interaction and explicit context control. Use those interaction patterns as inspiration for a compact Kestrel dashboard and searchable commands, with its own teal/slate visual language. Do not copy Hermes's large banner or dense inventory. [OpenCode TUI](https://opencode.ai/docs/tui/), [Aider commands](https://aider.chat/docs/usage/commands.html).
+
+## Codex and Claude Code research; expanded coverage
+
+Codex documents metadata-first skill discovery with full instructions loaded when needed. Claude Code documents explicit-only skill invocation and separate filesystem/network sandbox controls. Adopt progressive loading and make invocation/permission boundaries explicit; do not silently emulate vendor-specific permission grants or command interpolation. Sources: [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Claude Code skills](https://code.claude.com/docs/en/skills), [Claude Code sandboxing](https://code.claude.com/docs/en/sandboxing).
+
+The user's further request includes first-run model/auth/mode/execution setup, Docker as a real execution backend, and broad terminal-coding/computer-use/workflow capabilities. These extend the pending scope. Desktop and browser work require explicit observation/action adapters, application/account permissions, recovery from stale UI state, and outcome evidence. Skills cannot create those capabilities by mentioning them. Keep computer-use setup unavailable until a working adapter is configured.
+
+Evaluation must separately cover: multi-file coding with hidden tests; terminal recovery and cancellation; browser form/navigation tasks in isolated test sites; desktop document interaction in disposable fixtures; parameterized multi-step workflows with partial failure; research citation support; document rendering/content; and data transformations. Compare matching model/provider settings and tool access where possible, publish failures, and avoid extrapolating a win in one category to all tasks.

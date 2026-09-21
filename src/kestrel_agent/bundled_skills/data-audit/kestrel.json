@@ -1,0 +1,6 @@
+{
+  "required_tools": [
+    "read_file",
+    "query_table"
+  ]
+}
