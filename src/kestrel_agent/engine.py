@@ -70,7 +70,7 @@ class Engine:
         self.state["started"] = time.time()
         if message is not None:
             self.log("user", message)
-            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
+            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, completion_checks={}, progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
             self.store.db.execute("UPDATE sessions SET title=? WHERE id=?", (redact(message[:100]), self.sid))
             self.store.db.commit()
             self.save()
@@ -155,6 +155,7 @@ For existing-file edits, read first, then write_file with the observed SHA256.
 Tools that modify external state must respect the original user request and current permissions.
 If feedback says an action failed or has unknown outcome, investigate before repeating it.
 Never claim completion without observations. A nonzero shell exit or error is not success.
+Use completion_checks for concrete machine-checkable requirements explicitly supported by the request: result_equals compares a whole action reference (such as ${{run.exitCode}}) to expected_json; result_json_equals parses a complete JSON result string; file_text_equals and file_json_equals read a literal artifact path after execution. expected_json is a JSON-encoded literal, not a result reference or invented target. Keep stable check IDs across repairs; only result references may change, not expectations. Checks persist across replans and cannot be dropped to bypass a failure. Use [] where the request supplies no exact outcome. File checks support complete UTF-8 text up to 40000 characters/1000 lines. Jev still reviews original-task coverage and semantic correctness.
 Success criteria must be individually checkable against results, not vague quality claims.
 Success criteria should describe completed actions and evidence, not the final answer that the controller has yet to write.
 After an error, a recovery plan must finish the original task, not stop after diagnosing the problem.
@@ -215,6 +216,15 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             from .evidence import check_progress, register_requirements
             check_progress(self.state, self.settings.max_no_progress_rounds)
             plan = Plan.model_validate(self.state["plan"]) if self.state.get("plan") else await self.make_plan(feedback)
+            from .completion import register as register_checks, evaluate as evaluate_checks
+            if plan.mode == "answer" and self.state.get("completion_checks"):
+                failed_checks = await evaluate_checks(self.state, self.tools, set())
+                self.save()
+                if failed_checks:
+                    feedback = {"failed_completion_checks": failed_checks, "instruction": "Repair the unmet contracts before answering; preserve their IDs and expectations."}
+                    self.state["plan"] = None
+                    self.save()
+                    continue
             if plan.mode in {"answer", "clarify"}:
                 if plan.mode == "answer" and self.state.get("steps", 0):
                     check = await self.judge.decide({**self.context(), "answer": plan.message}, {
@@ -239,12 +249,16 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                         self.save()
                         continue
                 return plan.message
+            register_checks(self.state, plan.completion_checks)
             register_requirements(self.state, plan.success_criteria)
             if not self.state.get("plan"):
                 self.state.update(plan=plan.model_dump(), results={}, statuses={})
                 self.save()
             from .scheduler import execute_plan
             await execute_plan(self, plan, GATE_PROMPT)
+            failed_checks = await evaluate_checks(self.state, self.tools, {c.id for c in plan.completion_checks})
+            self.log("completion_checks", self.state.get("completion_checks", {}))
+            self.save()
             requirement_items = list(self.state["requirements"].items())
             questions = {f"criterion_{i}": {"instructions": self.store.template("verify", VERIFY_PROMPT) + "\nThe action plan has run, but the final response has NOT been written yet. A requirement solely about wording that future response is response_pending; never defer missing actions or evidence.\nRequirement: " + criterion["text"],
                 "options": {"met": "Explicitly supported by observations.", "not_met": "Contradicted or incomplete.", "unclear": "Not enough evidence.", "response_pending": "Only concerns the final answer, which has not yet been written."}} for i, (_, criterion) in enumerate(requirement_items)}
@@ -284,8 +298,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             self.save()
             self.log("verification", verdicts)
             errors = {k: v for k, v in errors.items() if verdicts.get(f"recovery_{k}", {}).get("choice") != "met"}
-            if errors or any(v["choice"] not in {"met", "response_pending"} for key, v in verdicts.items() if key not in {"reuse_response", "select_response"}):
-                feedback = {"execution_status": self.state["statuses"], "requirements": verdicts}
+            if failed_checks or errors or any(v["choice"] not in {"met", "response_pending"} for key, v in verdicts.items() if key not in {"reuse_response", "select_response"}):
+                feedback = {"execution_status": self.state["statuses"], "requirements": verdicts, "failed_completion_checks": failed_checks}
                 self.state["plan"] = None
                 self.save()
                 self.emit("warning", "More work needed · revising the plan")
