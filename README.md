@@ -1,6 +1,6 @@
 # Kestrel
 
-A general-purpose terminal AI agent powered by your chosen generation provider and Jev, with reusable workflows and configurable permissions for coding, research, and everyday tasks.
+A general-purpose terminal AI agent powered by your chosen model provider, with optional Jev assistance, with reusable workflows and configurable permissions for coding, research, and everyday tasks.
 
 ```text
   ◇  K E S T R E L
@@ -21,7 +21,7 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** development build with owner-authorized live testing. The current suite has 190 offline checks. Quality and latency remain workload-dependent; general superiority over Codex is not established. See the [quality comparisons](benchmarks/QUALITY-PROFILES.md), [architecture measurements](benchmarks/ARCHITECTURE-FOUNDATIONS.md), [durable evidence results](benchmarks/DURABLE-EVIDENCE.md), [read scheduling checks](benchmarks/DEPENDENCY-SCHEDULING.md), [remaining architecture scope](docs/ARCHITECTURE-IMPLEMENTATION.md), and [manual acceptance guide](docs/TESTING.md).
+**Status:** development build with owner-authorized live testing. The latest validation and live results are recorded in the benchmark reports. Quality and latency remain workload-dependent; general superiority over Codex is not established. See the [quality comparisons](benchmarks/QUALITY-PROFILES.md), [architecture measurements](benchmarks/ARCHITECTURE-FOUNDATIONS.md), [durable evidence results](benchmarks/DURABLE-EVIDENCE.md), [read scheduling checks](benchmarks/DEPENDENCY-SCHEDULING.md), [remaining architecture scope](docs/ARCHITECTURE-IMPLEMENTATION.md), and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
@@ -32,7 +32,7 @@ git clone https://github.com/itsflownium/Kestrel-Agent.git
 cd Kestrel-Agent
 bash scripts/install.sh
 kestrel auth login
-kestrel auth jev
+# Optional: kestrel mode jev
 kestrel
 ```
 
@@ -49,7 +49,7 @@ kestrel resume SESSION_ID
 
 ## Providers and per-user sign-in
 
-Inside Kestrel, use `/provider` or `/provider NAME` to select Codex, OpenAI, DeepSeek, Xiaomi MiMo, Anthropic, Moonshot/Kimi, GLM, Poolside, Groq, Mistral, OpenRouter, or a custom compatible server. Enter an endpoint and model ID where applicable. Startup and provider setup ask for missing provider and Jev keys with hidden input (Enter skips); saved keys are reused. Model IDs are not hardcoded. `/model` shows the active provider/model and Jev key status; missing Jev credentials prompt for hidden input (Enter skips). `/model jev-key` replaces the Jev key, and `/model provider-key` saves the generation provider key.
+Inside Kestrel, use `/provider` or `/provider NAME` to select Codex, OpenAI, DeepSeek, Xiaomi MiMo, Anthropic, Moonshot/Kimi, GLM, Poolside, Groq, Mistral, OpenRouter, or a custom compatible server. Enter an endpoint and model ID where applicable. Startup and provider setup ask for missing provider keys, and for a Jev key only in Jev mode with hidden input (Enter skips); saved keys are reused. Model IDs are not hardcoded. `/model` shows the active provider/model and Jev key status; missing Jev credentials prompt for hidden input in Jev mode (Enter skips). `/model jev-key` replaces the Jev key, and `/model provider-key` saves the generation provider key.
 
 Each person uses their own credentials:
 
@@ -64,7 +64,7 @@ Provider keys are stored with owner-only permissions in `providers.json` under K
 
 Advanced compatible-API settings: `provider_json_mode` accepts `prompt` (default), `json_object`, or `json_schema`; use only modes supported by your endpoint. Planning responses are always validated by Kestrel. `provider_token_parameter` selects `max_tokens` or `max_completion_tokens`; `provider_send_reasoning_effort=true` sends the configured effort to endpoints that support it. `provider_max_tokens` and `provider_timeout_seconds` bound responses. HTTP adapters buffer the final response rather than streaming tokens.
 
-Generation, planning, workflow learning, and GEPA reflection use the selected provider. Jev remains the decision provider. File tools and URL fetching are provider-independent; shell execution still uses the bundled Codex sandbox runtime. Native web research and the current MCP bridge are Codex-only; HTTP generation never silently substitutes Codex for these features. The `network` setting controls task tools, not the explicitly configured model APIs.
+Generation, planning, workflow learning, and GEPA reflection use the selected provider. Standard mode uses the selected model for bounded decisions; Jev mode uses Jev. File tools and URL fetching are provider-independent; shell execution still uses the bundled Codex sandbox runtime. Native web research and the current MCP bridge are Codex-only; HTTP generation never silently substitutes Codex for these features. The `network` setting controls task tools, not the explicitly configured model APIs.
 
 Protocol adapters and controller dispatch have mocked tests; Anthropic/DeepSeek live calls have not been run because their credentials were not supplied. Official protocol references: [DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/), [Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create).
 
@@ -73,15 +73,15 @@ Protocol adapters and controller dispatch have mocked tests; Anthropic/DeepSeek 
 ```mermaid
 flowchart TD
     U[Terminal request] --> C[Python controller]
-    C --> R[Jev: choose execution route]
+    C --> R[Decision service: bounded route checks]
     R --> F[Read-only bounded recipes]
-    F --> V[Jev: select and check source-grounded result]
+    F --> V[Decision service: check source-grounded result]
     V --> U
     R --> P[Selected provider: answer or structured plan]
     V -. uncertain or unsupported .-> P
     W[(Versioned workflows)] --> P
     P --> C
-    C --> J[Jev: batched bounded decisions]
+    C --> J[Decision service: batched bounded decisions]
     J --> C
     C --> T[Permission-checked tools]
     T --> E[(Original evidence and checkpoints)]
@@ -94,9 +94,9 @@ flowchart TD
     L -. versioned questions .-> J
 ```
 
-- **The selected generation provider** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call followed by Jev answer review. Native web research requires Codex. The user selects a fixed provider/model; there is no learned model router.
-- **Jev** gates applicable fast paths, reviews direct answers, evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
-- **Fast paths** can finish bounded arithmetic, single-record selection, and grouped numeric queries over explicitly named small CSV/JSON files with zero Codex calls. Arithmetic is computed locally after Jev routing. Record candidates and output field choices are derived from the actual file schema; a second Jev check verifies selection and requested fields. Unsupported formats, ambiguity, ties, or failed checks fall back to the general agent. There are no benchmark-answer lookups. These limited recipes do not replace general generation or prove universal speed improvements.
+- **The selected generation provider** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call followed by the selected decision service's answer review. Native web research requires Codex. The user selects a fixed provider/model; there is no learned model router.
+- **The decision service** (Jev or the selected model) gates applicable fast paths, reviews direct answers, evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
+- **Fast paths** can finish bounded arithmetic, single-record selection, and grouped numeric queries over explicitly named small CSV/JSON files with zero generation calls in Jev mode. Arithmetic is computed locally after the selected decision service approves the route. Record candidates and output field choices are derived from the actual file schema; a second Jev check verifies selection and requested fields. Unsupported formats, ambiguity, ties, or failed checks fall back to the general agent. There are no benchmark-answer lookups. These limited recipes do not replace general generation or prove universal speed improvements.
 - **The controller** validates dependency graphs and result bindings, enforces permissions, parallelizes independent reads, serializes writes, tracks budgets, and checkpoints operations. Jev cannot change permissions.
 - **Result reuse and recovery** let Jev approve an exact tool-produced answer or command receipt without final generation, even when the planner omitted a reuse reference. Selection shares the completion-check call; unresolved work cannot bypass it. Rejected candidates fall back to generation, and revised final answers are checked again before return. Plans can branch on success or failure.
 - **Tools** include file listing/search, text editing with content-hash protection, PDF/DOCX/XLSX reading, sandboxed commands, public URL fetching, Codex web research, and configured MCP tools. Complex artifact creation uses explicitly authorized commands and suitable libraries.
@@ -201,3 +201,10 @@ GEPA sees only training and validation data. After selecting a fixed prompt, Kes
 
 
 Execution plans can declare deterministic completion checks for exact result values, JSON output, and saved text/JSON artifacts. Kestrel evaluates these without another model call and retains failures across replanning and resume. Jev still checks original-task coverage and semantic correctness; a passing equality check alone does not prove the whole task is complete. File checks reread current artifacts through the existing path permissions. They accept complete UTF-8 text up to 40,000 characters and 1,000 lines; expected literals are limited to 4,000 characters, with at most 8 checks per plan and 16 retained per task. No generated verifier code runs. Checks reject ambiguous JSON duplicate keys and non-finite values, and distinguish booleans from numbers. A changed expectation requires a new user request; recovery may bind a result check to a new action without weakening its target.
+
+
+## Agent modes
+
+New installations start in **standard** mode: your chosen model handles generation and bounded decisions, with no Jev key or Jev API calls. Existing configurations without a mode field retain Jev mode. Use `/mode standard` or `/mode jev` in chat, or `kestrel mode standard` / `kestrel mode jev` in your shell. Jev mode privately asks for a missing Jev key; `/model jev-key` remains available in either mode.
+
+Both modes preserve permissions, evidence, recovery, and deterministic completion checks. In standard mode, unconditional actions are already selected by the main planner and do not incur another model gate; actual runtime conditions still receive a bounded decision. Standard mode is not a direct-model passthrough and can make additional verification calls. Generation and model-decision budgets are separate (`max_model_calls`, `max_decision_calls`); telemetry distinguishes provider generation, provider decisions, and actual Jev calls. Explicit `eval`/`optimize` commands still evaluate Jev prompts regardless of agent mode. Provider-native research/MCP and terminal backend limitations above still apply.

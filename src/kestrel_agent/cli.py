@@ -147,6 +147,8 @@ def configure_jev():
 
 
 def prompt_jev_if_missing():
+    if Settings.load().agent_mode != "jev":
+        return
     load_secrets()
     if os.environ.get("TYPESAFE_API_KEY"):
         return
@@ -178,6 +180,19 @@ def prompt_provider_key(settings: Settings, *, replace: bool = False):
         raise typer.BadParameter("Expected an API key without whitespace.")
     save_key(settings, key)
     console.print("Saved privately for this provider and endpoint. No API request was made.")
+
+
+@app.command("mode")
+def select_mode(mode: str | None = typer.Argument(None)):
+    """Choose standard (one provider) or jev-assisted decisions."""
+    settings = Settings.load()
+    if mode is not None:
+        if mode not in {"standard", "jev"}:
+            raise typer.BadParameter("Choose standard or jev.")
+        settings.agent_mode = mode
+        settings.save()
+        prompt_jev_if_missing()
+    console.print(Text(f"Mode: {settings.agent_mode}. " + ("Decisions use your selected model; no Jev key needed." if settings.agent_mode == "standard" else "Decisions use Jev.")))
 
 
 @app.command("providers")

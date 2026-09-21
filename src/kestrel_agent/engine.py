@@ -38,7 +38,8 @@ class Engine:
                 return await confirm(description)
         self.confirm = timed_confirm
         self.runtime = Runtime(settings, workspace, emit, self.confirm)
-        self.judge = Judge(settings, emit)
+        from .decisions import ModelJudge
+        self.judge = Judge(settings, emit) if settings.agent_mode == "jev" else ModelJudge(settings, self.runtime, emit)
         self.tools = ToolExecutor(settings, workspace, self.runtime, self.judge, store, sid, self.confirm)
         self.state = json.loads(store.session(sid)["state"])
         self.state.setdefault("completed_effects", [])
@@ -109,21 +110,30 @@ class Engine:
         finally:
             elapsed = time.monotonic() - start
             usage = {"elapsed_seconds": round(elapsed, 2), "codex_calls": self.runtime.model_calls,
-                     "jev_calls": self.judge.calls, "codex_input_tokens": self.runtime.input_tokens,
-                     "codex_output_tokens": self.runtime.output_tokens, "jev_input_tokens": self.judge.input_tokens}
-            usage.update(provider=self.settings.provider, generation_calls=self.runtime.model_calls,
+                     "jev_calls": self.judge.calls if self.settings.agent_mode == "jev" else 0, "codex_input_tokens": self.runtime.input_tokens,
+                     "codex_output_tokens": self.runtime.output_tokens, "jev_input_tokens": self.judge.input_tokens if self.settings.agent_mode == "jev" else 0}
+            usage.update(agent_mode=self.settings.agent_mode, decision_provider="jev" if self.settings.agent_mode == "jev" else self.settings.provider,
+                         decision_calls=self.judge.calls, decision_input_tokens=self.judge.input_tokens,
+                         decision_output_tokens=self.judge.output_tokens,
+                         provider_model_calls=self.runtime.model_calls + self.runtime.decision_calls,
+                         provider=self.settings.provider, generation_calls=self.runtime.model_calls,
                          generation_input_tokens=self.runtime.input_tokens, generation_output_tokens=self.runtime.output_tokens)
+            if self.settings.agent_mode == "standard":
+                usage["generation_input_tokens"] -= self.judge.input_tokens
+                usage["generation_output_tokens"] -= self.judge.output_tokens
+                usage["codex_calls"] = self.runtime.model_calls + self.runtime.decision_calls
             if self.settings.provider != "codex":
                 for key in ("codex_calls", "codex_input_tokens", "codex_output_tokens"):
                     usage.pop(key, None)
             usage["telemetry"] = {"generation_and_tools": self.runtime.telemetry.records,
                                   "decisions": self.judge.telemetry.records}
-            usage["generation_cached_input_tokens"] = self.runtime.usage_ledger.totals['cached_input_tokens'] if self.settings.provider == "codex" else None
-            usage["generation_cache_write_input_tokens"] = self.runtime.usage_ledger.totals['cache_write_input_tokens'] if self.settings.provider == "codex" else None
+            usage["generation_cached_input_tokens"] = (self.runtime.usage_ledger.totals['cached_input_tokens'] - self.runtime.decision_cached_input_tokens) if self.settings.provider == "codex" else None
+            usage["generation_cache_write_input_tokens"] = (self.runtime.usage_ledger.totals['cache_write_input_tokens'] - self.runtime.decision_cache_write_input_tokens) if self.settings.provider == "codex" else None
+            usage["decision_cached_input_tokens"] = self.runtime.decision_cached_input_tokens if self.settings.agent_mode == "standard" and self.settings.provider == "codex" else None
             self.state["usage"] = usage
             self.log("usage", usage)
             self.save()
-            self.emit("usage", f"{elapsed:.1f}s · {self.settings.provider} {self.runtime.model_calls} calls · Jev {self.judge.calls} calls")
+            self.emit("usage", f"{elapsed:.1f}s · {self.settings.provider} {self.runtime.model_calls} calls · {self.settings.agent_mode} {self.judge.calls} decisions")
 
     async def make_plan(self, feedback: Any = None) -> Plan:
         if self.mcp_tools is None:

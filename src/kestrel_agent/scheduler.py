@@ -54,11 +54,17 @@ async def execute_plan(engine, plan, gate_prompt):
                     raise RuntimeError('No executable action; dependency state is inconsistent.')
                 continue
             template = engine.store.template('gate', gate_prompt)
+            # In standard mode the planner already chose unconditional actions.
+            # Repeat semantic inference only for actual runtime conditions;
+            # permission checks and deterministic dispatch validation still run.
+            gated = [a for a in selected if engine.settings.agent_mode == 'jev' or a.condition.strip().lower() != 'always']
+            decisions = {a.id: {'choice': 'execute', 'reason': 'Unconditional action from the selected model plan.'} for a in selected if a not in gated}
             questions = {a.id: {'instructions': f"{template}\nAction: {a.id}. Condition: {a.condition}.",
                 'options': {'execute': 'The condition is satisfied and the action advances the task.',
                             'skip': 'The condition is false or the action is unrelated to the task.',
-                            'need_context': 'Cannot determine from the evidence.'}} for a in selected}
-            decisions = await engine.judge.decide({**engine.context(), 'actions': [a.model_dump() for a in selected]}, questions)
+                            'need_context': 'Cannot determine from the evidence.'}} for a in gated}
+            if questions:
+                decisions.update(await engine.judge.decide({**engine.context(), 'actions': [a.model_dump() for a in gated]}, questions))
             engine.log('decisions', decisions)
             for action in selected:
                 choice = decisions[action.id]['choice']

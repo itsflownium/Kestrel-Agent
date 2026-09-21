@@ -1,0 +1,944 @@
+[
+  {
+    "task": "exact_artifact",
+    "fixture_revision": 1,
+    "harness_sha256": "c2586beddd1c7cf5e3f640d7a2c71f59bc677419c956867de577b530a9e25e0b",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "8e9499053e3f9ad51689988ef83e1ea2aea024c110b64a31839328f0d6b836f1",
+    "agent_mode": "standard",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {},
+    "prompt": "Create receipt.json containing exactly the JSON object {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13952, input_tokens=14404, output_tokens=6, reasoning_output_tokens=0, total_tokens=14410) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=18944, input_tokens=28541, output_tokens=213, reasoning_output_tokens=0, total_tokens=28754)",
+    "seconds": 15.624,
+    "answer": "SAVED",
+    "passed": true,
+    "grading": {
+      "saved_json": {
+        "accepted": true,
+        "count": 3,
+        "tags": [
+          "oak",
+          "pine"
+        ]
+      },
+      "note_bytes": [
+        114,
+        101,
+        97,
+        100,
+        121,
+        10
+      ]
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "Verified both saved files.\n"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Create receipt.json containing exactly the JSON object {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.', text_elements=[], type='text'))], id='01a0c3bc-bcb4-7cf3-9e9d-a23c118caf7a', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_06f718405cd8b530016ab115b33a7c87d0b01882f02b75eaaf', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll create the two files and verify their saved contents.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='Verified both saved files.\\n', command='/bin/zsh -lc \"python3 - <<\\'PY\\'\\nfrom pathlib import Path\\nimport json\\np = Path(\\'receipt.json\\')\\nn = Path(\\'note.txt\\')\\np.write_bytes(b\\'{\\\\\"accepted\\\\\":true,\\\\\"count\\\\\":3,\\\\\"tags\\\\\":[\\\\\"oak\\\\\",\\\\\"pine\\\\\"]}\\')\\nn.write_bytes(b\\'ready\\\\\\\\n\\')\\nobj = json.loads(p.read_bytes())\\nassert type(obj) is dict and set(obj) == {\\'accepted\\', \\'count\\', \\'tags\\'}\\nassert obj[\\'accepted\\'] is True\\nassert type(obj[\\'count\\']) is int and obj[\\'count\\'] == 3\\nassert obj[\\'tags\\'] == [\\'oak\\', \\'pine\\']\\nassert n.read_bytes() == b\\'ready\\\\\\\\n\\'\\nprint(\\'Verified both saved files.\\')\\nPY\"', command_actions=[CommandAction(root=UnknownCommandAction(command='python3 - <<\\'PY\\'\\nfrom pathlib import Path\\nimport json\\np = Path(\\'receipt.json\\')\\nn = Path(\\'note.txt\\')\\np.write_bytes(b\\'{\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}\\')\\nn.write_bytes(b\\'ready\\\\n\\')\\nobj = json.loads(p.read_bytes())\\nassert type(obj) is dict and set(obj) == {\\'accepted\\', \\'count\\', \\'tags\\'}\\nassert obj[\\'accepted\\'] is True\\nassert type(obj[\\'count\\']) is int and obj[\\'count\\'] == 3\\nassert obj[\\'tags\\'] == [\\'oak\\', \\'pine\\']\\nassert n.read_bytes() == b\\'ready\\\\n\\'\\nprint(\\'Verified both saved files.\\')\\nPY', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-5kyfqhxi/exact_artifact-1-codex'), duration_ms=0, exit_code=0, id='exec-e1c2cef4-aa1f-4172-ab07-e57eb443c9e4', plugin_id=None, process_id='69770', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_06f718405cd8b530016ab115bd9cdc87d08788abd3d868d2ea', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='SAVED', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "note.txt": "ready\n",
+      "receipt.json": "{\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}"
+    },
+    "workspace_before": {},
+    "workspace_after": {
+      "note.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 6,
+        "sha256": "ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b"
+      },
+      "receipt.json": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 49,
+        "sha256": "918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "exact_artifact",
+    "fixture_revision": 1,
+    "harness_sha256": "c2586beddd1c7cf5e3f640d7a2c71f59bc677419c956867de577b530a9e25e0b",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "8e9499053e3f9ad51689988ef83e1ea2aea024c110b64a31839328f0d6b836f1",
+    "agent_mode": "standard",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {},
+    "prompt": "Create receipt.json containing exactly the JSON object {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.",
+    "elapsed_seconds": 103.41,
+    "codex_calls": 10,
+    "jev_calls": 0,
+    "codex_input_tokens": 170824,
+    "codex_output_tokens": 1437,
+    "jev_input_tokens": 0,
+    "decision_provider": "codex",
+    "decision_calls": 7,
+    "decision_input_tokens": 112869,
+    "decision_output_tokens": 609,
+    "provider_model_calls": 10,
+    "provider": "codex",
+    "generation_calls": 3,
+    "generation_input_tokens": 57955,
+    "generation_output_tokens": 828,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.060172
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.006796
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.015007
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.110353
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010629
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 16.229089,
+          "first_output_seconds": 4.508649
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 25020,
+          "schema_bytes": 2340,
+          "queue_seconds": 6e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 19232,
+            "output_tokens": 403,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 16.372134
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.08996
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009099
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 4.85203,
+          "first_output_seconds": 3.876911
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 5387,
+          "schema_bytes": 319,
+          "queue_seconds": 1.3e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 14224,
+            "output_tokens": 40,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 4.951239
+        },
+        {
+          "stage": "tool",
+          "tool": "write_file",
+          "action": "write_receipt",
+          "status": "completed",
+          "seconds": 0.076974
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.094653
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009078
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 6.369337,
+          "first_output_seconds": 5.334131
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 6779,
+          "schema_bytes": 313,
+          "queue_seconds": 1.1e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 14753,
+            "output_tokens": 42,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 6.473207
+        },
+        {
+          "stage": "tool",
+          "tool": "write_file",
+          "action": "write_note",
+          "status": "completed",
+          "seconds": 0.079948
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.633684
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.008907
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 7.518803,
+          "first_output_seconds": 6.052051
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 9082,
+          "schema_bytes": 557,
+          "queue_seconds": 1.6e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 15503,
+            "output_tokens": 60,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 8.161531
+        },
+        {
+          "stage": "tool",
+          "tool": "read_file",
+          "action": "verify_receipt",
+          "status": "completed",
+          "seconds": 0.226015
+        },
+        {
+          "stage": "tool",
+          "tool": "read_file",
+          "action": "verify_note",
+          "status": "completed",
+          "seconds": 0.307131
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.092222
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009381
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 9.629804,
+          "first_output_seconds": 6.003123
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 13066,
+          "schema_bytes": 1063,
+          "queue_seconds": 2.5e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 16892,
+            "output_tokens": 124,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 9.731549
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.092863
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010254
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 16.492841,
+          "first_output_seconds": 9.043939
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 33066,
+          "schema_bytes": 2340,
+          "queue_seconds": 5.1e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 22130,
+            "output_tokens": 419,
+            "cached_input_tokens": 11904,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 144
+          },
+          "seconds": 16.596142
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.097905
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009429
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 5.438831,
+          "first_output_seconds": 4.405684
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 11896,
+          "schema_bytes": 323,
+          "queue_seconds": 1.4e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 16661,
+            "output_tokens": 43,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 5.546301
+        },
+        {
+          "stage": "tool",
+          "tool": "shell",
+          "action": "audit_workspace",
+          "status": "completed",
+          "seconds": 0.144657
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.090505
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.010141
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 19.441935,
+          "first_output_seconds": 11.194852
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 17153,
+          "schema_bytes": 1558,
+          "queue_seconds": 2.4e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 18107,
+            "output_tokens": 248,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 32
+          },
+          "seconds": 19.542729
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.504043
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009295
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 4.385906,
+          "first_output_seconds": 4.198906
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 11711,
+          "schema_bytes": 0,
+          "queue_seconds": 5e-06,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 16593,
+            "output_tokens": 6,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 4.899419
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.101005
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.009891
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 5.509024,
+          "first_output_seconds": 4.206976
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "prompt_bytes": 12187,
+          "schema_bytes": 311,
+          "queue_seconds": 1.9e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 16729,
+            "output_tokens": 52,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 5.620118
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 1,
+          "status": "completed",
+          "seconds": 4.951313
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 1,
+          "status": "completed",
+          "seconds": 6.473279
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 2,
+          "status": "completed",
+          "seconds": 8.16162
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 4,
+          "status": "completed",
+          "seconds": 9.731663
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 1,
+          "status": "completed",
+          "seconds": 5.546397
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 6,
+          "status": "completed",
+          "seconds": 19.542851
+        },
+        {
+          "stage": "model_decision",
+          "provider": "codex",
+          "questions": 1,
+          "status": "completed",
+          "seconds": 5.620259
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 11904,
+    "generation_cache_write_input_tokens": 0,
+    "decision_cached_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Create receipt.json containing exactly the JSON object {\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.\""
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"inspect_path\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-5kyfqhxi/exact_artifact-1-kestrel/receipt.json\", \"evidence_id\": \"01cbe6d021b04f9e\"}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"inspect_path\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-5kyfqhxi/exact_artifact-1-kestrel/note.txt\", \"evidence_id\": \"ef8462ee05324189\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Create and verify the two files, then reply exactly SAVED.\", \"actions\": [{\"id\": \"write_receipt\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"receipt.json\\\",\\\"content\\\":\\\"{\\\\\\\"accepted\\\\\\\":true,\\\\\\\"count\\\\\\\":3,\\\\\\\"tags\\\\\\\":[\\\\\\\"oak\\\\\\\",\\\\\\\"pine\\\\\\\"]}\\\",\\\"expected_sha256\\\":null}\", \"depends_on\": [], \"purpose\": \"Create the requested JSON file.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"write_note\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"note.txt\\\",\\\"content\\\":\\\"ready\\\\n\\\",\\\"expected_sha256\\\":null}\", \"depends_on\": [\"write_receipt\"], \"purpose\": \"Create the exact note text.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"verify_receipt\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"receipt.json\\\"}\", \"depends_on\": [\"write_note\"], \"purpose\": \"Verify the saved JSON object.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"verify_note\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"note.txt\\\"}\", \"depends_on\": [\"write_note\"], \"purpose\": \"Verify the saved text and newline.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"receipt.json contains exactly the requested JSON object.\", \"note.txt contains exactly ready followed by one newline.\", \"Only receipt.json and note.txt are created or changed.\"], \"final_response_ref\": null, \"completion_checks\": [{\"id\": \"receipt_exact\", \"requirement\": \"The saved JSON matches all requested values, types, and array order.\", \"kind\": \"file_json_equals\", \"source\": \"receipt.json\", \"expected_json\": \"{\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}\"}, {\"id\": \"note_exact\", \"requirement\": \"The saved note is exactly ready followed by one newline.\", \"kind\": \"file_text_equals\", \"source\": \"note.txt\", \"expected_json\": \"\\\"ready\\\\n\\\"\"}]}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"write_receipt\": {\"choice\": \"execute\", \"reason\": \"The condition is always, and creating receipt.json with the specified JSON advances the user's task.\"}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"write_receipt\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"ba0169886d854e4b\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"write_note\": {\"choice\": \"execute\", \"reason\": \"The condition is always, and creating note.txt with exactly ready followed by one newline advances the requested task.\"}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"write_note\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"837db1875eaf49dc\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"verify_receipt\": {\"choice\": \"execute\", \"reason\": \"The condition is always, and reading receipt.json advances the requested verification.\"}, \"verify_note\": {\"choice\": \"execute\", \"reason\": \"The condition is always, and reading note.txt advances the requested verification.\"}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"verify_receipt\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"8da60aa3c90f4689\"}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"verify_note\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"6678ca8d1e344096\"}"
+      },
+      {
+        "kind": "completion_checks",
+        "body": "{\"receipt_exact\": {\"check\": {\"id\": \"receipt_exact\", \"requirement\": \"The saved JSON matches all requested values, types, and array order.\", \"kind\": \"file_json_equals\", \"source\": \"receipt.json\", \"expected_json\": \"{\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd\"}, \"note_exact\": {\"check\": {\"id\": \"note_exact\", \"requirement\": \"The saved note is exactly ready followed by one newline.\", \"kind\": \"file_text_equals\", \"source\": \"note.txt\", \"expected_json\": \"\\\"ready\\\\n\\\"\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b\"}}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"reason\": \"Readback and exact JSON comparison confirm all values, types, and array order.\"}, \"criterion_1\": {\"choice\": \"met\", \"reason\": \"Readback confirms exactly \\\"ready\\\\n\\\", and the exact text comparison passed.\"}, \"criterion_2\": {\"choice\": \"unclear\", \"reason\": \"Only two writes are shown, but no workspace audit confirms that no other files changed.\"}, \"original_task\": {\"choice\": \"unclear\", \"reason\": \"Both requested files were saved and verified, but the restriction on other file changes lacks sufficient evidence.\"}}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Inspect the workspace without modifying files to resolve the remaining audit requirement.\", \"actions\": [{\"id\": \"audit_workspace\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"-B\\\",\\\"-c\\\",\\\"import os,json; print(json.dumps(sorted(os.path.relpath(os.path.join(root,name),'.') for root,dirs,files in os.walk('.') for name in dirs+files)))\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Inventory all workspace entries, including hidden entries, to check for artifacts beyond the two verified files. Do not repeat completed writes.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"Workspace inventory and completed action receipts support that only receipt.json and note.txt were created or changed.\"], \"final_response_ref\": null, \"completion_checks\": [{\"id\": \"receipt_exact\", \"requirement\": \"The saved JSON matches all requested values, types, and array order.\", \"kind\": \"file_json_equals\", \"source\": \"receipt.json\", \"expected_json\": \"{\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}\"}, {\"id\": \"note_exact\", \"requirement\": \"The saved note is exactly ready followed by one newline.\", \"kind\": \"file_text_equals\", \"source\": \"note.txt\", \"expected_json\": \"\\\"ready\\\\n\\\"\"}]}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"audit_workspace\": {\"choice\": \"execute\", \"reason\": \"The condition is always satisfied, and workspace inventory advances verification that only the two requested files were created or changed.\"}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"audit_workspace\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"072422f22a4b4b76\"}"
+      },
+      {
+        "kind": "completion_checks",
+        "body": "{\"receipt_exact\": {\"check\": {\"id\": \"receipt_exact\", \"requirement\": \"The saved JSON matches all requested values, types, and array order.\", \"kind\": \"file_json_equals\", \"source\": \"receipt.json\", \"expected_json\": \"{\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd\"}, \"note_exact\": {\"check\": {\"id\": \"note_exact\", \"requirement\": \"The saved note is exactly ready followed by one newline.\", \"kind\": \"file_text_equals\", \"source\": \"note.txt\", \"expected_json\": \"\\\"ready\\\\n\\\"\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b\"}}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"reason\": \"Saved JSON readback and exact comparison confirm all values, types, and array order.\"}, \"criterion_1\": {\"choice\": \"met\", \"reason\": \"Saved raw text is exactly \\\"ready\\\\n\\\", and exact comparison passed.\"}, \"criterion_2\": {\"choice\": \"met\", \"reason\": \"Completed writes target only the two requested files; workspace inventory contains only those files, and the audit reports no additional changes.\"}, \"criterion_3\": {\"choice\": \"met\", \"reason\": \"Workspace inventory and completed action receipts support that only receipt.json and note.txt were created or changed.\"}, \"original_task\": {\"choice\": \"met\", \"reason\": \"Both files were created and verified with the required contents; only the final response remains.\"}, \"select_response\": {\"choice\": \"generate\", \"reason\": \"Neither candidate matches the required exact response SAVED.\"}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"reason\": \"Completed writes and readbacks verify both exact contents, and the workspace inventory and action receipts support that only the requested files changed. The answer is exactly SAVED.\"}, \"attempt\": 1}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"SAVED\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 103.41, \"codex_calls\": 10, \"jev_calls\": 0, \"codex_input_tokens\": 170824, \"codex_output_tokens\": 1437, \"jev_input_tokens\": 0, \"agent_mode\": \"standard\", \"decision_provider\": \"codex\", \"decision_calls\": 7, \"decision_input_tokens\": 112869, \"decision_output_tokens\": 609, \"provider_model_calls\": 10, \"provider\": \"codex\", \"generation_calls\": 3, \"generation_input_tokens\": 57955, \"generation_output_tokens\": 828, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.060172}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.006796}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.015007}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.110353}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010629}, {\"stage\": \"turn_stream\", \"seconds\": 16.229089, \"first_output_seconds\": 4.508649}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 25020, \"schema_bytes\": 2340, \"queue_seconds\": 6e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 19232, \"output_tokens\": 403, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 16.372134}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.08996}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009099}, {\"stage\": \"turn_stream\", \"seconds\": 4.85203, \"first_output_seconds\": 3.876911}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 5387, \"schema_bytes\": 319, \"queue_seconds\": 1.3e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 14224, \"output_tokens\": 40, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 4.951239}, {\"stage\": \"tool\", \"tool\": \"write_file\", \"action\": \"write_receipt\", \"status\": \"completed\", \"seconds\": 0.076974}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.094653}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009078}, {\"stage\": \"turn_stream\", \"seconds\": 6.369337, \"first_output_seconds\": 5.334131}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 6779, \"schema_bytes\": 313, \"queue_seconds\": 1.1e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 14753, \"output_tokens\": 42, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 6.473207}, {\"stage\": \"tool\", \"tool\": \"write_file\", \"action\": \"write_note\", \"status\": \"completed\", \"seconds\": 0.079948}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.633684}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.008907}, {\"stage\": \"turn_stream\", \"seconds\": 7.518803, \"first_output_seconds\": 6.052051}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 9082, \"schema_bytes\": 557, \"queue_seconds\": 1.6e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 15503, \"output_tokens\": 60, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 8.161531}, {\"stage\": \"tool\", \"tool\": \"read_file\", \"action\": \"verify_receipt\", \"status\": \"completed\", \"seconds\": 0.226015}, {\"stage\": \"tool\", \"tool\": \"read_file\", \"action\": \"verify_note\", \"status\": \"completed\", \"seconds\": 0.307131}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.092222}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009381}, {\"stage\": \"turn_stream\", \"seconds\": 9.629804, \"first_output_seconds\": 6.003123}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 13066, \"schema_bytes\": 1063, \"queue_seconds\": 2.5e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 16892, \"output_tokens\": 124, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 9.731549}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.092863}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010254}, {\"stage\": \"turn_stream\", \"seconds\": 16.492841, \"first_output_seconds\": 9.043939}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 33066, \"schema_bytes\": 2340, \"queue_seconds\": 5.1e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 22130, \"output_tokens\": 419, \"cached_input_tokens\": 11904, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 144}, \"seconds\": 16.596142}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.097905}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009429}, {\"stage\": \"turn_stream\", \"seconds\": 5.438831, \"first_output_seconds\": 4.405684}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 11896, \"schema_bytes\": 323, \"queue_seconds\": 1.4e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 16661, \"output_tokens\": 43, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 5.546301}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"audit_workspace\", \"status\": \"completed\", \"seconds\": 0.144657}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.090505}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.010141}, {\"stage\": \"turn_stream\", \"seconds\": 19.441935, \"first_output_seconds\": 11.194852}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 17153, \"schema_bytes\": 1558, \"queue_seconds\": 2.4e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 18107, \"output_tokens\": 248, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 32}, \"seconds\": 19.542729}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.504043}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009295}, {\"stage\": \"turn_stream\", \"seconds\": 4.385906, \"first_output_seconds\": 4.198906}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 11711, \"schema_bytes\": 0, \"queue_seconds\": 5e-06, \"status\": \"completed\", \"usage\": {\"input_tokens\": 16593, \"output_tokens\": 6, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 4.899419}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.101005}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009891}, {\"stage\": \"turn_stream\", \"seconds\": 5.509024, \"first_output_seconds\": 4.206976}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 12187, \"schema_bytes\": 311, \"queue_seconds\": 1.9e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 16729, \"output_tokens\": 52, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 5.620118}], \"decisions\": [{\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 1, \"status\": \"completed\", \"seconds\": 4.951313}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 1, \"status\": \"completed\", \"seconds\": 6.473279}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 2, \"status\": \"completed\", \"seconds\": 8.16162}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 4, \"status\": \"completed\", \"seconds\": 9.731663}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 1, \"status\": \"completed\", \"seconds\": 5.546397}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 6, \"status\": \"completed\", \"seconds\": 19.542851}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 1, \"status\": \"completed\", \"seconds\": 5.620259}]}, \"generation_cached_input_tokens\": 11904, \"generation_cache_write_input_tokens\": 0, \"decision_cached_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 103.579,
+    "answer": "SAVED",
+    "passed": true,
+    "grading": {
+      "saved_json": {
+        "accepted": true,
+        "count": 3,
+        "tags": [
+          "oak",
+          "pine"
+        ]
+      },
+      "note_bytes": [
+        114,
+        101,
+        97,
+        100,
+        121,
+        10
+      ]
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "[\"note.txt\", \"receipt.json\"]\n"
+      }
+    ],
+    "events": [
+      {
+        "seconds": 1.174,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 17.632,
+        "kind": "plan",
+        "text": "Create and verify the two files, then reply exactly SAVED."
+      },
+      {
+        "seconds": 17.632,
+        "kind": "planned",
+        "text": "write_receipt \u00b7 Create the requested JSON file."
+      },
+      {
+        "seconds": 17.632,
+        "kind": "planned",
+        "text": "write_note \u00b7 Create the exact note text."
+      },
+      {
+        "seconds": 17.632,
+        "kind": "planned",
+        "text": "verify_receipt \u00b7 Verify the saved JSON object."
+      },
+      {
+        "seconds": 17.632,
+        "kind": "planned",
+        "text": "verify_note \u00b7 Verify the saved text and newline."
+      },
+      {
+        "seconds": 17.72,
+        "kind": "judge",
+        "text": "codex \u00b7 1 bounded decisions"
+      },
+      {
+        "seconds": 17.72,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 22.769,
+        "kind": "decision",
+        "text": "write_receipt \u2192 execute"
+      },
+      {
+        "seconds": 22.769,
+        "kind": "tool",
+        "text": "write_file \u00b7 Create the requested JSON file."
+      },
+      {
+        "seconds": 23.079,
+        "kind": "done",
+        "text": "write_receipt \u00b7 completed"
+      },
+      {
+        "seconds": 23.238,
+        "kind": "judge",
+        "text": "codex \u00b7 1 bounded decisions"
+      },
+      {
+        "seconds": 23.239,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 29.813,
+        "kind": "decision",
+        "text": "write_note \u2192 execute"
+      },
+      {
+        "seconds": 29.813,
+        "kind": "tool",
+        "text": "write_file \u00b7 Create the exact note text."
+      },
+      {
+        "seconds": 30.137,
+        "kind": "done",
+        "text": "write_note \u00b7 completed"
+      },
+      {
+        "seconds": 30.285,
+        "kind": "judge",
+        "text": "codex \u00b7 2 bounded decisions"
+      },
+      {
+        "seconds": 30.286,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 38.541,
+        "kind": "decision",
+        "text": "verify_receipt \u2192 execute"
+      },
+      {
+        "seconds": 38.542,
+        "kind": "decision",
+        "text": "verify_note \u2192 execute"
+      },
+      {
+        "seconds": 38.624,
+        "kind": "tool",
+        "text": "read_file \u00b7 Verify the saved JSON object."
+      },
+      {
+        "seconds": 38.779,
+        "kind": "tool",
+        "text": "read_file \u00b7 Verify the saved text and newline."
+      },
+      {
+        "seconds": 38.929,
+        "kind": "output",
+        "text": "1: {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}"
+      },
+      {
+        "seconds": 39.08,
+        "kind": "done",
+        "text": "verify_receipt \u00b7 completed"
+      },
+      {
+        "seconds": 39.161,
+        "kind": "output",
+        "text": "1: ready"
+      },
+      {
+        "seconds": 39.315,
+        "kind": "done",
+        "text": "verify_note \u00b7 completed"
+      },
+      {
+        "seconds": 39.718,
+        "kind": "judge",
+        "text": "codex \u00b7 4 bounded decisions"
+      },
+      {
+        "seconds": 39.718,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 49.717,
+        "kind": "warning",
+        "text": "More work needed \u00b7 revising the plan"
+      },
+      {
+        "seconds": 49.721,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 66.414,
+        "kind": "plan",
+        "text": "Inspect the workspace without modifying files to resolve the remaining audit requirement."
+      },
+      {
+        "seconds": 66.414,
+        "kind": "planned",
+        "text": "audit_workspace \u00b7 Inventory all workspace entries, including hidden entries, to check for artifacts beyond the two verified files. Do not repeat completed writes."
+      },
+      {
+        "seconds": 66.492,
+        "kind": "judge",
+        "text": "codex \u00b7 1 bounded decisions"
+      },
+      {
+        "seconds": 66.492,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 72.135,
+        "kind": "decision",
+        "text": "audit_workspace \u2192 execute"
+      },
+      {
+        "seconds": 72.135,
+        "kind": "tool",
+        "text": "shell \u00b7 Inventory all workspace entries, including hidden entries, to check for artifacts beyond the two verified files. Do not repeat completed writes."
+      },
+      {
+        "seconds": 72.371,
+        "kind": "output",
+        "text": "[\"note.txt\", \"receipt.json\"]\n"
+      },
+      {
+        "seconds": 72.577,
+        "kind": "done",
+        "text": "audit_workspace \u00b7 completed"
+      },
+      {
+        "seconds": 72.971,
+        "kind": "judge",
+        "text": "codex \u00b7 6 bounded decisions"
+      },
+      {
+        "seconds": 72.971,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 92.704,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 97.604,
+        "kind": "judge",
+        "text": "codex \u00b7 1 bounded decisions"
+      },
+      {
+        "seconds": 97.605,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 103.579,
+        "kind": "usage",
+        "text": "103.4s \u00b7 codex 3 calls \u00b7 standard 7 decisions"
+      }
+    ],
+    "artifacts": {
+      "note.txt": "ready\n",
+      "receipt.json": "{\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}"
+    },
+    "workspace_before": {},
+    "workspace_after": {
+      "note.txt": {
+        "mode": 384,
+        "type": "file",
+        "bytes": 6,
+        "sha256": "ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b"
+      },
+      "receipt.json": {
+        "mode": 384,
+        "type": "file",
+        "bytes": 49,
+        "sha256": "918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  }
+]
