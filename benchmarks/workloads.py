@@ -22,6 +22,8 @@ from kestrel_agent.providers import Runtime
 from kestrel_agent.store import Store
 
 CASES = [
+    {'id':'long_evidence', 'prompt':'Read register.txt. Return only JSON with keys approval_code and closing_balance, using the APPROVAL and CLOSING records respectively. Do not change files. Do not infer a missing record from nearby entries.',
+     'files':{'register.txt':'APPROVAL: cedar-482\n' + ''.join(f'ENTRY {i:04d}: routine observation; no approval or closing record in this entry.\n' for i in range(360)) + 'CLOSING: -17.25\n'}},
     {'id':'command_json', 'prompt':'Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.',
      'files':{'emit.py':'import json\nprint(json.dumps({"items": len(set(["b", "a", "b", "c"])), "ready": True}))\n'}},
     {'id':'code_edit', 'prompt':'Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.',
@@ -70,6 +72,9 @@ def numeric_mapping(value, expected):
 
 async def grade(case,answer,workspace,runtime,events,commands):
     try:
+        if case=='long_evidence':
+            value=json.loads(answer)
+            return value == {'approval_code':'cedar-482','closing_balance':-17.25} and type(value.get('closing_balance')) in {int,float}, {'parsed':value}
         if case=='command_json':
             value=json.loads(answer)
             observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and command.get('stdout','').strip() == answer.strip() for command in commands if command.get('stdout','').lstrip().startswith('{'))
@@ -183,6 +188,8 @@ async def main():
                 finally:
                     if after is None: after=manifest(workspace)
                     if engine:
+                        record.update(engine.state.get('usage', {}))
+                        record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=? ORDER BY id',(engine.sid,))]
                         record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls)
                         await engine.close()
                     await runtime.close()
