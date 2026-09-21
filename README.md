@@ -16,7 +16,7 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
   ↳ read_file · Read the selected source
   ✓ source · completed
 
-  ready │ Codex default + Jev │ workspace │ Ctrl+C stop · /help
+  ready │ Codex default + Jev │ workspace │ Ctrl+C quit · /help
 ```
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
@@ -141,7 +141,7 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/tools` | Discover configured MCP tools |
 | `/status` | Checkpoint and usage |
 | `/clear`, `/exit` | Clear display/exit |
-| `Ctrl+C`, `Alt+Enter` | Stop active work/insert newline |
+| `Ctrl+C`, `Alt+Enter` | Stop active work, or exit when idle / insert newline |
 
 ## Workflow memory and GEPA
 
