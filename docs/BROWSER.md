@@ -23,3 +23,11 @@ No arbitrary JavaScript, invented selectors, uploads, downloads, or access to th
 This is a local trusted-client server, bound to 127.0.0.1, not an authenticated multi-user service. Do not expose its port to a network or connect untrusted clients. Tool approval and task authorization are enforced by Kestrel; another client connecting directly does not inherit those checks. Browser network access is that of the server, not the Docker shell backend.
 
 Current scope is visible main-frame DOM/text. It does not interpret screenshots, automate canvas-only interfaces, traverse iframes, control native desktop applications, handle file pickers, or implement robust multi-step login flows. The rest of computer-use capability remains pending. Stale-target checks reduce mistakes but cannot make browser inspection and an eventual click atomic; dynamic pages may still change between them.
+
+### Viewport images
+
+`browser_screenshot(tab)` returns a viewport PNG alongside a refreshed main-frame DOM observation. The normal direct-MCP connection retains the pixels in Kestrel's bounded image cache and exposes an image_id for `inspect_image`. This joins the browser adapter to the image-input support in VISION.md; no personal browser profile or desktop capture is used.
+
+DOM state and pixels are captured sequentially, not as an atomic page transaction. Refresh after UI changes, and continue using observed DOM targets for actions. Screenshot coordinates are not desktop coordinates; coordinate-based canvas/desktop actions are not implemented by this tool.
+
+Real browser and MCP tests verify the viewport image, image-ID cache retrieval, and subsequent fill/click/verification through the fresh DOM observation. Seven focused browser/vision tests pass after updating the catalog assertion for the fifth browser tool. The preceding full-suite run passed 324 tests before this screenshot addition.

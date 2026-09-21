@@ -79,6 +79,14 @@ class BrowserAdapter:
         async with self.lock:
             return await self._snapshot(tab)
 
+    async def screenshot(self, tab):
+        async with self.lock:
+            state = await self._snapshot(tab)
+            data = await self.page(tab).screenshot(type='png', full_page=False, timeout=10000)
+            from .vision import validate_image
+            image = validate_image(data, 'image/png')
+            return state, image
+
     async def _snapshot(self, tab):
         page = self.page(tab)
         old = self.observations.pop(tab, None)
@@ -175,6 +183,15 @@ def create_browser_server(port=8931, headless=False):
     async def browser_snapshot(tab: str) -> dict[str, Any]:
         """Read current main-frame text and targets. Old observation IDs become invalid."""
         return await adapter.snapshot(tab)
+    @server.tool()
+    async def browser_screenshot(tab: str):
+        """Capture this isolated tab's viewport and fresh DOM state. Inspect returned image_id with inspect_image; use DOM targets for actions."""
+        import json
+        from mcp.types import CallToolResult, ImageContent, TextContent
+        state, image = await adapter.screenshot(tab)
+        state['image_scope'] = 'Viewport pixels and DOM captured sequentially. Refresh after UI changes; screenshot coordinates are not desktop coordinates.'
+        return CallToolResult(content=[TextContent(type='text', text=json.dumps(state)),
+            ImageContent(type='image', mimeType=image.mime, data=image.encoded)])
     @server.tool()
     async def browser_act(tab: str, observation: str, target: str, operation: str, value: str = '') -> dict[str, Any]:
         """Click/fill/select/press an observed target, then inspect the resulting state. Stale targets fail."""

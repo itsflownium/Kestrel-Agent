@@ -30,6 +30,8 @@ async def test_browser_observe_fill_click_verify_and_stale_rejection():
     try:
         initial = await browser.open(f'http://127.0.0.1:{server.server_port}/')
         assert initial['title'] == 'Disposable browser fixture'
+        initial, image = await browser.screenshot(initial['tab'])
+        assert image.width > 0 and image.height > 0 and image.mime == 'image/png'
         field = next(t['target'] for t in initial['targets'] if t['label'] == 'Name')
         filled = await browser.act(initial['tab'], initial['observation'], field, 'fill', 'Kestrel fixture')
         with pytest.raises(ValueError, match='Stale'):
@@ -82,13 +84,19 @@ async def test_browser_tools_work_through_real_mcp_transport():
             while not server.started:
                 await asyncio.sleep(.01)
         catalog = await pool.catalog()
-        assert {t['name'] for t in catalog[0]['tools']} == {'browser_open','browser_tabs','browser_snapshot','browser_act'}
+        assert {t['name'] for t in catalog[0]['tools']} == {'browser_open','browser_tabs','browser_snapshot','browser_act','browser_screenshot'}
         async def call(tool, arguments):
             result = await pool.call('browser', tool, arguments)
             assert not result.get('isError'), result
             assert isinstance(result.get('structuredContent'), dict)
             return result['structuredContent']
         state = await call('browser_open', {'url': f'http://127.0.0.1:{port}/fixture'})
+        screenshot = await pool.call('browser', 'browser_screenshot', {'tab':state['tab']})
+        assert not screenshot.get('isError'), screenshot
+        state = json.loads(screenshot['content'][0]['text'])
+        pixels = next(block for block in screenshot['content'] if block['type'] == 'image')
+        assert 'data' not in pixels
+        assert pool.images.get(pixels['image_id']).width > 0
         field = next(t['target'] for t in state['targets'] if t['label'] == 'Name')
         state = await call('browser_act', {'tab':state['tab'], 'observation':state['observation'], 'target':field, 'operation':'fill', 'value':'Through MCP'})
         save = next(t['target'] for t in state['targets'] if t['label'] == 'Save')
