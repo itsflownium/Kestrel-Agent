@@ -1,0 +1,189 @@
+{
+  "kind": "live-browser-smoke",
+  "harness_sha256": "0b47291489348392683d497507a1c1b4e2861fa85800af2140a643dc61012472",
+  "fixture_revision": 2,
+  "mode": "direct-codex",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "target": "Record-3d03e6fd",
+  "baseline": null,
+  "prompt": "Using the connected browser, open http://127.0.0.1:50502/fixture. Enter Record-3d03e6fd in Record name and save the record exactly once. Verify the visible saved message and report the record name. Do not edit files or use other services.",
+  "answer": "Saved **Record-3d03e6fd** exactly once. Verified the visible message: \u201cSaved record: Record-3d03e6fd\u201d.",
+  "elapsed_seconds": 66.379,
+  "usage": {
+    "native_codex_usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13056, input_tokens=13825, output_tokens=36, reasoning_output_tokens=0, total_tokens=13861) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=49024, input_tokens=63482, output_tokens=294, reasoning_output_tokens=0, total_tokens=63776)",
+    "jev_calls": 0
+  },
+  "status": "completed",
+  "submitted": [
+    {
+      "name": "Record-3d03e6fd"
+    }
+  ],
+  "unexpected_files": [],
+  "observations": [
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "url": "http://127.0.0.1:50502/fixture"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_open",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"ed93c274b3\",\n  \"observation\": \"ac906703e0de4aed8e5c5c9b619f69e8\",\n  \"url\": \"http://127.0.0.1:50502/fixture\",\n  \"title\": \"Registration fixture\",\n  \"text\": \"Record name Save record\\n\\nNo record submitted\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "ed93c274b3",
+          "observation": "ac906703e0de4aed8e5c5c9b619f69e8",
+          "url": "http://127.0.0.1:50502/fixture",
+          "title": "Registration fixture",
+          "text": "Record name Save record\n\nNo record submitted",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "targets_may_be_truncated": false,
+          "scope": "Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation."
+        }
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "tab": "ed93c274b3",
+        "observation": "ac906703e0de4aed8e5c5c9b619f69e8",
+        "operation": "fill",
+        "target": "e1",
+        "value": "Record-3d03e6fd"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_act",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"ed93c274b3\",\n  \"observation\": \"4a61ac3285a34c449b3797ef8c449ec2\",\n  \"url\": \"http://127.0.0.1:50502/fixture\",\n  \"title\": \"Registration fixture\",\n  \"text\": \"Record name Save record\\n\\nNo record submitted\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "ed93c274b3",
+          "observation": "4a61ac3285a34c449b3797ef8c449ec2",
+          "url": "http://127.0.0.1:50502/fixture",
+          "title": "Registration fixture",
+          "text": "Record name Save record\n\nNo record submitted",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "targets_may_be_truncated": false,
+          "scope": "Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation."
+        }
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "tab": "ed93c274b3",
+        "observation": "4a61ac3285a34c449b3797ef8c449ec2",
+        "operation": "click",
+        "target": "e2"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_act",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"ed93c274b3\",\n  \"observation\": \"0be78fe4b6c44bfe9e39a9d7d8f2c5c9\",\n  \"url\": \"http://127.0.0.1:50502/fixture\",\n  \"title\": \"Registration fixture\",\n  \"text\": \"Record name Save record\\n\\nSaved record: Record-3d03e6fd\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "ed93c274b3",
+          "observation": "0be78fe4b6c44bfe9e39a9d7d8f2c5c9",
+          "url": "http://127.0.0.1:50502/fixture",
+          "title": "Registration fixture",
+          "text": "Record name Save record\n\nSaved record: Record-3d03e6fd",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "targets_may_be_truncated": false,
+          "scope": "Main-frame visible DOM only. No iframe, canvas, or desktop visual interpretation."
+        }
+      },
+      "error": null
+    }
+  ],
+  "passed": true,
+  "visible_confirmation_observed": true,
+  "events": []
+}

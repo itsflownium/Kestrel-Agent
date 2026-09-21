@@ -25,3 +25,11 @@ Objective: review all proposed improvements, implement those supported by eviden
 ## General-agent extension requested 2026-09-21
 
 The user additionally requested portable skills and commands comparable to Hermes, API-model choice, and Jev as an optional mode. Research and concrete acceptance criteria are in [GENERAL-AGENT-ROADMAP.md](GENERAL-AGENT-ROADMAP.md). Standard/Jev modes are implemented and tested (see benchmarks/STANDARD-MODE.md). These remain pending: skill discovery/loading/invocation; versioned skill evaluation/promotion; provider-independent execution/general tool adapters; terminal capability UX; general-task comparisons against Hermes using matched models. Preserve the original architecture scope above.
+
+## Current general-agent checkpoint (2026-09-22)
+
+The initial pending list above records the original audit, not the current feature inventory. Portable skills, standard/Jev modes, direct MCP execution, typed local workflow templates, explicit scoped memory, guided provider/Docker setup, and a live-resizing terminal are implemented. PR #28 adds a searchable skill library and six task-focused procedures. [TASK-ARCHITECTURE.md](TASK-ARCHITECTURE.md) maps the shared controller and task-specific paths to enforced checks and open gaps.
+
+The generation-only Codex adapter now explicitly disables installed plugins as well as configured MCP servers, apps, and shell execution. The native browser benchmark exposed why plugin configuration must be included; native tool calls belong to the controller's execution path, not its generation component.
+
+Still unverified or incomplete: native desktop/vision, live Docker daemon execution, broad provider conformance, independent skill/workflow behavioral certification, compact-loop assessment, and repeated held-out comparisons. Neither passing regression tests nor a faster isolated browser task establishes universal superiority or completes the original goal.

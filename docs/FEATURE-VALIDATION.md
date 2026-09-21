@@ -16,3 +16,11 @@ Memory/resizing update: full suite **284 passed in 56.00 seconds**. The real CLI
 Browser adapter: initial launch failed because the installed Playwright version required a Chromium revision absent from the machine cache. Downloaded the matching runtime into `/tmp/kestrel-browser-runtime`; no user browser/profile was used. Real-browser tests then passed for observed form filling, saving, outcome text, stale token rejection, changed target rejection, URL/key restrictions, and cleanup. A second test exercises the same form through the actual direct MCP client/server transport with a non-Codex provider configuration and structured tool outputs. These are integration tests, not model-quality benchmarks.
 
 Full suite with the browser extra and matching runtime: **286 passed in 60.91 seconds**. Command: `PLAYWRIGHT_BROWSERS_PATH=/tmp/kestrel-browser-runtime python -m pytest -q` in the development environment. Browser tests explicitly skip when the optional Python package is not installed; a missing runtime with the package installed fails rather than silently passing.
+
+## Skill browser and native browser comparison — 2026-09-22
+
+- Full suite after the library change: 292 passed in 62.80 seconds.
+- Additional real CLI pseudo-terminal test: `/skills`, search, 80-to-60-column resize, Escape return, idle Ctrl+C exit passed.
+- All 13 bundled SKILL.md packages passed the skill format validator. New skill behavioral quality remains unevaluated.
+- Generation boundary regression and browser-grader checks: 14 passed; subsequent native-scope grader expansion: 3 passed.
+- Live native Astra medium and current Kestrel+Jev both passed the isolated browser outcome oracle. Native: 66.379 seconds. Kestrel+Jev: 46.854 seconds. Different approval mechanisms, one current run each, no universal quality/speed/cost claim.
