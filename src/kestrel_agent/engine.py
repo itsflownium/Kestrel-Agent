@@ -194,6 +194,7 @@ Tools that modify external state must respect the original user request and curr
 If feedback says an action failed or has unknown outcome, investigate before repeating it. For local plan repairs preserve unchanged successful action IDs, arguments, dependencies, purposes, and conditions; the controller retains their completed subgraph where sources remain fresh. Change only failed/affected actions and their descendants. Completed effects are historical receipts, not permission to repeat an effect. Failed commands may already have changed state; inspect receipts and targets before retrying.
 Never claim completion without observations. A nonzero shell exit or error is not success.
 Use completion_checks for concrete machine-checkable requirements explicitly supported by the request: result_equals compares a whole action reference (such as ${{run.exitCode}}) to expected_json; result_json_equals parses a complete JSON result string; file_text_equals and file_json_equals read a literal artifact path after execution. expected_json is a JSON-encoded literal, not a result reference or invented target. Keep stable check IDs across repairs; only result references may change, not expectations. Checks persist across replans and cannot be dropped to bypass a failure. Use [] where the request supplies no exact outcome. File checks support complete UTF-8 text up to 40000 characters/1000 lines. Jev still reviews original-task coverage and semantic correctness.
+Retained completion checks already live in the controller ledger: omit them from a repair plan unless deliberately rebinding a result check to an action declared in that new plan. Never redeclare a result reference to an absent old action. Omitting it does not erase its stored verdict. If only evidence is missing, retrieve it instead of repeating completed effects. Use read_evidence with an observation's invocation_evidence_id to inspect attempted tool arguments omitted from the prompt; evidence_id addresses the tool result. Neither a plan nor an invocation alone proves successful execution; inspect its status and result too.
 Success criteria must be individually checkable against results, not vague quality claims.
 Success criteria should describe completed actions and evidence, not the final answer that the controller has yet to write.
 After an error, a recovery plan must finish the original task, not stop after diagnosing the problem.
@@ -456,8 +457,12 @@ FEEDBACK: {json.dumps(feedback, default=str)}
         self.state["statuses"][action.id] = status
         self.state["results"][action.id] = result
         eid = self.store.evidence(self.sid, result)
+        invocation_id = self.store.evidence(self.sid, {'kind': 'action_invocation', 'action': action.id,
+            'tool': action.tool, 'arguments': args, 'status': status, 'executor_called': dispatched,
+            'executor_returned': returned, 'result_evidence_id': eid})
         self.state.setdefault("observations", []).append({"action": action.id, "tool": action.tool,
-            "arguments": args, "status": status, "evidence_id": eid, "result": result})
+            "arguments": args, "status": status, "evidence_id": eid,
+            "invocation_evidence_id": invocation_id, "result": result})
         self.log("action", {"id": action.id, "tool": action.tool, "status": status, "evidence_id": eid})
         self.emit("done" if status == "completed" else "warning", f"{action.id} · {status}" + (f" · {result['error'][:250]}" if result.get("error") else ""))
         self.save()
