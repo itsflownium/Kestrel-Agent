@@ -16,7 +16,7 @@ Objective: review all proposed improvements, implement those supported by eviden
 | Partial plan repair, no-progress budgets and effect reconciliation | No-progress budget and workspace receipts implemented; subgraph repair/reconciliation pending | Resume, partial side effects, equivalent retries, no completed-effect replay |
 | Dependency-driven read scheduling | Verified; 155 offline tests, synthetic timing, live regressions 2/2 pass; no live speed claim | Fast read descendants proceed; bounded concurrency and cancellation |
 | Validated parameterized workflows | Pending | Review/promotion, applicability abstention, prerequisites, unseen parameters and effect controls |
-| GEPA independent test splits and outcome labels | Pending | Family separation, untouched final evaluation, activation guards |
+| GEPA independent test splits and outcome labels | Implemented; offline isolation/promotion tests; no live optimization quality claim | Family separation, untouched final evaluation, activation guards |
 | Generator/decision/execution/tool capability boundaries | Pending | Provider adapter conformance; existing sandbox guarantees retained |
 | Broader held-out evaluations and fair baselines | Pending | Frozen task families, randomized paired repeats, independent grading, failures retained |
 | Compact action loop versus current DAG | Pending assessment | Evaluate after measured simpler changes; retain or reject with reasons/evidence |
