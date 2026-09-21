@@ -50,7 +50,7 @@ async def test_result_reuse_requires_jev_and_completed_task(tmp_path,monkeypatch
     store=Store(Settings())
     engine=Engine(Settings(),tmp_path,store,store.create(tmp_path),lambda *a:None,AsyncMock(return_value=True))
     engine.state.update(request='Return only JSON totals.',steps=0,plan=None,observations=[])
-    plan=Plan.model_validate({'mode':'plan','message':'Compute','actions':[{'id':'compute','tool':'query_table','arguments_json':'{}','depends_on':[],'purpose':'Compute','condition':'always'}],'success_criteria':[],'final_response_ref':'${compute.json_content}'})
+    plan=Plan.model_validate({'mode':'plan','message':'Compute','actions':[{'id':'compute','tool':'query_table','arguments_json':'{"path":"data.csv","operation":"count"}','depends_on':[],'purpose':'Compute','condition':'always'}],'success_criteria':[],'final_response_ref':'${compute.json_content}'})
     engine.make_plan=AsyncMock(return_value=plan)
     async def perform(a):
         engine.state['steps']+=1
@@ -75,8 +75,8 @@ async def test_recovered_error_does_not_force_new_plan(tmp_path,monkeypatch):
     engine=Engine(Settings(),tmp_path,store,store.create(tmp_path),lambda *a:None,AsyncMock(return_value=True))
     engine.state.update(request='Run and recover if needed.',steps=0,plan=None,observations=[])
     plan=Plan.model_validate({'mode':'plan','message':'Run then recover','actions':[
-        {'id':'run','tool':'shell','arguments_json':'{}','depends_on':[],'purpose':'Run','condition':'always'},
-        {'id':'retry','tool':'shell','arguments_json':'{}','depends_on':['run'],'after':'failure','purpose':'Recover','condition':'always'}
+        {'id':'run','tool':'shell','arguments_json':'{"command":["example"]}','depends_on':[],'purpose':'Run','condition':'always'},
+        {'id':'retry','tool':'shell','arguments_json':'{"command":["example"]}','depends_on':['run'],'after':'failure','purpose':'Recover','condition':'always'}
     ],'success_criteria':[],'final_response_ref':'${retry.stdout}'})
     engine.make_plan=AsyncMock(return_value=plan)
     async def perform(a):
@@ -101,7 +101,7 @@ async def test_reuse_cannot_bypass_unfinished_original_task(tmp_path,monkeypatch
     store=Store(Settings())
     engine=Engine(Settings(),tmp_path,store,store.create(tmp_path),lambda *a:None,AsyncMock(return_value=True))
     engine.state.update(request='Read a source and do another required action.',steps=0,plan=None,observations=[])
-    plan=Plan.model_validate({'mode':'plan','message':'Read','actions':[{'id':'read','tool':'read_file','arguments_json':'{}','depends_on':[],'purpose':'Read','condition':'always'}],'success_criteria':[],'final_response_ref':'${read.content}'})
+    plan=Plan.model_validate({'mode':'plan','message':'Read','actions':[{'id':'read','tool':'read_file','arguments_json':'{"path":"input.txt"}','depends_on':[],'purpose':'Read','condition':'always'}],'success_criteria':[],'final_response_ref':'${read.content}'})
     engine.make_plan=AsyncMock(side_effect=[plan,Plan(mode='clarify',message='Need the missing required input.',actions=[],success_criteria=[])])
     async def perform(a):
         engine.state['steps']+=1

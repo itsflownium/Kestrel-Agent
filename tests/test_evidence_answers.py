@@ -1,3 +1,4 @@
+import json
 from unittest.mock import AsyncMock
 
 import pytest
@@ -11,7 +12,7 @@ from kestrel_agent.store import Store
 
 def plan(tool='shell'):
     return Plan(mode='plan', message='Execute', actions=[Action(
-        id='run', tool=tool, arguments_json='{"command":["python3","task.py"]}',
+        id='run', tool=tool, arguments_json=json.dumps({'path':'input.txt'} if tool == 'read_file' else {'command':['python3','task.py']}),
         depends_on=[], purpose='Complete requested work', condition='always')], success_criteria=[])
 
 

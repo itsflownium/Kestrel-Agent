@@ -12,7 +12,7 @@ Objective: review all proposed improvements, implement those supported by eviden
 | Reuse fresh initial observations | Verified foundation | No duplicate read; changed hash forces reread |
 | Generation setup/context/session experiments | Fresh default retained; schema isolation verified; compact prompt remains optional pending broader quality evidence | Fresh versus task sessions, schema changes, cancellation/config invalidation, cost/latency evidence |
 | Durable requirements/evidence ledger, truncation and retrieval | Implemented and tested; source extraction/hash snapshot consistency and exact raw-text reuse added; live latency mixed | Long history, lost-prefix data, stable references, changed sources |
-| Typed tool arguments and executable completion checks | Pending | Invalid plans prevented; exit/artifact/format checks and original-task coverage |
+| Typed tool arguments and executable completion checks | Typed argument boundaries implemented and tested; executable completion checks pending | Invalid plans prevented; exit/artifact/format checks and original-task coverage |
 | Partial plan repair, no-progress budgets and effect reconciliation | No-progress budget and workspace receipts implemented; subgraph repair/reconciliation pending | Resume, partial side effects, equivalent retries, no completed-effect replay |
 | Dependency-driven read scheduling | Verified; 155 offline tests, synthetic timing, live regressions 2/2 pass; no live speed claim | Fast read descendants proceed; bounded concurrency and cancellation |
 | Validated parameterized workflows | Pending | Review/promotion, applicability abstention, prerequisites, unseen parameters and effect controls |

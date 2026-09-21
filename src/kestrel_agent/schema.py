@@ -50,7 +50,8 @@ class Plan(BaseModel):
         for action in self.actions:
             if action.after != "success" and not action.depends_on:
                 raise ValueError("Failure/completion actions need dependencies.")
-            action.arguments()
+            from .tool_contracts import validate_arguments
+            validate_arguments(action.tool, action.arguments(), allow_references=True)
             if any(d not in ids or d == action.id for d in action.depends_on):
                 raise ValueError("Invalid dependency.")
             refs = re.findall(r"\$\{([a-z][a-z0-9_]*)(?:\.|\})", action.arguments_json)
