@@ -13,7 +13,7 @@ Objective: review all proposed improvements, implement those supported by eviden
 | Generation setup/context/session experiments | Fresh default retained; schema isolation verified; compact prompt remains optional pending broader quality evidence | Fresh versus task sessions, schema changes, cancellation/config invalidation, cost/latency evidence |
 | Durable requirements/evidence ledger, truncation and retrieval | Implemented and tested; source extraction/hash snapshot consistency and exact raw-text reuse added; live latency mixed | Long history, lost-prefix data, stable references, changed sources |
 | Typed tool arguments and executable completion checks | Typed argument boundaries and bounded exact-result/text/JSON completion contracts implemented; broad coverage still requires held-out evaluation | Invalid plans prevented; exit/artifact/format checks and original-task coverage |
-| Partial plan repair, no-progress budgets and effect reconciliation | No-progress budget and workspace receipts implemented; subgraph repair/reconciliation pending | Resume, partial side effects, equivalent retries, no completed-effect replay |
+| Partial plan repair, no-progress budgets and effect reconciliation | No-progress budget, workspace receipts, conservative successful-subgraph retention, normalized retry guards and interruption receipts implemented; broad recovery evaluation pending | Resume, partial side effects, equivalent retries, no completed-effect replay |
 | Dependency-driven read scheduling | Verified; 155 offline tests, synthetic timing, live regressions 2/2 pass; no live speed claim | Fast read descendants proceed; bounded concurrency and cancellation |
 | Validated parameterized workflows | Pending | Review/promotion, applicability abstention, prerequisites, unseen parameters and effect controls |
 | GEPA independent test splits and outcome labels | Implemented; offline isolation/promotion tests; no live optimization quality claim | Family separation, untouched final evaluation, activation guards |
@@ -21,3 +21,7 @@ Objective: review all proposed improvements, implement those supported by eviden
 | Broader held-out evaluations and fair baselines | Pending | Frozen task families, randomized paired repeats, independent grading, failures retained |
 | Compact action loop versus current DAG | Pending assessment | Evaluate after measured simpler changes; retain or reject with reasons/evidence |
 | Publication and final completion audit | Pending | Reviewed PRs, source hashes, all requirements verified or explicitly rejected on evidence |
+
+## General-agent extension requested 2026-09-21
+
+The user additionally requested portable skills and commands comparable to Hermes, API-model choice, and Jev as an optional mode. Research and concrete acceptance criteria are in [GENERAL-AGENT-ROADMAP.md](GENERAL-AGENT-ROADMAP.md). These are pending implementation: standard/Jev modes; skill discovery/loading/invocation; versioned skill evaluation/promotion; provider-independent execution/general tool adapters; terminal capability UX; general-task comparisons against Hermes using matched models. Preserve the original architecture scope above.
