@@ -50,6 +50,7 @@ class Settings(BaseModel):
     confirm_shell: bool = True
     confirm_writes: bool = False
     mcp_auto_allow: list[str] = []
+    max_parallel_reads: int = Field(default=4, ge=1, le=16)
     max_no_progress_rounds: int = Field(default=3, ge=1, le=10)
     max_steps: int = Field(default=24, ge=1, le=200)
     max_model_calls: int = Field(default=6, ge=1, le=30)
