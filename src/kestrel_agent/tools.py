@@ -19,9 +19,9 @@ from .providers import Judge, Runtime
 from .store import Store
 
 CATALOG = """
-list_files: {path: '.', pattern: '*', limit: 100}. Returns files relative to workspace. Skips hidden/vendor directories.
-read_file: {path, start_line: 1, max_lines: 200}. Text, PDF, DOCX, XLSX supported. Returns numbered content and source path. Complete small plain-text reads also return raw_text with exact original whitespace; bind ${read.raw_text} for lossless copies or concatenation, never numbered content. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
-search_files: {path: '.', query, limit: 30}. Literal text search across small text files.
+list_files: {path: '.', pattern: '*', limit: 100}. limit must be 1–300. Returns files relative to workspace. Skips hidden/vendor directories.
+read_file: {path, start_line: 1, max_lines: 200}. start_line must be >=1; max_lines must be 1–1000. Text, PDF, DOCX, XLSX supported. Returns numbered content and source path. Complete small plain-text reads also return raw_text with exact original whitespace; bind ${read.raw_text} for lossless copies or concatenation, never numbered content. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
+search_files: {path: '.', query, limit: 30}. Literal nonempty text search across small text files; limit must be 1–100.
 query_table: {path, operation: 'sum'|'mean'|'count'|'min'|'max', group_by: column_or_null, value_column: column_or_null, filters: [{column, op: 'eq'|'ne'|'gt'|'gte'|'lt'|'lte', value}]}. Deterministically aggregate CSV or JSON records. Filters are ANDed; eq/ne use exact text, ordered comparisons are numeric. Numeric operations skip invalid amounts and report skipped counts. Returns results mapping groups to decimal strings, plus json_content with numeric JSON values for exact answer reuse. Inspect unknown headers first. Prefer this over generating code for supported table operations.
 write_file: {path, content, expected_sha256: null}. Writes UTF-8 text. Supply prior hash to protect existing files.
 shell: {command: ['executable', 'arg'], cwd: '.'}. An argv array, not shell text; zsh -lc is possible with permission. Exit code is authoritative.
@@ -31,8 +31,9 @@ mcp: {server, tool, arguments: {}}. Use only tools present in the connected MCP 
 generate: {prompt}. Ask Codex for NEW code, prose, or analysis using task evidence. Returns {content}. Does not execute tools.
 research: {prompt}. Ask Codex to research the web with source links. Returns {content}.
 choose: {question, options: {id: description} OR a list of candidate values, values: {id: value}}. Jev chooses a bounded candidate or NONE. Returns {choice, value}. A list can be bound from ${scan.files}; values is then optional.
-read_evidence: {id, offset: 0, max_chars: 12000}. Read retained historical evidence from this session with explicit truncation and next_offset.
-search_evidence: {query, offset: 0, limit: 10}. Literal search across retained evidence in this session, including older observations omitted from context. Returns IDs, matching excerpts and read offsets. Empty query lists snapshots. These are historical snapshots, not current source contents.
+read_evidence: {id, offset: 0, max_chars: 12000}. offset must be >=0 and max_chars 1–20000. Read retained historical evidence from this session with explicit truncation and next_offset.
+search_evidence: {query, offset: 0, limit: 10}. query is at most 500 characters; offset >=0 and limit 1–20. Literal search across retained evidence in this session, including older observations omitted from context. Returns IDs, matching excerpts and read offsets. Empty query lists snapshots. These are historical snapshots, not current source contents.
+Argument types are strict and unknown keys are rejected. Do not serialize a shell argv as a string or an object as file content.
 Argument values can reference a declared dependency using ${action_id.content} or ${action_id.value}; whole-value references preserve types.
 """
 
@@ -83,6 +84,8 @@ class ToolExecutor:
                     continue
 
     async def execute(self, tool: str, args: dict) -> dict:
+        from .tool_contracts import validate_arguments
+        args = validate_arguments(tool, args)
         check_storage(self.settings, 1_000_000)
         if tool == "list_files":
             root = self.path(args.get("path", "."))
