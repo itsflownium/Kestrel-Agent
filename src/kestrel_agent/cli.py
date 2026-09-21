@@ -514,3 +514,7 @@ def workflow_preview(name: str, parameters: str = '{}'):
     plan, version = compile_workflow(load(name), parse_json(parameters))
     console.print(Text(f'Workflow version: {version}'))
     console.print_json(plan.model_dump_json())
+
+
+if __name__ == "__main__":
+    app()
