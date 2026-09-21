@@ -136,8 +136,14 @@ class ConnectionPool:
         schema = self.schemas.get(name, {}).get(tool)
         if schema is None:
             raise ValueError('Tool is not in the connected server catalog.')
-        from jsonschema import validate
-        validate(arguments, schema)
+        from jsonschema.validators import validator_for
+        from referencing import Registry
+        from referencing.exceptions import NoSuchResource
+        def no_remote_schema(uri):
+            raise NoSuchResource(ref=uri)
+        validator = validator_for(schema)
+        validator.check_schema(schema)
+        validator(schema, registry=Registry(retrieve=no_remote_schema)).validate(arguments)
         return await self.request(name, 'call', (tool, arguments))
 
     async def close(self):
