@@ -24,3 +24,7 @@ Full suite with the browser extra and matching runtime: **286 passed in 60.91 se
 - All 13 bundled SKILL.md packages passed the skill format validator. New skill behavioral quality remains unevaluated.
 - Generation boundary regression and browser-grader checks: 14 passed; subsequent native-scope grader expansion: 3 passed.
 - Live native Astra medium and current Kestrel+Jev both passed the isolated browser outcome oracle. Native: 66.379 seconds. Kestrel+Jev: 46.854 seconds. Different approval mechanisms, one current run each, no universal quality/speed/cost claim.
+
+## Docker process lifecycle follow-up
+
+Fixed ignored nonzero cleanup exit codes, retained unresolved container names for retry, prevented new commands before cleanup confirmation, and made runtime shutdown close remaining clients after a cleanup error. Six process-level tests use a fake Docker executable to exercise actual subprocess cancellation/output handling and failure paths. They do not establish container isolation or replace a live Docker daemon test. The configured Colima socket remains unavailable.

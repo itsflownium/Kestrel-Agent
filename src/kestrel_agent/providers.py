@@ -330,13 +330,24 @@ class Runtime:
                 pass
 
     async def close(self) -> None:
-        await self.connections.close()
-        await self.docker.close()
-        await self.generator.close()
+        failures = []
+        for close in (self.connections.close, self.docker.close, self.generator.close):
+            try:
+                await close()
+            except Exception as error:
+                failures.append(error)
         if self.started:
-            await self.cancel()
-            await self.codex.close()
-            self.started = False
+            try:
+                await self.cancel()
+            except Exception as error:
+                failures.append(error)
+            try:
+                await self.codex.close()
+                self.started = False
+            except Exception as error:
+                failures.append(error)
+        if failures:
+            raise ExceptionGroup('Runtime cleanup failed', failures)
 
 
 class Judge:
