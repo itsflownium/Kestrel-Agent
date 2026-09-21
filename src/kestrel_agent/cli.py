@@ -463,18 +463,19 @@ def rollback_skill(name: str, version: str):
 def connections_list():
     """List configured endpoints without contacting them."""
     for name, connection in Settings.load().mcp_connections.items():
-        console.print(Text(f"direct:{name} · {connection.url} · {'enabled' if connection.enabled else 'disabled'} · auth env {connection.bearer_env or 'none'}"))
+        console.print(Text(f"direct:{name} · {connection.url} · {'enabled' if connection.enabled else 'disabled'} · auth env {connection.bearer_env or 'none'} · read tools {', '.join(connection.read_only_tools) or 'none'}"))
 
 
 @connections_app.command("add")
-def connections_add(name: str, url: str, bearer_env: str | None = typer.Option(None)):
+def connections_add(name: str, url: str, bearer_env: str | None = typer.Option(None),
+                    read_tool: list[str] | None = typer.Option(None, '--read-tool', help='Trusted observation-only tool; repeat for each exact name. Does not grant approval.')):
     """Register a trusted Streamable HTTP MCP server; never store a token in the URL."""
     import re
     from .connections import Connection
     if not re.fullmatch(r'[a-z][a-z0-9_-]{0,63}', name):
         raise typer.BadParameter('Use a lowercase connection name with letters, digits, underscores, or hyphens.')
     settings = Settings.load()
-    settings.mcp_connections[name] = Connection(url=url, bearer_env=bearer_env)
+    settings.mcp_connections[name] = Connection(url=url, bearer_env=bearer_env, read_only_tools=read_tool or [])
     settings.save()
     console.print(Text(f"Saved direct:{name}. Tool actions require approval unless explicitly allowlisted. No connection was made."))
 

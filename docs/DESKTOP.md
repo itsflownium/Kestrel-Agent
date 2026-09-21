@@ -6,7 +6,7 @@ Install the `desktop` extra on macOS. Set `KESTREL_DESKTOP_TOKEN` to a private r
 
 ```sh
 kestrel desktop-server --app com.apple.TextEdit
-kestrel connections add desktop http://127.0.0.1:8932/mcp --bearer-env KESTREL_DESKTOP_TOKEN
+kestrel connections add desktop http://127.0.0.1:8932/mcp --bearer-env KESTREL_DESKTOP_TOKEN --read-tool desktop_observe
 ```
 
 Open the selected app yourself. The process hosting the server needs macOS Accessibility authorization in System Settings. The adapter checks permission and fails without it; it never prompts to grant access automatically. A bearer token authenticates the connection but does not expand the user's task authorization. Normal Kestrel MCP action approvals still apply.

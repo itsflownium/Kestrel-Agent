@@ -68,6 +68,16 @@ async def repair_state(state, plan, tools):
             if result is None:
                 continue
             reusable = action.tool in EFFECTS
+            if action.tool == 'mcp':
+                from .connections import is_observation
+                from .schema import bind
+                # Read observations must be refreshed, not retained as completed
+                # external effects when repairing a plan.
+                try:
+                    if previous.get('action_effects', {}).get(action.id) is False or is_observation(tools.settings, bind(action.arguments(), results)):
+                        reusable = False
+                except (AttributeError, KeyError, TypeError):
+                    reusable = False
             if action.tool == 'read_file':
                 from .schema import bind
                 try:
@@ -83,10 +93,12 @@ async def repair_state(state, plan, tools):
                     reusable = False
             if reusable:
                 results[action.id], statuses[action.id] = result, 'completed'
-    state.update(plan=plan.model_dump(), results=results, statuses=statuses)
+    state.update(plan=plan.model_dump(), results=results, statuses=statuses,
+                 action_effects={key: value for key, value in previous.get('action_effects', {}).items() if key in statuses})
     return list(statuses)
 
 
 def checkpoint(state, plan):
     state['repair_snapshot'] = {'actions': [a.model_dump() for a in plan.actions],
-                                'results': dict(state['results']), 'statuses': dict(state['statuses'])}
+                                'results': dict(state['results']), 'statuses': dict(state['statuses']),
+                                'action_effects': dict(state.get('action_effects', {}))}

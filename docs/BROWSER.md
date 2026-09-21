@@ -11,7 +11,7 @@ kestrel browser-server
 Register it once:
 
 ```sh
-kestrel connections add browser http://127.0.0.1:8931/mcp
+kestrel connections add browser http://127.0.0.1:8931/mcp --read-tool browser_tabs --read-tool browser_snapshot --read-tool browser_screenshot
 ```
 
 Then use `/tools` and `/browser-workflow your task` inside Kestrel. Browser commands go through the existing MCP permission prompts. The adapter can serve any supported generation provider. `--headless` hides its browser; `--port` selects a different localhost port. Stopping the server closes its isolated browser.
@@ -37,3 +37,5 @@ Real browser and MCP tests verify the viewport image, image-ID cache retrieval, 
 Snapshots inspect up to 20 frames, expose 150 targets and 16,000 characters of text in total, and report truncation. Each target names its frame; frame metadata records its URL and name. Nested and cross-origin frames use [Playwright frame APIs](https://playwright.dev/python/docs/api/class-frame). Hidden ancestor frames suppress their content and actions. Any frame attachment, navigation or removal invalidates the observation.
 
 Frame-tree changes during collection discard partial observations and allow up to three read-only collection attempts, each bounded to 20 seconds. Actions are never replayed by this retry. Dynamic pages may still fail to settle; inspect again rather than guessing targets. Real Chromium tests cover nested cross-origin fill/save/verification, navigation/removal invalidation, hidden ancestors, and frame/target limits.
+
+For an existing connection, use `/connections reads browser browser_tabs browser_snapshot browser_screenshot`. This explicitly identifies trusted observation operations so verification can refresh them and repairs do not reuse stale results. Normal approvals and network/access checks remain. Do not list `browser_open` or `browser_act`: they change browser state. Omit tools after `/connections reads browser` to clear the declarations. Server-provided annotations never enable this setting automatically.

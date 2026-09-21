@@ -31,7 +31,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -310,6 +310,14 @@ class Terminal:
                 self.settings.save()
                 self.engine.mcp_tools = None
                 self.emit('done', 'Connection saved. Tools require approval unless explicitly allowlisted.')
+            elif parts and parts[0] == 'reads':
+                if len(parts) < 2 or parts[1] not in self.settings.mcp_connections:
+                    raise ValueError('Use /connections reads NAME [TOOL ...] with a configured name; omit tools to clear.')
+                current = self.settings.mcp_connections[parts[1]]
+                connection = Connection.model_validate(current.model_dump() | {'read_only_tools': parts[2:]})
+                self.settings.mcp_connections[parts[1]] = connection
+                self.settings.save()
+                self.emit('done', 'Observation tools saved. Approval checks still apply; declare only tools you trust not to change external state.')
             elif parts and parts[0] == 'remove':
                 if len(parts) != 2 or parts[1] not in self.settings.mcp_connections:
                     raise ValueError('Use /connections remove NAME with a configured name.')
@@ -319,10 +327,10 @@ class Terminal:
                 self.settings.save()
                 self.engine.mcp_tools = None
             elif parts:
-                raise ValueError('Use /connections, /connections add NAME URL [BEARER_ENV], or /connections remove NAME.')
-            table = Table('Connection', 'Endpoint', 'Enabled', box=box.SIMPLE)
+                raise ValueError('Use /connections, /connections add NAME URL [BEARER_ENV], /connections reads NAME [TOOL ...], or /connections remove NAME.')
+            table = Table('Connection', 'Endpoint', 'Enabled', 'Read tools', box=box.SIMPLE)
             for key, value in self.settings.mcp_connections.items():
-                table.add_row('direct:' + key, value.url, str(value.enabled))
+                table.add_row('direct:' + key, value.url, str(value.enabled), ', '.join(value.read_only_tools) or 'none')
             self.console.print(table)
             self.console.print('  /connections add NAME URL [BEARER_ENV] · /tools discovers tools', style='dim')
         elif name == "/details":
