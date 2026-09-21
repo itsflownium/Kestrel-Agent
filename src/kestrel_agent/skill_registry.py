@@ -14,7 +14,7 @@ import yaml
 
 from .config import home, atomic_write
 
-RESERVED = {'help', 'new', 'continue', 'sessions', 'resume', 'model', 'provider', 'permissions', 'config', 'tools', 'status', 'clear', 'exit', 'mode', 'skills', 'details', 'cancel', 'setup'}
+RESERVED = {'help', 'new', 'continue', 'sessions', 'resume', 'model', 'provider', 'permissions', 'config', 'tools', 'status', 'clear', 'exit', 'mode', 'skills', 'details', 'cancel', 'setup', 'connections'}
 MAX_FILE = 64000
 
 
@@ -80,7 +80,9 @@ def capabilities(settings):
     if not settings.network:
         available -= {'fetch_url', 'mcp', 'research'}
     if settings.provider != 'codex':
-        available -= {'research', 'mcp'}
+        available -= {'research'}
+        if not any(c.enabled for c in settings.mcp_connections.values()):
+            available -= {'mcp'}
     if settings.permission == 'read-only':
         available -= {'write_file', 'mcp'}
     return available

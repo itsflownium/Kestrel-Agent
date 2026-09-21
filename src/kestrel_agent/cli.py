@@ -20,12 +20,14 @@ from .store import Store
 app = typer.Typer(help="Kestrel · a general-purpose terminal agent", no_args_is_help=False, pretty_exceptions_enable=False)
 auth_app = typer.Typer(help="Manage Codex OAuth, provider API keys, and your Jev key.")
 config_app = typer.Typer(help="Configure access, models, budgets, and network settings.")
+connections_app = typer.Typer(help="Configure provider-independent MCP tool connections.")
 skills_app = typer.Typer(help="Discover, inspect, install, and version portable skills.")
 workflows_app = typer.Typer(help="Review and manage reusable procedures.")
 app.add_typer(auth_app, name="auth")
 app.add_typer(config_app, name="config")
 app.add_typer(workflows_app, name="workflows")
 app.add_typer(skills_app, name="skills")
+app.add_typer(connections_app, name="connections")
 console = Console(highlight=False)
 
 
@@ -452,5 +454,34 @@ def rollback_skill(name: str, version: str):
     console.print_json(json.dumps(rollback(name, version)))
 
 
-if __name__ == "__main__":
-    app()
+
+
+@connections_app.command("list")
+def connections_list():
+    """List configured endpoints without contacting them."""
+    for name, connection in Settings.load().mcp_connections.items():
+        console.print(Text(f"direct:{name} · {connection.url} · {'enabled' if connection.enabled else 'disabled'} · auth env {connection.bearer_env or 'none'}"))
+
+
+@connections_app.command("add")
+def connections_add(name: str, url: str, bearer_env: str | None = typer.Option(None)):
+    """Register a trusted Streamable HTTP MCP server; never store a token in the URL."""
+    import re
+    from .connections import Connection
+    if not re.fullmatch(r'[a-z][a-z0-9_-]{0,63}', name):
+        raise typer.BadParameter('Use a lowercase connection name with letters, digits, underscores, or hyphens.')
+    settings = Settings.load()
+    settings.mcp_connections[name] = Connection(url=url, bearer_env=bearer_env)
+    settings.save()
+    console.print(Text(f"Saved direct:{name}. Tool actions require approval unless explicitly allowlisted. No connection was made."))
+
+
+@connections_app.command("remove")
+def connections_remove(name: str):
+    settings = Settings.load()
+    if name not in settings.mcp_connections:
+        raise typer.BadParameter('Unknown connection.')
+    del settings.mcp_connections[name]
+    settings.mcp_auto_allow = [entry for entry in settings.mcp_auto_allow if not entry.startswith(f'direct:{name}/')]
+    settings.save()
+    console.print(Text(f'Removed {name}.'))
