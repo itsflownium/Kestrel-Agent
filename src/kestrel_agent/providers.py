@@ -39,6 +39,8 @@ class Runtime:
     def __init__(self, settings: Settings, workspace: Path, emit: Emit, confirm=None):
         self.settings, self.workspace, self.emit = settings, workspace, emit
         self.generator = HTTPGenerator(settings)
+        from .execution import DockerExecutor
+        self.docker = DockerExecutor(settings, workspace)
         self.codex = AsyncCodex(CodexConfig(cwd=str(workspace), env={key: "" for key in credential_envs(settings)}, client_name="kestrel", client_title="Kestrel", client_version="0.1.0"))
         self.started = False
         self.confirm = confirm
@@ -264,6 +266,8 @@ class Runtime:
         return {"type": "workspaceWrite", "writableRoots": [str(self.workspace), *self.settings.writable_roots], "networkAccess": self.settings.network}
 
     async def command(self, argv: list[str], cwd: str, process_id: str) -> dict:
+        if self.settings.execution_backend == "docker":
+            return await self.docker.command(argv, cwd)
         self.processes.add(process_id)
         try:
             return await self.rpc("command/exec", {
@@ -314,6 +318,7 @@ class Runtime:
                 pass
 
     async def close(self) -> None:
+        await self.docker.close()
         await self.generator.close()
         if self.started:
             await self.cancel()

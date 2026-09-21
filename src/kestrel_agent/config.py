@@ -41,6 +41,9 @@ class Settings(BaseModel):
     generation_prompt_profile: Literal["default", "compact"] = "default"
     generation_session: Literal["fresh", "task"] = "fresh"
     cache_generation_setup: bool = True
+    execution_backend: Literal["codex", "docker"] = "codex"
+    docker_image: str = Field(default="python:3.13-slim", pattern=r"^[A-Za-z0-9][A-Za-z0-9._/:@-]*$")
+    ui_details: bool = False
     effort: Literal["low", "medium", "high"] = "low"
     trusted_skill_workspaces: list[str] = Field(default_factory=list)
     agent_mode: Literal["standard", "jev"] = "jev"

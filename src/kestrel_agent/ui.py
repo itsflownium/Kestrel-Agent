@@ -26,7 +26,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -115,20 +115,33 @@ class Terminal:
         info.add_row("Workspace", workspace)
         info.add_row("Provider", provider_label(self.settings))
         info.add_row("Models", f"{self.settings.model or 'default'}  ·  {self.settings.agent_mode}")
-        info.add_row("Access", self.settings.permission)
+        info.add_row("Execution", self.settings.execution_backend + (" · " + self.settings.docker_image if self.settings.execution_backend == 'docker' else " sandbox"))
+        info.add_row("Access", f"{self.settings.permission} · network {'on' if self.settings.network else 'off'}")
+        catalog = self.skill_registry.catalog()
+        info.add_row("Skills", f"{len(catalog['skills'])} available · /skills to explore")
         self.console.print(Panel(info, title="[bold #8bd5ca]Your workspace[/]", title_align="left",
                                  subtitle=f"[dim]session {self.sid}[/dim]", subtitle_align="right",
                                  width=width, box=box.ROUNDED, border_style="#414b60", padding=(1, 2)))
         suggestions = Text.assemble(
             ("  Start anywhere\n", "bold #d8dee9"),
             ("  Explain a project   ·   Compare documents   ·   Research an idea\n\n", "#8993a7"),
-            ("  /model", "#8bd5ca"), (" choose model    ", "#8993a7"),
+            ("  /setup", "#8bd5ca"), (" configure    ", "#8993a7"),
+            ("/skills", "#8bd5ca"), (" extend    ", "#8993a7"),
             ("/permissions", "#8bd5ca"), (" access    ", "#8993a7"),
             ("/help", "#8bd5ca"), (" all commands", "#8993a7"))
         self.console.print(suggestions)
 
     def emit(self, kind: str, text: str):
+        if kind in {"model", "judge", "tool", "connecting"}:
+            self.phase = redact(text)[:65]
+        if not self.settings.ui_details and kind in {"model", "judge", "planned", "decision", "connecting"}:
+            return
         if kind == "output":
+            if not self.settings.ui_details:
+                lines = redact(text).splitlines()
+                text = '\n'.join(lines[:5])[:600]
+                if len(lines) > 5 or len(redact(text)) >= 600:
+                    text += '\n… /details on shows subsequent full output; session logs retain evidence.' 
             self.console.print(Panel(Text(redact(text)), title="[dim]tool output[/dim]", title_align="left",
                                      width=min(self.console.size.width, 100), box=box.ROUNDED,
                                      border_style="#303642", padding=(0, 1)))
@@ -217,6 +230,8 @@ class Terminal:
         if name == "/help":
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
+                ("/setup", "Configure models, auth, mode, and Docker execution"),
+                ("/details [on|off]", "Show or hide detailed agent activity"),
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
                 ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List/select model and configure Jev key"),
                 ("/skills [query] · /skills show NAME", "Discover skills or inspect guidance"),
@@ -226,10 +241,38 @@ class Terminal:
                 ("/model jev-key · /model provider-key", "Enter or replace keys privately"),
                 ("/permissions [read-only|workspace|full]", "View or change access profile"),
                 ("/config", "Inspect settings; use kestrel config set KEY VALUE to edit"),
-                ("/tools", "Discover connected MCP tools"), ("/status", "Show checkpoint and usage"),
+                ("/tools", "List built-in capabilities and connected MCP tools"), ("/status", "Show checkpoint and usage"),
                 ("/clear · /exit", "Clear the screen or leave"), ("Ctrl+C · Alt+Enter", "Stop a task or quit when idle · insert newline")]:
-                table.add_row(command, meaning)
+                if not argument or argument.lower() in (command + " " + meaning).lower():
+                    table.add_row(command, meaning)
             self.console.print(table)
+        elif name == "/details":
+            if argument and argument not in {'on', 'off'}:
+                raise ValueError('Use /details on or /details off.')
+            self.settings.ui_details = argument == 'on' if argument else not self.settings.ui_details
+            self.settings.save()
+            self.emit('done', 'Detailed activity ' + ('on' if self.settings.ui_details else 'off'))
+        elif name == "/setup":
+            from .setup import configure
+            prompt = PromptSession(history=DummyHistory(), output=self.prompt.output)
+            async def ask(label, default):
+                answer = (await prompt.prompt_async(f'  {label} [{default}]: ')).strip()
+                return answer or default
+            try:
+                candidate = await configure(self.settings, ask, lambda value: self.console.print(Text(value)))
+            except (EOFError, KeyboardInterrupt):
+                self.emit('warning', 'Setup cancelled; settings unchanged.')
+                return
+            await self.engine.close()
+            candidate.save()
+            self.settings = candidate
+            self.engine = Engine(candidate, self.workspace, self.store, self.sid, self.emit, self.confirm)
+            self.refresh_skills()
+            await self.ensure_keys()
+            if candidate.provider == 'codex':
+                self.console.print('  Codex OAuth: kestrel auth login', style='dim')
+            self.emit('done', 'Setup saved. Docker requires a running daemon and locally installed image.' if candidate.execution_backend == 'docker' else 'Setup saved.')
+            self.welcome()
         elif name == "/skills":
             self.refresh_skills()
             subcommand, _, rest = argument.partition(' ')
@@ -326,6 +369,9 @@ class Terminal:
                 for model in models:
                     self.console.print(Text(f"  {model.model} · {model.display_name}"))
         elif name == "/tools":
+            from .skill_registry import capabilities
+            self.console.print(Panel(Text(', '.join(sorted(capabilities(self.settings)))), title='Built-in tools', border_style='#414b60'))
+            self.console.print(Text(f'  Commands: {self.settings.execution_backend} · browser/desktop actions require a configured connector'))
             self.engine.mcp_tools = await self.engine.runtime.mcp_catalog()
             self.console.print_json(json.dumps(self.engine.mcp_tools, default=str))
         elif name[1:] in self.skill_registry.discover():

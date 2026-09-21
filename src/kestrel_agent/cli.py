@@ -87,6 +87,27 @@ def sessions():
         store.close()
 
 
+@app.command("setup")
+def setup_agent():
+    """Configure models, keys, Jev mode, access, and command execution."""
+    from .setup import configure
+    async def ask(label, default):
+        return typer.prompt(label, default=default).strip()
+    try:
+        candidate = asyncio.run(configure(Settings.load(), ask, lambda value: console.print(Text(value))))
+    except (ValueError, KeyboardInterrupt, EOFError) as error:
+        console.print(Text(f"Setup cancelled; settings unchanged. {error}"))
+        raise typer.Exit(1)
+    candidate.save()
+    prompt_provider_key(candidate)
+    prompt_jev_if_missing()
+    console.print(Text(f"Saved: {candidate.model or 'default'} · {candidate.agent_mode} · {candidate.execution_backend}"))
+    if candidate.provider == "codex":
+        console.print("Codex authentication: kestrel auth login")
+    if candidate.execution_backend == "docker":
+        console.print("Docker must be running with the selected image installed. Setup does not start Docker or pull images.")
+
+
 @app.command()
 def doctor(online: bool = typer.Option(False, "--online", help="Explicitly contact Codex account and Jev model-list endpoints; no generation.")):
     """Inspect setup. Network checks run only with --online."""
@@ -95,6 +116,10 @@ def doctor(online: bool = typer.Option(False, "--online", help="Explicitly conta
     used = check_storage(settings)
     console.print(f"Kestrel {__version__}\nManaged storage: {used / 1_000_000:.1f} MB / {settings.max_storage_bytes / 1_000_000:.0f} MB")
     console.print(f"Data: {home()}\nAccess: {settings.permission}\nJev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}")
+    console.print(Text(f"Mode: {settings.agent_mode}\nExecution: {settings.execution_backend}"))
+    if settings.execution_backend == "docker":
+        import shutil
+        console.print(Text(f"Docker CLI: {shutil.which('docker') or 'missing'}\nImage: {settings.docker_image} (availability not checked)"))
     if online:
         async def check():
             runtime = Runtime(settings, Path.cwd(), emit)
@@ -107,6 +132,8 @@ def doctor(online: bool = typer.Option(False, "--online", help="Explicitly conta
                     console.print(Text(f"{settings.provider}: model listing succeeded ({len(models)} models)"))
             finally:
                 await runtime.close()
+            if settings.agent_mode != "jev":
+                return
             from typesafe_sdk import AsyncTypeSafeClient
             async with AsyncTypeSafeClient(timeout=20) as client:
                 await client.models.list()
