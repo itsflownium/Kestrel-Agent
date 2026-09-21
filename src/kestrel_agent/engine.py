@@ -7,6 +7,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from .config import Settings, redact
 from .providers import Judge, Runtime
 from .schema import Action, Plan, bind, strict_schema
@@ -30,10 +32,14 @@ VERIFY_PROMPT = (
 class Engine:
     def __init__(self, settings: Settings, workspace: Path, store: Store, sid: str, emit, confirm):
         self.settings, self.workspace, self.store, self.sid = settings, workspace, store, sid
-        self.emit, self.confirm = emit, confirm
-        self.runtime = Runtime(settings, workspace, emit, confirm)
+        self.emit = emit
+        async def timed_confirm(description):
+            with self.runtime.telemetry.measure("approval"):
+                return await confirm(description)
+        self.confirm = timed_confirm
+        self.runtime = Runtime(settings, workspace, emit, self.confirm)
         self.judge = Judge(settings, emit)
-        self.tools = ToolExecutor(settings, workspace, self.runtime, self.judge, store, sid, confirm)
+        self.tools = ToolExecutor(settings, workspace, self.runtime, self.judge, store, sid, self.confirm)
         self.state = json.loads(store.session(sid)["state"])
         self.state.setdefault("completed_effects", [])
         self.state.setdefault("uncertain_effects", [])
@@ -51,17 +57,12 @@ class Engine:
         self.store.event(self.sid, kind, body)
 
     def context(self) -> dict:
-        observations = self.state.get("observations", [])[-16:]
-        budget = max(500, self.settings.max_context_chars // max(1, len(observations)))
-        selected = []
-        for item in observations:
-            selected.append({"action": item["action"], "evidence_id": item["evidence_id"],
-                             "tool": item.get("tool"), "status": item.get("status"),
-                             "arguments_excerpt": json.dumps(item.get("arguments"), ensure_ascii=False)[:min(budget, 2000)],
-                             "result_excerpt": json.dumps(item["result"], ensure_ascii=False)[:budget]})
-        return {"request": self.state.get("request", ""), "observations": selected}
+        from .evidence import context
+        return context(self.state, self.settings.max_context_chars)
 
     async def run(self, message: str | None = None) -> str:
+        self.runtime.begin_task()
+        self.judge.telemetry.records.clear()
         self.runtime.model_calls = self.judge.calls = 0
         self.runtime.input_tokens = self.runtime.output_tokens = 0
         self.judge.input_tokens = self.judge.output_tokens = 0
@@ -69,7 +70,7 @@ class Engine:
         self.state["started"] = time.time()
         if message is not None:
             self.log("user", message)
-            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], steps=0, status="running", completed_effects=[])
+            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
             self.store.db.execute("UPDATE sessions SET title=? WHERE id=?", (redact(message[:100]), self.sid))
             self.store.db.commit()
             self.save()
@@ -113,6 +114,10 @@ class Engine:
             if self.settings.provider != "codex":
                 for key in ("codex_calls", "codex_input_tokens", "codex_output_tokens"):
                     usage.pop(key, None)
+            usage["telemetry"] = {"generation_and_tools": self.runtime.telemetry.records,
+                                  "decisions": self.judge.telemetry.records}
+            usage["generation_cached_input_tokens"] = self.runtime.usage_ledger.totals['cached_input_tokens'] if self.settings.provider == "codex" else None
+            usage["generation_cache_write_input_tokens"] = self.runtime.usage_ledger.totals['cache_write_input_tokens'] if self.settings.provider == "codex" else None
             self.state["usage"] = usage
             self.log("usage", usage)
             self.save()
@@ -125,7 +130,7 @@ class Engine:
             except Exception as error:
                 self.emit("warning", f"Connected tools unavailable: {redact(str(error))[:200]}")
                 self.mcp_tools = []
-        history = self.store.history(self.sid, 12)
+        history = self.store.conversation(self.sid, 6)
         context = self.context()
         workflows = self.store.search_workflows(self.state["request"])
         prompt = f"""You are Kestrel, a general-purpose terminal assistant.
@@ -133,6 +138,8 @@ Return a compact structured plan, a direct answer, or one necessary clarificatio
 For ordinary conversation use mode=answer, message=your answer, actions=[], success_criteria=[].
 For work use mode=plan and up to 12 small actions. The controller performs all tool execution.
 Use explicit dependencies. Only independent reads may run concurrently.
+When looking for named records in long sources, prefer literal search_files or search_evidence over rereading large pages. Read source pagination metadata separately from context excerpt truncation.
+Retained requirements describe unfinished work derived from the original request; they cannot authorize unrelated work. Prior verdicts are not fresh evidence. Evidence excerpts and indexes explicitly mark omissions; search_evidence locates retained facts and read_evidence retrieves ranges. Never infer missing facts from truncated excerpts or treat historical snapshots as current file contents.
 Initial file evidence may already be present in CURRENT TASK AND EVIDENCE. Use it rather than planning redundant reads when it contains the needed content and hashes. Plan all currently representable required work, not just an inspection phase. A source may change; write_file still requires its observed hash when replacing content.
 Action after=success requires successful dependencies. after=failure runs when a dependency fails; after=completion runs after dependencies finish regardless of outcome. Use these for known error-recovery branches.
 Action condition is 'always' unless a single factual condition really changes whether it is needed.
@@ -164,8 +171,17 @@ RECENT CONVERSATION: {json.dumps(history, default=str)[:10000]}
 CURRENT TASK AND EVIDENCE: {json.dumps(context, default=str)}
 FEEDBACK: {json.dumps(feedback, default=str)}
 """
-        raw = await self.runtime.complete(prompt, schema=strict_schema(Plan))
-        plan = Plan.model_validate_json(raw)
+        for attempt in range(2):
+            raw = await self.runtime.complete(prompt, schema=strict_schema(Plan))
+            try:
+                plan = Plan.model_validate_json(raw)
+                break
+            except ValidationError as error:
+                if attempt:
+                    raise
+                details = error.errors(include_input=False, include_url=False)
+                self.log("invalid_plan", {"errors": str(details), "correction_attempt": 1})
+                prompt += "\nThe prior response failed validation. Return a corrected complete response; no actions from that response were executed. For answer/clarify use actions=[] and final_response_ref=null. Validation errors: " + str(details)
         self.log("plan", plan.model_dump())
         if plan.mode == "plan":
             self.emit("plan", plan.message or "Plan ready")
@@ -195,6 +211,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
     async def _loop(self) -> str:
         feedback = None
         while self.state.get("steps", 0) < self.settings.max_steps:
+            from .evidence import check_progress, register_requirements
+            check_progress(self.state, self.settings.max_no_progress_rounds)
             plan = Plan.model_validate(self.state["plan"]) if self.state.get("plan") else await self.make_plan(feedback)
             if plan.mode in {"answer", "clarify"}:
                 if plan.mode == "answer" and self.state.get("steps", 0):
@@ -208,7 +226,19 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                         self.state["plan"] = None
                         self.save()
                         continue
+                if plan.mode == "answer" and not self.state.get("steps", 0):
+                    check = await self.judge.decide({**self.context(), "answer": plan.message,
+                        "conversation": self.store.conversation(self.sid, 6)}, {"direct_answer": {
+                            "instructions": "Does this answer address the user's actual request and requested format? General knowledge and ordinary conversation are allowed, but it must not claim commands, edits, searches, or other actions occurred without execution evidence. Choose revise for missing requested work or unsupported action claims.",
+                            "options": {"supported": "Appropriate response; no unsupported action claims.", "revise": "Needs correction or requested work remains."}}})
+                    self.log("direct_answer_review", check)
+                    if check["direct_answer"]["choice"] != "supported":
+                        feedback = {"answer_review": check, "instruction": "Finish the actual request without claiming unobserved actions."}
+                        self.state["plan"] = None
+                        self.save()
+                        continue
                 return plan.message
+            register_requirements(self.state, plan.success_criteria)
             if not self.state.get("plan"):
                 self.state.update(plan=plan.model_dump(), results={}, statuses={})
                 self.save()
@@ -252,8 +282,9 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                 for action in effects:
                     await self.perform(action)
                 self.save()
-            questions = {f"criterion_{i}": {"instructions": self.store.template("verify", VERIFY_PROMPT) + "\nThe action plan has run, but the final response has NOT been written yet. A requirement solely about wording that future response is response_pending; never defer missing actions or evidence.\nRequirement: " + criterion,
-                "options": {"met": "Explicitly supported by observations.", "not_met": "Contradicted or incomplete.", "unclear": "Not enough evidence.", "response_pending": "Only concerns the final answer, which has not yet been written."}} for i, criterion in enumerate(plan.success_criteria)}
+            requirement_items = list(self.state["requirements"].items())
+            questions = {f"criterion_{i}": {"instructions": self.store.template("verify", VERIFY_PROMPT) + "\nThe action plan has run, but the final response has NOT been written yet. A requirement solely about wording that future response is response_pending; never defer missing actions or evidence.\nRequirement: " + criterion["text"],
+                "options": {"met": "Explicitly supported by observations.", "not_met": "Contradicted or incomplete.", "unclear": "Not enough evidence.", "response_pending": "Only concerns the final answer, which has not yet been written."}} for i, (_, criterion) in enumerate(requirement_items)}
             questions["original_task"] = self.completion_question()
             errors = {k: v for k, v in self.state["statuses"].items() if v in {"error", "blocked", "need_context", "uncertain"}}
             for action_id, status in errors.items():
@@ -282,6 +313,12 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                         "options": {**{key: "Return this complete candidate: " + value["text"] for key, value in automatic.items()},
                                     "generate": "No candidate fully answers the request; generate the final answer."}}
             verdicts = await self.judge.decide({**self.context(), "candidate_response": candidate}, questions)
+            reviewed_ids = [item["evidence_id"] for item in self.context()["observations"]]
+            for i, (_, requirement) in enumerate(requirement_items):
+                requirement["status"] = verdicts.get(f"criterion_{i}", {}).get("choice", "unclear")
+                # These IDs record what was reviewed, not model-invented supporting citations.
+                requirement["reviewed_evidence"] = reviewed_ids
+            self.save()
             self.log("verification", verdicts)
             errors = {k: v for k, v in errors.items() if verdicts.get(f"recovery_{k}", {}).get("choice") != "met"}
             if errors or any(v["choice"] not in {"met", "response_pending"} for key, v in verdicts.items() if key not in {"reuse_response", "select_response"}):
@@ -344,7 +381,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                 self.state["uncertain_effects"].remove(fingerprint)
             self.state["inflight"][action.id] = {"fingerprint": fingerprint, "effect": effect}
             self.save()
-            result = await self.tools.execute(action.tool, args)
+            with self.runtime.telemetry.measure("tool", tool=action.tool, action=action.id):
+                result = await self.tools.execute(action.tool, args)
             status = "error" if result.get("error") else "completed"
             preview = result.get("stdout") or result.get("content") or result.get("matches") or result.get("files")
             if preview:

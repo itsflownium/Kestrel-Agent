@@ -1,5 +1,6 @@
 """Bounded initial evidence for files explicitly named by the user."""
 import re
+import hashlib
 
 
 async def prefetch(engine, request: str) -> None:
@@ -17,7 +18,11 @@ async def prefetch(engine, request: str) -> None:
         try:
             path = engine.tools.path(name)
             if path.is_file() and path.stat().st_size <= 12000:
-                result = await engine.tools.execute("read_file", {"path": str(path), "max_lines": 1000})
+                result = getattr(engine, "initial_evidence", {}).get(str(path))
+                if not result or not result.get("sha256") or hashlib.sha256(path.read_bytes()).hexdigest() != result["sha256"]:
+                    result = await engine.tools.execute("read_file", {"path": str(path), "max_lines": 1000})
+                else:
+                    engine.log("initial_evidence_reuse", {"path": str(path), "sha256": result["sha256"]})
                 tool = "read_file"
             elif not path.exists():
                 result = {"path": str(path), "exists": False,

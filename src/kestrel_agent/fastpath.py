@@ -41,6 +41,7 @@ def arithmetic_answer(request: str) -> str | None:
 
 
 async def try_fastpath(engine, request: str) -> str | None:
+    engine.initial_evidence = {}
     arithmetic = arithmetic_answer(request)
     no_match = re.search(r'(?:reply|respond) with exactly (NONE|NO MATCH)\.?\s*$', request)
     observation = None
@@ -54,11 +55,14 @@ async def try_fastpath(engine, request: str) -> str | None:
             path = engine.tools.path(names[0])
             if path.is_file() and path.stat().st_size <= 12000:
                 observation = await engine.tools.execute('read_file', {'path': str(path)})
+                engine.initial_evidence[str(path)] = observation
                 data = observation.get('data')
                 if isinstance(data, list) and 1 <= len(data) <= 64 and all(isinstance(x, dict) for x in data):
                     candidates = data
         except (OSError, ValueError, PermissionError):
             pass
+    if arithmetic is None and candidates is None:
+        return None
     routes = {'model': 'Needs open-ended generation, tools, multiple steps, or uncertain interpretation.',
               'context': 'Refers to previous conversation or missing context; the general agent must resolve it.'}
     if arithmetic is not None:

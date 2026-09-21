@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import random
 import os
 import sys
 import tempfile
@@ -11,12 +12,18 @@ from pathlib import Path
 
 from openai_codex import ApprovalMode, Sandbox
 from openai_codex.generated.v2_all import ReasoningEffort
+try:
+    from benchmarks.verification import emitted_result, manifest, policy_answer, scope_changes
+except ModuleNotFoundError:
+    from verification import emitted_result, manifest, policy_answer, scope_changes
 from kestrel_agent.config import Settings, load_secrets, redact
 from kestrel_agent.engine import Engine
 from kestrel_agent.providers import Runtime
 from kestrel_agent.store import Store
 
 CASES = [
+    {'id':'long_evidence', 'prompt':'Read register.txt. Return only JSON with keys approval_code and closing_balance, using the APPROVAL and CLOSING records respectively. Do not change files. Do not infer a missing record from nearby entries.',
+     'files':{'register.txt':'APPROVAL: cedar-482\n' + ''.join(f'ENTRY {i:04d}: routine observation; no approval or closing record in this entry.\n' for i in range(360)) + 'CLOSING: -17.25\n'}},
     {'id':'command_json', 'prompt':'Run python3 emit.py and reply with exactly its JSON output, with no explanation or Markdown. Do not edit files.',
      'files':{'emit.py':'import json\nprint(json.dumps({"items": len(set(["b", "a", "b", "c"])), "ready": True}))\n'}},
     {'id':'code_edit', 'prompt':'Fix stats.py: mean(values) must accept any iterable of numbers, return None for empty input, and correctly average nonempty values. Edit the file; do not just describe a patch. Do not change any other files.',
@@ -58,16 +65,16 @@ CASES = [
 async def allow(_): return True
 
 def json_answer(text):
-    value=text.strip()
-    if value.startswith('```'):
-        value='\n'.join(value.splitlines()[1:-1])
-    return json.loads(value)
+    return json.loads(text)
 
 def numeric_mapping(value, expected):
     return isinstance(value,dict) and all(type(v) in {int,float} for v in value.values()) and value==expected
 
 async def grade(case,answer,workspace,runtime,events,commands):
     try:
+        if case=='long_evidence':
+            value=json.loads(answer)
+            return value == {'approval_code':'cedar-482','closing_balance':-17.25} and type(value.get('closing_balance')) in {int,float}, {'parsed':value}
         if case=='command_json':
             value=json.loads(answer)
             observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and command.get('stdout','').strip() == answer.strip() for command in commands if command.get('stdout','').lstrip().startswith('{'))
@@ -82,7 +89,7 @@ async def grade(case,answer,workspace,runtime,events,commands):
             return result.get('exitCode')==0, {'grader':result}
         if case=='multi_file':
             value=json_answer(answer)
-            return value.get('release')=='r21' and bool(value.get('reason')), {'parsed':value}
+            return policy_answer(answer), {'parsed':value}
         if case=='multi_file_variant':
             return answer.strip()=='D4', {}
         if case=='csv_totals':
@@ -101,13 +108,13 @@ async def grade(case,answer,workspace,runtime,events,commands):
             return answer.strip()=='TIE', {}
         if case=='tool_recovery':
             observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and 'TOTAL=42' in command.get('stdout','').splitlines() for command in commands)
-            return '42' in answer and observed, {'observed_success':observed}
+            return emitted_result(answer,commands,'TOTAL','42'), {'observed_success':observed}
         if case=='recovery_variant':
             observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and 'RESULT=17' in command.get('stdout','').splitlines() for command in commands)
-            return '17' in answer and observed, {'observed_success':observed}
+            return emitted_result(answer,commands,'RESULT','17'), {'observed_success':observed}
         if case=='recovery_two_arguments':
             observed=any(type(command.get('exit_code')) is int and command['exit_code'] == 0 and 'VALUE=36' in command.get('stdout','').splitlines() for command in commands)
-            return '36' in answer and observed, {'observed_success':observed}
+            return emitted_result(answer,commands,'VALUE','36'), {'observed_success':observed}
     except Exception as error:
         return False, {'grader_error':redact(str(error))}
 
@@ -115,6 +122,9 @@ async def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--output',default='benchmarks/results-workloads.json')
     parser.add_argument('--tasks',default='')
+    parser.add_argument('--session-mode', choices=['fresh','task'],default='fresh')
+    parser.add_argument('--no-setup-cache',action='store_true')
+    parser.add_argument('--seed',type=int,default=20260921)
     parser.add_argument('--repeat',type=int,default=1,choices=range(1,11))
     args=parser.parse_args()
     tasks=[c for c in CASES if not args.tasks or c['id'] in args.tasks.split(',')]
@@ -125,13 +135,18 @@ async def main():
     with tempfile.TemporaryDirectory(prefix='kestrel-workloads-') as directory:
         root=Path(directory)
         os.environ['KESTREL_HOME']=str(root/'state')
-        settings=Settings(model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=3)
+        settings=Settings(cache_generation_setup=not args.no_setup_cache,generation_session=args.session_mode,model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=3)
         store=Store(settings)
-        for index,case in enumerate(tasks * args.repeat):
-            repetition=index // len(tasks) + 1
-            for arm in (['kestrel','codex'] if index%2 else ['codex','kestrel']):
+        rng=random.Random(args.seed)
+        schedule=[(trial,case) for trial in range(1,args.repeat+1) for case in tasks]
+        rng.shuffle(schedule)
+        for index,(repetition,case) in enumerate(schedule):
+            arms=['kestrel','codex']; rng.shuffle(arms)
+            for arm in arms:
                 workspace=root/(case['id']+'-'+str(repetition)+'-'+arm); workspace.mkdir()
                 for name,body in case['files'].items(): (workspace/name).write_text(body)
+                before=manifest(workspace)
+                after=None
                 events=[]
                 start=time.perf_counter()
                 def emit(kind,text):
@@ -140,7 +155,7 @@ async def main():
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
                 commands=[]
-                record={'task':case['id'],'arm':arm,'repetition':repetition,'source_sha256':source_hash,'model':settings.model,'effort':settings.effort,'input_files':case['files'],'prompt':case['prompt']}
+                record={'task':case['id'],'arm':arm,'repetition':repetition,'source_sha256':source_hash,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
                 try:
                     async with asyncio.timeout(180):
                         if arm=='kestrel':
@@ -166,21 +181,25 @@ async def main():
                                 events.append({'kind':'codex_item','text':str(item)})
                     record['seconds']=round(time.perf_counter()-start,3)
                     record['answer']=answer
+                    after=manifest(workspace)
                     record['passed'],record['grading']=await grade(case['id'],answer,workspace,runtime,events,commands)
                 except Exception as error:
                     record.update(seconds=round(time.perf_counter()-start,3),error=redact(str(error)),passed=False)
                 finally:
+                    if after is None: after=manifest(workspace)
                     if engine:
+                        record.update(engine.state.get('usage', {}))
+                        record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=? ORDER BY id',(engine.sid,))]
                         record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls)
                         await engine.close()
                     await runtime.close()
                 record['observed_commands']=commands
                 record['events']=events
-                record['artifacts']={p.name:p.read_text() for p in workspace.iterdir() if p.is_file() and p.stat().st_size<100000}
-                # Scope is part of task quality, independently of answer correctness.
-                unchanged=all(record['artifacts'].get(name)==body for name,body in case['files'].items() if name not in case.get('editable_files',[]))
-                no_extra_files=set(record['artifacts'])==set(case['files']) | set(case.get('created_files',[]))
-                record['scope_passed']=unchanged and no_extra_files
+                record['artifacts']={p.name:p.read_text(errors='replace') for p in workspace.iterdir() if p.is_file() and not p.is_symlink() and p.stat().st_size<100000}
+                record['workspace_before']=before
+                record['workspace_after']=after
+                record['scope_violations']=scope_changes(before,after,editable=case.get('editable_files',[]),created=case.get('created_files',[]))
+                record['scope_passed']=not record['scope_violations']
                 record['passed']=record['passed'] and record['scope_passed']
                 if arm=='kestrel':
                     record['verified_result_reuses']=sum(row['kind']=='verified_result_reuse' for row in record.get('trace',[]))
