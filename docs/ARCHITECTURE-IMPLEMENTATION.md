@@ -1,5 +1,7 @@
 # Architecture implementation audit
 
+User priority update: correctness, completeness, and reliable recovery come first; roughly Codex-level latency is acceptable. Beating Codex on every timing is not a release requirement.
+
 Objective: review all proposed improvements, implement those supported by evidence, and test them. The research proposal is preserved at ../../../research/kestrel-architecture-review-2026-09-21.md in this local workspace. This checklist records the complete scope; a partial PR does not complete the goal.
 
 | Requirement | Status | Required evidence |
@@ -8,7 +10,7 @@ Objective: review all proposed improvements, implement those supported by eviden
 | Strict answer and recursive workspace graders | Verified foundation | False-pass controls; binary/nested/symlink scope tests |
 | Remove ineffective routing, preserve meaningful Jev checks | Verified foundation | Direct-answer rejection; action and completion checks; live comparison |
 | Reuse fresh initial observations | Verified foundation | No duplicate read; changed hash forces reread |
-| Generation setup/context/session experiments | Experiment complete; fresh default retained, schema isolation verified | Fresh versus task sessions, schema changes, cancellation/config invalidation, cost/latency evidence |
+| Generation setup/context/session experiments | Fresh default retained; schema isolation verified; compact prompt remains optional pending broader quality evidence | Fresh versus task sessions, schema changes, cancellation/config invalidation, cost/latency evidence |
 | Durable requirements/evidence ledger, truncation and retrieval | Implemented and tested; revised live cases 3/3 pass, latency mixed | Long history, lost-prefix data, stable references, changed sources |
 | Typed tool arguments and executable completion checks | Pending | Invalid plans prevented; exit/artifact/format checks and original-task coverage |
 | Partial plan repair, no-progress budgets and effect reconciliation | No-progress budget and workspace receipts implemented; subgraph repair/reconciliation pending | Resume, partial side effects, equivalent retries, no completed-effect replay |

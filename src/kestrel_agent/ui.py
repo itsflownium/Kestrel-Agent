@@ -52,7 +52,7 @@ class Terminal:
                 self.job.cancel()
                 self.phase = "stopping"
             else:
-                event.current_buffer.reset()
+                event.app.exit(exception=EOFError)
 
         @bindings.add("escape", "enter")
         def newline(event):
@@ -76,7 +76,8 @@ class Terminal:
         else:
             status = "● Ready"
         width = self.console.size.width
-        details = f"  {self.settings.permission}  ·  Ctrl+C stop" if width < 90 else f"  {self.settings.model or self.settings.provider} + Jev  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C stop"
+        interrupt_hint = "stop" if self.job and not self.job.done() else "quit"
+        details = f"  {self.settings.permission}  ·  Ctrl+C {interrupt_hint}" if width < 90 else f"  {self.settings.model or self.settings.provider} + Jev  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C {interrupt_hint}"
         return [("class:status", f"  {status}  "), ("", details)]
 
     def input_prompt(self):
@@ -216,7 +217,7 @@ class Terminal:
                 ("/permissions [read-only|workspace|full]", "View or change access profile"),
                 ("/config", "Inspect settings; use kestrel config set KEY VALUE to edit"),
                 ("/tools", "Discover connected MCP tools"), ("/status", "Show checkpoint and usage"),
-                ("/clear · /exit", "Clear the screen or leave"), ("Ctrl+C · Alt+Enter", "Stop a task · insert newline")]:
+                ("/clear · /exit", "Clear the screen or leave"), ("Ctrl+C · Alt+Enter", "Stop a task or quit when idle · insert newline")]:
                 table.add_row(command, meaning)
             self.console.print(table)
         elif name == "/clear":

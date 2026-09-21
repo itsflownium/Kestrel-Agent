@@ -17,6 +17,7 @@ async def test_fast_read_descendant_does_not_wait_for_unrelated_slow_read(tmp_pa
     store = Store(settings)
     engine = Engine(settings, tmp_path, store, store.create(tmp_path), lambda *a: None, AsyncMock())
     engine.state.update(request='Inspect three files', steps=0, observations=[], plan=None)
+    isolate_scheduler_storage(engine, store)
     child_ran = asyncio.Event()
     def action(name, dependencies=()):
         return Action(id=name, tool='read_file', arguments_json=json.dumps({'path':name}),
@@ -37,6 +38,7 @@ async def test_fast_read_descendant_does_not_wait_for_unrelated_slow_read(tmp_pa
     try:
         assert await asyncio.wait_for(engine._loop(), 3) == 'Done'
         assert child_ran.is_set()
+        assert [o['action'] for o in engine.state['observations']] == ['fast', 'child', 'slow']
     finally:
         await engine.close()
         store.close()
@@ -48,6 +50,7 @@ def configured_engine(tmp_path, monkeypatch, actions, **options):
     store = Store(settings)
     engine = Engine(settings, tmp_path, store, store.create(tmp_path), lambda *a: None, AsyncMock())
     engine.state.update(request='Inspect the files', steps=0, observations=[], plan=None)
+    isolate_scheduler_storage(engine, store)
     engine.make_plan = AsyncMock(return_value=Plan(mode='plan', message='', actions=actions, success_criteria=[]))
     async def decide(state, questions):
         return {key: {'choice': 'supported' if key == 'support' else 'met' if key == 'original_task' else 'generate' if key == 'select_response' else 'execute'} for key in questions}
@@ -134,3 +137,11 @@ async def test_cancel_joins_all_inflight_reads_before_returning(tmp_path, monkey
         await asyncio.gather(task, return_exceptions=True)
         await engine.close()
         store.close()
+
+
+def isolate_scheduler_storage(engine, store):
+    # These tests assert scheduling order, not filesystem/fsync latency.
+    # Requirement checkpoint persistence is exercised separately in test_evidence_ledger.
+    engine.save = lambda: None
+    engine.log = lambda *args: None
+    store.evidence = lambda *args: 'evidence-' + str(len(engine.state['observations']))

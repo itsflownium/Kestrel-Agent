@@ -16,12 +16,12 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
   ↳ read_file · Read the selected source
   ✓ source · completed
 
-  ready │ Codex default + Jev │ workspace │ Ctrl+C stop · /help
+  ready │ Codex default + Jev │ workspace │ Ctrl+C quit · /help
 ```
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** initial implementation with limited owner-authorized testing. 121 offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [verified-answer comparisons](benchmarks/EVIDENCE-ANSWERS.md), [compact recovery results](benchmarks/COMPACT-RECOVERY.md), [provider setup](docs/PROVIDERS.md), [general-task improvements](benchmarks/INITIAL-CONTEXT.md), [Jev table benchmarks](benchmarks/JEV-TABLES.md), [latest controller tests](benchmarks/RESULT-REUSE.md), [broader workload report](benchmarks/WORKLOADS.md), [next improvements](benchmarks/NEXT-STEPS.md), and [initial comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
+**Status:** development build with owner-authorized live testing. The current suite has 160 offline checks. Quality and latency remain workload-dependent; general superiority over Codex is not established. See the [quality comparisons](benchmarks/QUALITY-PROFILES.md), [architecture measurements](benchmarks/ARCHITECTURE-FOUNDATIONS.md), [durable evidence results](benchmarks/DURABLE-EVIDENCE.md), [read scheduling checks](benchmarks/DEPENDENCY-SCHEDULING.md), [remaining architecture scope](docs/ARCHITECTURE-IMPLEMENTATION.md), and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
@@ -141,7 +141,7 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/tools` | Discover configured MCP tools |
 | `/status` | Checkpoint and usage |
 | `/clear`, `/exit` | Clear display/exit |
-| `Ctrl+C`, `Alt+Enter` | Stop active work/insert newline |
+| `Ctrl+C`, `Alt+Enter` | Stop active work, or exit when idle / insert newline |
 
 ## Workflow memory and GEPA
 
