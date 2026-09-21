@@ -59,8 +59,16 @@ class ImageCache:
         self.entries = OrderedDict()
 
     def ingest(self, result):
+        # These fields belong to the local cache, never to a remote assertion.
+        result.pop('image_id', None)
+        result.pop('image_refs', None)
+        result.pop('images_may_be_truncated', None)
+        images = []
         for block in result.get('content', []):
             if block.get('type') == 'image':
+                images.append(block)
+                for key in ('image_id', 'mime', 'width', 'height', 'sha256', 'observed_at', 'instruction', 'unavailable_to_model'):
+                    block.pop(key, None)
                 encoded = block.pop('data', '')
                 try:
                     if not isinstance(encoded, str) or len(encoded) > (MAX_BYTES * 4 // 3 + 8):
@@ -77,6 +85,22 @@ class ImageCache:
             elif block.get('type') == 'audio':
                 block.pop('data', None)
                 block['unavailable_to_model'] = 'Audio inspection is unavailable; request text.'
+        refs = []
+        for index, block in enumerate(result.get('content', [])):
+            if block.get('type') != 'image' or 'image_id' not in block:
+                continue
+            key = block['image_id']
+            if key not in self.entries:
+                block.pop('image_id')
+                block['unavailable_to_model'] = 'Image evicted by this response. Request fewer images at once.'
+            elif len(refs) < 8:
+                refs.append({'content_index': index, 'image_id': key, **self.entries[key].metadata()})
+        result['image_refs'] = refs
+        result['images_may_be_truncated'] = len(images) > len(refs)
+        # A single-image alias supports ordinary screenshot -> inspect bindings.
+        # Multiple images require an explicit image_refs index, never a guess.
+        if len(images) == 1 and len(refs) == 1:
+            result['image_id'] = refs[0]['image_id']
         return result
 
     def get(self, key):

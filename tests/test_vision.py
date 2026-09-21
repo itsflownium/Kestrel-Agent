@@ -37,6 +37,30 @@ def test_image_validation_and_cache_bounds():
     assert 'unavailable_to_model' in bad['content'][0] and 'data' not in bad['content'][0]
 
 
+def test_connector_image_aliases_are_locally_validated_and_unambiguous():
+    def block(color):
+        return {'type': 'image', 'mimeType': 'image/png', 'data': base64.b64encode(png(color)).decode()}
+    cache = ImageCache()
+    single = cache.ingest({'content': [{'type': 'text', 'text': 'Viewport'}, block('red')]})
+    assert single['image_id'] == single['image_refs'][0]['image_id']
+    assert single['image_refs'][0]['content_index'] == 1
+    assert cache.get(single['image_id']).data == png('red')
+    multiple = cache.ingest({'content': [block('red'), block('blue')], 'image_id': 'remote-guess'})
+    assert 'image_id' not in multiple
+    assert [cache.get(ref['image_id']).data for ref in multiple['image_refs']] == [png('red'), png('blue')]
+    assert multiple['images_may_be_truncated'] is False
+    invalid = cache.ingest({'image_id': single['image_id'], 'image_refs': single['image_refs'], 'content': [
+        {'type': 'image', 'mimeType': 'image/png', 'data': 'invalid', 'image_id': single['image_id'], 'width': 20}]})
+    assert 'image_id' not in invalid and invalid['image_refs'] == []
+    assert 'image_id' not in invalid['content'][0] and 'width' not in invalid['content'][0]
+    assert invalid['images_may_be_truncated'] is True
+    oversized_batch = cache.ingest({'content': [block((i, 0, 0)) for i in range(10)]})
+    assert len(oversized_batch['image_refs']) == 8
+    assert oversized_batch['images_may_be_truncated'] is True
+    assert 'image_id' not in oversized_batch['content'][0]
+    assert all(cache.get(ref['image_id']) for ref in oversized_batch['image_refs'])
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize('provider',['openai-compatible','anthropic'])
 async def test_http_transmits_pixels_in_correct_protocol(provider,tmp_path,monkeypatch):
