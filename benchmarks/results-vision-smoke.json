@@ -1,0 +1,20 @@
+{
+  "harness_sha256": "e44814f41af97674212fc8d92be89597909d85d732a2980ffe1647ef4620a29f",
+  "fixture": "vision-fixture.png",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "expected": "DCF0AA33",
+  "result": {
+    "content": "DCF0AA33",
+    "source": "fixture.png",
+    "evidence_kind": "model_image_interpretation",
+    "mime": "image/png",
+    "width": 800,
+    "height": 300,
+    "sha256": "b9464e18ffd16c2813437fe2b2d26a0a10b8a8126dcbd09cc4a844799a188c46",
+    "observed_at": 1790030969.015149
+  },
+  "passed": true,
+  "generation_calls": 1,
+  "jev_calls": 0
+}

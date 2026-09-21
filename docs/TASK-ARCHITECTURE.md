@@ -40,6 +40,6 @@ Task-specific procedures live in focused skills rather than a growing universal 
 ## Next architecture gates
 
 1. Evaluate a short observe/act/check loop against the current plan graph on dynamic browser tasks, using identical models and tool adapters. Adopt it only if repeated independent outcomes support the change.
-2. Add native desktop/vision through a real adapter and a model transport that preserves images. A text-only model must not receive a claim that it saw an image.
+2. Native desktop still needs a real action adapter and validation. Image transport/inspection is now implemented (see VISION.md); only a successful image-input call supports a visual interpretation. A text-only model must not receive a claim that it saw an image.
 3. Certify workflow/skill revisions using isolated fixtures, unseen inputs, and effect-state oracles before describing them as reliable reusable automation.
 4. Compare quality on coding, browser, research, documents/data, and recovery separately. Preserve failures and tool-setup exclusions. No architecture or skill count proves superiority over another agent.

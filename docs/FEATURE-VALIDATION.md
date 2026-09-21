@@ -36,3 +36,7 @@ Fixed ignored nonzero cleanup exit codes, retained unresolved container names fo
 ## Final regression and standard-mode checkpoint
 
 After provider fault handling, Docker cleanup, and Mac shortcut fixes: **319 tests passed in 73.14 seconds**. Standard Kestrel (zero Jev calls) and native Astra medium both passed two small coding repair repetitions. All four retained implementations passed 500 further randomized cases each. Standard browser smoke passed in 71.867 seconds, compared with the retained native baseline at 66.379 seconds. See `benchmarks/STANDARD-QUALITY-SEP22.md` and `COMPLETION-AUDIT-SEP22.md` for scope and remaining gaps; the overall goal is not declared complete.
+
+## Image-input checkpoint
+
+Bounded image validation/cache and the inspect_image tool now send actual pixels through the selected model protocol. Five new tests and an expanded real MCP transport test pass; full suite **324 passed in 70.97 seconds**. A live Astra medium smoke correctly read a random green-button label from the retained `benchmarks/vision-fixture.png`; one generation call, zero Jev calls. The first attempt to run the loopback test under the restricted shell failed at socket binding; it passed under the loopback-enabled test invocation. Native desktop actions and broad visual competence remain unverified.

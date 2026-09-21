@@ -18,6 +18,7 @@ dependencies = [
   "pydantic>=2.11,<3",
   "httpx>=0.28,<1",
   "python-dotenv>=1.1,<2",
+  "Pillow>=11,<13",
   "PyYAML>=6,<7",
   "mcp>=1.28,<2",
   "jsonschema>=4.23,<5",

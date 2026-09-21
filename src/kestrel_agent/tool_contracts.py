@@ -53,6 +53,11 @@ class MCP(Arguments):
     arguments: dict[str, Any] = Field(default_factory=dict)
 
 
+class InspectImage(Arguments):
+    source: str = Field(min_length=1, max_length=4096)
+    question: str = Field(min_length=1, max_length=4000)
+
+
 class Generate(Arguments):
     prompt: str = Field(min_length=1)
 
@@ -99,6 +104,7 @@ class LoadSkill(Arguments):
 
 
 CONTRACTS = {
+    'inspect_image': InspectImage,
     'list_skills': ListSkills, 'load_skill': LoadSkill,
     'list_files': ListFiles, 'read_file': ReadFile, 'search_files': SearchFiles,
     'write_file': WriteFile, 'shell': Shell, 'repair_command': RepairCommand,
