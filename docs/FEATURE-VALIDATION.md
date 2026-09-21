@@ -76,3 +76,7 @@ Ten focused tests cover refresh, denied access, duplicate submissions, failed-re
 Single-image MCP results now expose a locally validated top-level image_id; multiple-image results expose indexed image_refs. Invalid input cannot preserve a remote-supplied cache ID, and images evicted by a large response are omitted from the usable reference list. Tool guidance documents exact result-binding paths.
 
 **47 focused tests passed in 16.33 seconds**, covering vision protocols, malformed inputs, cache limits, actual Chromium screenshots, real MCP transport, typed tool contracts and observation recovery. The MCP integration test binds `${shot.image_id}` into inspect_image and verifies exact cached pixels at the model interface; generation in that test is mocked. No fresh live-model perception or task-quality benchmark was run. The preceding complete-suite result remains 366, before this alias addition.
+
+## General-agent data reconciliation
+
+A new independently graded saved-report task compares standard Kestrel with its data-audit skill against direct Astra medium. Kestrel completed 1/2 repetitions; native Codex completed 2/2. All four saved artifacts and final workspace scopes pass separately. Kestrel's failed run stopped during repair after its verifier could not inspect a truncated invocation, despite a correct saved report. That task remains failed. See `benchmarks/DATA-RECONCILIATION-SEP22.md` for timings, trace findings and limitations. Twenty-nine grader/benchmark regression tests passed; no fixture-specific product changes were made.
