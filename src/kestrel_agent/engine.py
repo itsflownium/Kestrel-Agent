@@ -47,6 +47,8 @@ class Engine:
         for entry in self.state.get("inflight", {}).values():
             if entry.get("effect"):
                 self.state["uncertain_effects"].append(entry["fingerprint"])
+                if entry.get("family"):
+                    self.state.setdefault("effect_receipts", []).append({"fingerprint": entry["fingerprint"], "family": entry["family"], "status": "uncertain", "action": "interrupted"})
         self.state["inflight"] = {}
         self.mcp_tools: list[dict] | None = None
 
@@ -70,7 +72,7 @@ class Engine:
         self.state["started"] = time.time()
         if message is not None:
             self.log("user", message)
-            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, completion_checks={}, progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
+            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, completion_checks={}, repair_snapshot=None, effect_receipts=[], progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
             self.store.db.execute("UPDATE sessions SET title=? WHERE id=?", (redact(message[:100]), self.sid))
             self.store.db.commit()
             self.save()
@@ -153,7 +155,7 @@ If a tool result already provides the ENTIRE requested answer in the exact reque
 For JSON candidate files, read_file returns parsed data. Bind choose.options to ${{read.data}} using the actual read action ID, not to numbered content text.
 For existing-file edits, read first, then write_file with the observed SHA256.
 Tools that modify external state must respect the original user request and current permissions.
-If feedback says an action failed or has unknown outcome, investigate before repeating it.
+If feedback says an action failed or has unknown outcome, investigate before repeating it. For local plan repairs preserve unchanged successful action IDs, arguments, dependencies, purposes, and conditions; the controller retains their completed subgraph where sources remain fresh. Change only failed/affected actions and their descendants. Completed effects are historical receipts, not permission to repeat an effect. Failed commands may already have changed state; inspect receipts and targets before retrying.
 Never claim completion without observations. A nonzero shell exit or error is not success.
 Use completion_checks for concrete machine-checkable requirements explicitly supported by the request: result_equals compares a whole action reference (such as ${{run.exitCode}}) to expected_json; result_json_equals parses a complete JSON result string; file_text_equals and file_json_equals read a literal artifact path after execution. expected_json is a JSON-encoded literal, not a result reference or invented target. Keep stable check IDs across repairs; only result references may change, not expectations. Checks persist across replans and cannot be dropped to bypass a failure. Use [] where the request supplies no exact outcome. File checks support complete UTF-8 text up to 40000 characters/1000 lines. Jev still reviews original-task coverage and semantic correctness.
 Success criteria must be individually checkable against results, not vague quality claims.
@@ -252,10 +254,18 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             register_checks(self.state, plan.completion_checks)
             register_requirements(self.state, plan.success_criteria)
             if not self.state.get("plan"):
-                self.state.update(plan=plan.model_dump(), results={}, statuses={})
+                from .reconciliation import repair_state
+                retained = await repair_state(self.state, plan, self.tools)
+                if retained:
+                    self.log("retained_subgraph", {"actions": retained})
                 self.save()
             from .scheduler import execute_plan
-            await execute_plan(self, plan, GATE_PROMPT)
+            try:
+                await execute_plan(self, plan, GATE_PROMPT)
+            finally:
+                from .reconciliation import checkpoint
+                checkpoint(self.state, plan)
+                self.save()
             failed_checks = await evaluate_checks(self.state, self.tools, {c.id for c in plan.completion_checks})
             self.log("completion_checks", self.state.get("completion_checks", {}))
             self.save()
@@ -345,21 +355,34 @@ FEEDBACK: {json.dumps(feedback, default=str)}
         self.state["steps"] = self.state.get("steps", 0) + 1
         self.emit("tool", f"{action.tool} · {action.purpose}")
         fingerprint = ""
+        family = ""
+        dispatched = False
+        returned = False
         args = None
         effect = action.tool in {"write_file", "shell", "mcp"}
         try:
             args = bind(action.arguments(), self.state["results"])
-            fingerprint = hashlib.sha256(json.dumps([action.tool, args], sort_keys=True).encode()).hexdigest()
+            legacy_fingerprint = hashlib.sha256(json.dumps([action.tool, args], sort_keys=True).encode()).hexdigest()
+            fingerprint = legacy_fingerprint
+            if effect:
+                from .reconciliation import effect_identity, unresolved_effect
+                fingerprint, family = effect_identity(action.tool, args, self.workspace)
+                if legacy_fingerprint in self.state["completed_effects"]:
+                    raise ValueError("This exact action already completed. Inspect its result; do not repeat it.")
             if effect and fingerprint in self.state["completed_effects"]:
                 raise ValueError("This exact action already completed. Inspect its result; do not repeat it.")
-            if effect and fingerprint in self.state["uncertain_effects"]:
-                if not await self.confirm(f"The previous outcome of {action.tool} is unknown. Inspect the target first. Retry this exact action anyway?"):
+            unresolved = unresolved_effect(self.state, fingerprint, family) if effect else None
+            if effect and (fingerprint in self.state["uncertain_effects"] or legacy_fingerprint in self.state["uncertain_effects"] or unresolved):
+                review = redact(json.dumps({"retry": args, "previous_receipt": unresolved}, default=str))
+                if not await self.confirm(f"A previous equivalent or related {action.tool} may have effects, despite failure or interruption. Inspect the target before retrying. Authorize this retry?\n{review[:6000]}"):
                     raise PermissionError("Uncertain action was not retried.")
-                self.state["uncertain_effects"].remove(fingerprint)
-            self.state["inflight"][action.id] = {"fingerprint": fingerprint, "effect": effect}
+                self.state["uncertain_effects"] = [value for value in self.state["uncertain_effects"] if value not in {fingerprint, legacy_fingerprint}]
+            self.state["inflight"][action.id] = {"fingerprint": fingerprint, "family": family, "effect": effect}
             self.save()
             with self.runtime.telemetry.measure("tool", tool=action.tool, action=action.id):
+                dispatched = True
                 result = await self.tools.execute(action.tool, args)
+                returned = True
             status = "error" if result.get("error") else "completed"
             preview = result.get("stdout") or result.get("content") or result.get("matches") or result.get("files")
             if preview:
@@ -367,8 +390,9 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             if effect and status == "completed":
                 self.state["completed_effects"].append(fingerprint)
         except asyncio.CancelledError:
-            if effect and fingerprint:
+            if effect and fingerprint and dispatched:
                 self.state["uncertain_effects"].append(fingerprint)
+                self.state.setdefault("effect_receipts", []).append({"fingerprint": fingerprint, "family": family, "status": "uncertain", "action": action.id})
             self.save()
             raise
         except Exception as error:
@@ -378,6 +402,9 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                 status = "uncertain"
         finally:
             self.state["inflight"].pop(action.id, None)
+        if effect and dispatched and (returned or status == "uncertain"):
+            self.state.setdefault("effect_receipts", []).append({"fingerprint": fingerprint, "family": family,
+                "status": status, "action": action.id, "workspace_audit": result.get("workspace_audit")})
         self.state["statuses"][action.id] = status
         self.state["results"][action.id] = result
         eid = self.store.evidence(self.sid, result)
