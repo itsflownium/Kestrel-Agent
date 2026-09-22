@@ -1,6 +1,44 @@
 """Durable task requirements and bounded views of retained evidence snapshots."""
 import hashlib
 import json
+import copy
+
+
+def review_context(view, state, max_chars):
+    """Use spare decision capacity for complete retained evidence before review.
+
+    This only enlarges existing excerpts. It does not read current files, run
+    tools, change receipts, or treat a generated proposal as an executed effect.
+    Explicitly requested pages keep their existing pagination representation.
+    """
+    expanded = copy.deepcopy(view)
+    sources = {item['evidence_id']: item for item in state.get('observations', [])}
+    # Execution details and source observations precede generated proposals.
+    items = sorted(expanded.get('observations', []),
+                   key=lambda item: item.get('tool') in {'generate', 'choose'})
+    used = len(json.dumps(expanded, default=str))
+    limit = max_chars * 2
+    for item in items:
+        source = sources.get(item['evidence_id'])
+        if source is None or 'retrieved_page' in item:
+            continue
+        for kind in ('arguments', 'result'):
+            if not item.get(kind + '_truncated'):
+                continue
+            before = dict(item)
+            old_cost = len(json.dumps(item, default=str))
+            text = json.dumps(source.get(kind), ensure_ascii=False)
+            item[kind + '_excerpt'] = text
+            item[kind + '_truncated'] = False
+            if kind == 'result':
+                item.update(result_tail_excerpt='', result_tail_offset=None)
+            new_cost = len(json.dumps(item, default=str))
+            if used + new_cost - old_cost <= limit:
+                used += new_cost - old_cost
+            else:
+                item.clear()
+                item.update(before)
+    return expanded
 
 
 def register_requirements(state, criteria):
@@ -73,23 +111,28 @@ def context(state, max_chars):
         result = json.dumps(pages[index]['source_metadata'], ensure_ascii=False) if index in pages else original_result
         # Use spare excerpt space for invocation details instead of cutting every
         # command at 500 characters even when its result is short.
+        argument_cost = len(json.dumps(arguments)) - 2
+        result_cost = len(json.dumps(result)) - 2
         base_args = min(500, budget // 4)
-        spare = max(0, budget - base_args - min(len(result), budget // 2))
-        arg_limit = min(len(arguments), base_args + spare)
+        spare = max(0, budget - base_args - min(result_cost, budget // 2))
+        arg_limit = min(argument_cost, base_args + spare)
         result_limit = max(1, budget - arg_limit)
-        tail_limit = result_limit // 3 if len(result) > result_limit else 0
+        tail_limit = result_limit // 3 if result_cost > result_limit else 0
+        argument_excerpt = json_prefix(arguments, arg_limit)
+        result_excerpt = json_prefix(result, result_limit - tail_limit)
+        result_tail = json_prefix(result[::-1], tail_limit)[::-1] if tail_limit else ''
         metadata_keys = ('path', 'total_lines', 'start_line', 'end_line', 'next_line', 'char_limit_reached',
                          'source_truncated', 'sha256', 'exitCode', 'error', 'total_chars', 'offset', 'next_offset', 'truncated', 'workspace_audit')
         metadata = {key: item['result'][key] for key in metadata_keys if isinstance(item['result'], dict) and key in item['result']}
         selected.append({'action': item['action'], 'evidence_id': item['evidence_id'],
             'invocation_evidence_id': item.get('invocation_evidence_id'),
             'tool': item.get('tool'), 'status': item.get('status'),
-            'arguments_excerpt': arguments[:arg_limit], 'arguments_truncated': len(arguments) > arg_limit,
+            'arguments_excerpt': argument_excerpt, 'arguments_truncated': len(arguments) > len(argument_excerpt),
             'arguments_total_chars': len(arguments),
-            'result_excerpt': result[:result_limit - tail_limit],
-            'result_tail_excerpt': result[-tail_limit:] if tail_limit else '',
-            'result_tail_offset': len(result) - tail_limit if tail_limit else None,
-            'result_metadata': metadata, 'result_truncated': len(result) > result_limit,
+            'result_excerpt': result_excerpt,
+            'result_tail_excerpt': result_tail,
+            'result_tail_offset': len(result) - len(result_tail) if result_tail else None,
+            'result_metadata': metadata, 'result_truncated': len(result) > len(result_excerpt) + len(result_tail),
             'result_total_chars': len(original_result)})
         if index in pages:
             selected[-1].update(retrieved_page=pages[index],
