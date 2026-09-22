@@ -1,0 +1,81 @@
+{
+  "source": "results-multifile-evidence-focus.json",
+  "source_sha256": "9b65c8b3ce21700edfd13966b9d18b6f9caf2324664d61c2747e736595d8ea18",
+  "grader_sha256": "6abde2d4b70bd4b00886ab129da696ee0040497ca050f15601f959c85f0c0e51",
+  "large_check_sha256": "ba4e6e313a1f402c3846bc5985cfd7073a826b05dcc2abe8c2365bb58c203b99",
+  "note": "Post-run artifact diagnostics do not turn an incomplete or timed-out agent run into a pass. Large-number exactness was added after the initial frozen protocol.",
+  "results": [
+    {
+      "arm": "kestrel",
+      "repetition": 2,
+      "original_run_passed": false,
+      "artifact_checks_passed": true,
+      "large_exactness_passed": true,
+      "grader": {
+        "exitCode": 0,
+        "stdout": "{\"checks\": 334, \"passed\": true}\n",
+        "stderr": ""
+      },
+      "large_exactness": {
+        "exitCode": 0,
+        "stdout": "EXACT LARGE TOTAL PASS\n",
+        "stderr": ""
+      },
+      "artifact_sha256": "c14c27c2022cf577d410fc9e7110fdd030f88a1bed66fdd041056dfa20e1f5d3"
+    },
+    {
+      "arm": "codex",
+      "repetition": 2,
+      "original_run_passed": true,
+      "artifact_checks_passed": true,
+      "large_exactness_passed": true,
+      "grader": {
+        "exitCode": 0,
+        "stdout": "{\"checks\": 334, \"passed\": true}\n",
+        "stderr": ""
+      },
+      "large_exactness": {
+        "exitCode": 0,
+        "stdout": "EXACT LARGE TOTAL PASS\n",
+        "stderr": ""
+      },
+      "artifact_sha256": "ae18d36db32d7f364c3a8b395b98a21e750006e592be0dcc89ebe86e136c14df"
+    },
+    {
+      "arm": "kestrel",
+      "repetition": 1,
+      "original_run_passed": true,
+      "artifact_checks_passed": true,
+      "large_exactness_passed": true,
+      "grader": {
+        "exitCode": 0,
+        "stdout": "{\"checks\": 334, \"passed\": true}\n",
+        "stderr": ""
+      },
+      "large_exactness": {
+        "exitCode": 0,
+        "stdout": "EXACT LARGE TOTAL PASS\n",
+        "stderr": ""
+      },
+      "artifact_sha256": "ebe8d25361c3eacc2d3d882e15d127d63d493086a38b3103fbb2708414b5bdb5"
+    },
+    {
+      "arm": "codex",
+      "repetition": 1,
+      "original_run_passed": true,
+      "artifact_checks_passed": true,
+      "large_exactness_passed": true,
+      "grader": {
+        "exitCode": 0,
+        "stdout": "{\"checks\": 334, \"passed\": true}\n",
+        "stderr": ""
+      },
+      "large_exactness": {
+        "exitCode": 0,
+        "stdout": "EXACT LARGE TOTAL PASS\n",
+        "stderr": ""
+      },
+      "artifact_sha256": "e7b2d25daaf164e5c86fd43887e32a1ed01cd4a87be6bf409910cc517bd8c655"
+    }
+  ]
+}

@@ -19,13 +19,31 @@ ACCENT = '#e8b86d'
 TEAL = '#80cec5'
 BORDER = '#465366'
 
+
+def wordmark(width):
+    """Use terminal-native display lettering, with a compact narrow fallback."""
+    if width < 64:
+        return Text.assemble((' K E S T R E L ', f'bold {ACCENT}'), (' / COMMAND DESK', MUTED))
+    lettering = (
+        '██╗  ██╗███████╗███████╗████████╗██████╗ ███████╗██╗\n'
+        '██║ ██╔╝██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║\n'
+        '█████╔╝ █████╗  ███████╗   ██║   ██████╔╝█████╗  ██║\n'
+        '██╔═██╗ ██╔══╝  ╚════██║   ██║   ██╔══██╗██╔══╝  ██║\n'
+        '██║  ██╗███████╗███████║   ██║   ██║  ██║███████╗███████╗\n'
+        '╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚══════╝'
+    )
+    title = Text(lettering, style=f'bold {ACCENT}', no_wrap=True)
+    title.append('\n\nCOMMAND DESK  /  Think deeply. Move lightly.', style=TEAL)
+    return title
+
+
 def newline_shortcut():
     return 'Option+Enter' if sys.platform == 'darwin' else 'Alt+Enter'
 
 
 def command_desk(settings, workspace, sid, catalog, width):
     width = max(20, width)
-    title = Text.assemble((' K E S T R E L ', f'bold {ACCENT}'), (' / COMMAND DESK', MUTED))
+    title = wordmark(width)
     model = Text.assemble((settings.model or 'Provider default', f'bold {INK}'),
                           ('  ·  ' + label(settings), MUTED))
     mode = 'Jev-assisted' if settings.agent_mode == 'jev' else 'Standard'

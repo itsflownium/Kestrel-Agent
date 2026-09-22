@@ -66,10 +66,11 @@ class Plan(BaseModel):
             if action.after != "success" and not action.depends_on:
                 raise ValueError("Failure/completion actions need dependencies.")
             from .tool_contracts import validate_arguments
-            validate_arguments(action.tool, action.arguments(), allow_references=True)
+            arguments = action.arguments()
+            validate_arguments(action.tool, arguments, allow_references=True)
             if any(d not in ids or d == action.id for d in action.depends_on):
                 raise ValueError("Invalid dependency.")
-            refs = re.findall(r"\$\{([a-z][a-z0-9_]*)(?:\.|\})", action.arguments_json)
+            refs = referenced_actions(arguments)
             if any(ref not in action.depends_on for ref in refs):
                 raise ValueError("Argument references must name a declared dependency.")
         remaining = {a.id: set(a.depends_on) for a in self.actions}
@@ -79,6 +80,26 @@ class Plan(BaseModel):
                 raise ValueError("Cyclic dependency graph.")
             remaining = {k: v - ready for k, v in remaining.items() if k not in ready}
         return self
+
+
+def referenced_actions(value: Any):
+    """Inspect decoded argument values, exactly where bind performs lookup."""
+    if isinstance(value, dict):
+        for child in value.values():
+            yield from referenced_actions(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from referenced_actions(child)
+    elif isinstance(value, str):
+        yield from re.findall(r"\$\{([a-z][a-z0-9_]*)(?:\.|\})", value)
+
+
+def reference_error(message: str) -> ValueError:
+    # Key names/references may themselves be arbitrarily long. Keep diagnostics
+    # bounded and omit values; the source result remains available as evidence.
+    if len(message) > 2000:
+        message = message[:1900] + ' ... (diagnostic truncated; inspect the actual result.)'
+    return ValueError(message)
 
 
 def bind(value: Any, results: dict[str, Any]) -> Any:
@@ -93,8 +114,32 @@ def bind(value: Any, results: dict[str, Any]) -> Any:
     def lookup(reference: str) -> Any:
         parts = reference.split(".")
         current: Any = results
-        for part in parts:
-            current = current[int(part)] if isinstance(current, list) else current[part]
+        for position, part in enumerate(parts):
+            location = '.'.join(parts[:position]) or 'results'
+            label = json.dumps('${' + reference[:200] + '}', ensure_ascii=True)
+            where = json.dumps(location[:200], ensure_ascii=True)
+            if isinstance(current, dict):
+                if part not in current:
+                    keys = list(current)[:12]
+                    available = json.dumps([str(key)[:80] for key in keys], ensure_ascii=True)
+                    omitted = max(0, len(current) - len(keys))
+                    raise reference_error(f'Cannot bind {label}: missing field {json.dumps(part[:80])} at {where}. '
+                                     f'Available fields: {available}; {omitted} more omitted. '
+                                     'Inspect the actual result or retrieve its evidence; do not guess a replacement field.')
+                current = current[part]
+            elif isinstance(current, list):
+                try:
+                    index = int(part)
+                except ValueError:
+                    raise reference_error(f'Cannot bind {label}: {where} is a list of length {len(current)}; '
+                                     'use an integer index.') from None
+                if not -len(current) <= index < len(current):
+                    raise reference_error(f'Cannot bind {label}: index {json.dumps(part[:80])} is outside the list at {where} '
+                                     f'(length {len(current)}).')
+                current = current[index]
+            else:
+                raise reference_error(f'Cannot bind {label}: {where} is {type(current).__name__}, '
+                                 'not an object or list. No tool was called for this failed binding.')
         return current
 
     full = re.fullmatch(r"\$\{([^}]+)\}", value)
