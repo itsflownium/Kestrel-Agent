@@ -4,6 +4,12 @@ Run `kestrel setup` or `/setup` inside the terminal. The interview configures th
 
 The welcome panel shows the model, mode, execution backend, permissions, and skill count. `/help QUERY` filters commands. `/details on` shows detailed model, decision, plan, and tool activity; `/details off` keeps the transcript compact. `/tools` shows built-in capabilities and connected tools. Ctrl+C stops active work and quits when idle.
 
+During a task, `/steer YOUR UPDATE` stops the current worker, waits for cancellation, saves your update and replans from the existing checkpoint. You can also steer an interrupted task. Completed effects and uncertain-effect protections remain; steering does not silently authorize retries, expand permissions or discard exact completion requirements. For a different objective or conflicting exact requirements, start a new task. Updates are limited to 8,000 characters each and 16 per task.
+
+`/cancel` stops work without resuming it. `/status`, `/help` and `/details` remain available while the agent works or waits for approval. `/steer`, `/cancel` and `/exit` can cancel an approval wait without granting permission. A workflow still awaiting its initial confirmation has not started and cannot be steered yet. If the task finishes before an update is applied, Kestrel refuses the update rather than treating it as permission to restart completed work.
+
+Steering can require additional model calls. Usage displayed after resumption describes that run; session logs retain prior runs. This is steering of one owned task, not detached/background job management or concurrent execution of multiple tasks.
+
 ## Docker execution
 
 Select `docker` during setup, or set `execution_backend` and `docker_image` in configuration. Docker must be running and the image must already be present. Kestrel does not pull images, install Docker, or fall back to host execution when Docker fails.

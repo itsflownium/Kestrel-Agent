@@ -67,6 +67,25 @@ class Engine:
                 'boundary': 'Explicit user preferences and notes only; not current evidence or permission. Current requests override preferences; verify stale facts.'}
         return value
 
+    def amend(self, message: str) -> None:
+        """Append an explicit user update only after the current worker stops."""
+        message = message.strip()
+        if not message or len(message) > 8000:
+            raise ValueError('A task update must contain 1–8000 characters.')
+        if self.state.get('status') not in {'interrupted', 'error'} or not self.state.get('request'):
+            raise ValueError('Stop an unfinished task before adding an update.')
+        updates = self.state.setdefault('user_updates', [])
+        if len(updates) >= 16:
+            raise ValueError('This task reached its 16-update limit; start a new task.')
+        updates.append({'text': message, 'created': time.time()})
+        self.state['request'] += f'\n\nUser update {len(updates)}:\n{message}'
+        # Keep evidence, receipts, checkpoints and exact requirements. A new
+        # plan must reconcile existing effects rather than replaying the task.
+        self.state.update(plan=None, progress_signature=None, no_progress_rounds=0)
+        self.log('user_update', message)
+        self.log('user', message)
+        self.save()
+
     async def run(self, message: str | None = None, *, initial_plan: Plan | None = None) -> str:
         if initial_plan is not None and (message is None or initial_plan.mode != "plan"):
             raise ValueError("A workflow plan requires a new explicit request.")
@@ -90,6 +109,7 @@ class Engine:
             from .memory import Memory
             retrieved_memory = Memory(self.store).retrieve(message, self.workspace)
             self.log("user", original_message)
+            self.state['user_updates'] = []
             if selected_skills:
                 self.log("selected_skills", selected_skills)
             self.state.update(request=message, user_memory=retrieved_memory, selected_skills=selected_skills, plan=None, results={}, statuses={}, action_effects={}, observations=[], requirements={}, completion_checks={}, repair_snapshot=None, effect_receipts=[], progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
@@ -103,6 +123,7 @@ class Engine:
             raise ValueError("There is no interrupted task to continue.")
         elif self.state.get("status") == "completed":
             raise ValueError("This task already completed. Send a new message to start more work.")
+        self.state['status'] = 'running'
         try:
             async with asyncio.timeout(self.settings.max_minutes * 60):
                 result = None
