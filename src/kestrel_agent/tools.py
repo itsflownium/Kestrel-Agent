@@ -19,7 +19,7 @@ from .providers import Judge, Runtime
 from .store import Store
 
 CATALOG = """
-inspect_image: {source, question}. Inspect a readable workspace image path or image: ID from a connected tool. Single-image MCP results expose image_id: bind ${shot.image_id} as source. Multiple images expose image_refs: choose an observed index such as ${shot.image_refs.0.image_id}; do not invent structuredContent fields. Sends actual pixels to the selected model; requires vision support. Returns a model interpretation with source hash and dimensions, not evidence that an action occurred. Re-observe UI after changes; metadata alone is not visual evidence.
+inspect_image: {source, question}. Inspect a readable workspace image path or image: ID from a connected tool. Single-image MCP results expose image_id: bind ${shot.image_id} as source. Multiple images expose image_refs: choose an observed index such as ${shot.image_refs.0.image_id}; use structuredContent only when the tool actually returns it. Strict JSON objects/arrays in the interpretation also expose data for dependency binding (for example ${locate.data.x}); malformed JSON stays text only. Sends actual pixels to the selected model; requires vision support. Returns a model interpretation with source hash and dimensions, not evidence that an action occurred. Re-observe UI after changes; metadata alone is not visual evidence.
 list_skills: {query: ''}. Discover installed portable skills by description without loading their instructions.
 load_skill: {name, reference: null}. Load a skill's procedural guidance, or one relative reference file from its package. Use a skill only when it helps the actual request. It never changes permissions or authorizes new actions. Missing declared prerequisites fail clearly. Scripts are not executed by loading.
 list_files: {path: '.', pattern: '*', limit: 100}. limit must be 1–300. Returns files relative to workspace. Skips hidden/vendor directories.
@@ -30,7 +30,7 @@ write_file: {path, content, expected_sha256: null}. Writes UTF-8 text. Supply pr
 shell: {command: ['executable', 'arg'], cwd: '.'}. An argv array, not shell text; zsh -lc is possible with permission. Exit code is authoritative.
 repair_command: {command: original_argv, failure: '${run}', cwd: '.'}. After a definite command failure, inspects bounded local source/input evidence and prepares minimal corrected arguments using the selected model and stored original request. Returns {ready, command, cwd, reason}; DOES NOT execute a retry. Use after=failure on the failed action, then a separate shell action bound to ${repair.command}, conditional on repair.ready. Prefer this compact preparation over separate discovery/read/generate-wrapper actions for argument errors. Unresolved repairs require clarification or general planning.
 fetch_url: {url}. Fetch a public HTTP(S) page. Private/loopback endpoints excluded.
-mcp: {server, tool, arguments: {}}. Use only tools present in the connected MCP catalog.
+mcp: {server, tool, arguments: {}}. Use only tools present in the connected MCP catalog. direct: servers return the MCP envelope: content blocks, optional structuredContent, and isError. Their outputSchema describes structuredContent, not the envelope root. Bind structured fields through ${action.structuredContent.field} when the server supplies them; inspect actual results before inventing paths. Image cache aliases image_id/image_refs are controller-owned root fields.
 generate: {prompt}. Ask Codex for NEW code, prose, or analysis using task evidence. Returns {content}. Does not execute tools.
 research: {prompt}. Ask Codex to research the web with source links. Returns {content}.
 choose: {question, options: {id: description} OR a list of candidate values, values: {id: value}}. Jev chooses a bounded candidate or NONE. Returns {choice, value}. A list can be bound from ${scan.files}; values is then optional.
@@ -106,7 +106,17 @@ class ToolExecutor:
                 'Describe visible evidence, distinguish uncertainty, and never claim an action occurred from an intended action. '
                 'Coordinates, if needed, refer to this image only; report dimensions and do not guess hidden targets.\nQuestion: '
                 + args['question'], images=[image])
-            return {'content':content, 'source':source, 'evidence_kind':'model_image_interpretation', **image.metadata()}
+            result = {'content':content, 'source':source, 'evidence_kind':'model_image_interpretation', **image.metadata()}
+            # Expose structured model output without repairing or guessing its meaning.
+            from .completion import parse_json
+            try:
+                data = parse_json(content)
+            except (ValueError, TypeError):
+                pass
+            else:
+                if isinstance(data, (dict, list)):
+                    result['data'] = data
+            return result
         if tool in {"list_skills", "load_skill"}:
             from .skill_registry import SkillRegistry
             registry = SkillRegistry(self.settings, self.workspace)

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import math
 import uuid
 from urllib.parse import urlsplit
 from typing import Any
@@ -11,6 +13,7 @@ SIGNATURE = '''el => ({tag: el.tagName.toLowerCase(), role: el.getAttribute('rol
     Array.from(el.labels || []).map(x => x.innerText).join(' ') || el.innerText ||
     el.getAttribute('placeholder') || el.getAttribute('name') || '').slice(0,500),
     href: el.getAttribute('href'), disabled: !!el.disabled, readonly: !!el.readOnly})'''
+VIEWPORT = '() => ({width: innerWidth, height: innerHeight, x: scrollX, y: scrollY, scale: devicePixelRatio})'
 
 
 class FrameObservationChanged(ValueError):
@@ -93,9 +96,19 @@ class BrowserAdapter:
     async def screenshot(self, tab):
         async with self.lock:
             state = await self._observe(tab)
-            data = await self.page(tab).screenshot(type='png', full_page=False, timeout=10000)
+            page = self.page(tab)
+            viewport = await page.evaluate(VIEWPORT)
+            data = await page.screenshot(type='png', full_page=False, scale='css', timeout=10000)
             from .vision import validate_image
             image = validate_image(data, 'image/png')
+            snapshot = self.observations.get(tab)
+            if not snapshot or snapshot['token'] != state['observation'] or viewport != await page.evaluate(VIEWPORT):
+                if snapshot:
+                    snapshot['token'] = None
+                raise ValueError('Page changed during screenshot. Inspect again.')
+            snapshot.update(image_sha256=image.sha256, viewport=viewport)
+            state['viewport'] = {'width':image.width, 'height':image.height, 'units':'CSS pixels', 'origin':'top-left of viewport'}
+            state['coordinate_click_available'] = True
             return state, image
 
     async def _observe(self, tab):
@@ -158,7 +171,7 @@ class BrowserAdapter:
                 'text': ''.join(parts), 'text_truncated': text_truncated, 'targets': visible,
                 'frames': frames, 'frames_truncated': len(candidates) > 20,
                 'targets_may_be_truncated': truncated,
-                'scope': 'Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions.'}
+                'scope': 'Visible DOM in up to 20 frames, 150 targets total. Coordinate clicks require a fresh screenshot; no desktop actions.'}
 
     async def _dispose(self, targets):
         await asyncio.gather(*(entry[0].dispose() for entry in targets.values()), return_exceptions=True)
@@ -211,6 +224,45 @@ class BrowserAdapter:
                 await self._dispose(snapshot['targets'])
             return await self._observe(tab)
 
+    async def click_at(self, tab, observation, x, y):
+        if any(type(value) not in {int, float} or not math.isfinite(value) for value in (x, y)):
+            raise ValueError('Coordinates must be finite numbers in viewport CSS pixels.')
+        async with self.lock:
+            page = self.page(tab)
+            snapshot = self.observations.get(tab)
+            if not snapshot or snapshot['token'] != observation or snapshot['url'] != page.url:
+                raise ValueError('Stale observation. Take a new screenshot.')
+            if 'image_sha256' not in snapshot:
+                raise ValueError('Coordinate clicks require a screenshot observation.')
+            viewport = snapshot['viewport']
+            if not (0 <= x < viewport['width'] and 0 <= y < viewport['height']):
+                raise ValueError('Coordinates are outside the observed viewport.')
+            # Consume before any pointer movement. A hover can itself alter UI;
+            # errors or partial dispatch never leave the token available to retry.
+            self.observations.pop(tab, None)
+            revision = self.revisions[tab]
+            async def unchanged():
+                if self.revisions[tab] != revision or page.url != snapshot['url'] or await page.evaluate(VIEWPORT) != viewport:
+                    return False
+                pixels = await page.screenshot(type='png', full_page=False, scale='css', timeout=10000)
+                return (self.revisions[tab] == revision and page.url == snapshot['url']
+                        and await page.evaluate(VIEWPORT) == viewport
+                        and hashlib.sha256(pixels).hexdigest() == snapshot['image_sha256'])
+            try:
+                async with asyncio.timeout(25):
+                    if not await unchanged():
+                        raise ValueError('Viewport pixels changed. Take a new screenshot before clicking.')
+                    await page.mouse.move(x, y)
+                    if not await unchanged():
+                        raise ValueError('Hover changed the viewport. Take a new screenshot before clicking.')
+                    try:
+                        await page.mouse.down(button='left')
+                    finally:
+                        await page.mouse.up(button='left')
+            finally:
+                await self._dispose(snapshot['targets'])
+            return await self._observe(tab)
+
     async def close(self):
         try:
             if self.browser:
@@ -249,17 +301,21 @@ def create_browser_server(port=8931, headless=False):
         return await adapter.snapshot(tab)
     @server.tool()
     async def browser_screenshot(tab: str):
-        """Capture this isolated tab's viewport and fresh DOM state. Inspect returned image_id with inspect_image; use DOM targets for actions."""
+        """Capture viewport pixels and fresh DOM state. Inspect image_id with inspect_image. Prefer DOM targets; canvas clicks use this observation and CSS-pixel coordinates."""
         import json
         from mcp.types import CallToolResult, ImageContent, TextContent
         state, image = await adapter.screenshot(tab)
-        state['image_scope'] = 'Viewport pixels and DOM captured sequentially. Refresh after UI changes; screenshot coordinates are not desktop coordinates.'
+        state['image_scope'] = 'Viewport pixels and DOM captured sequentially. Coordinate clicks recheck pixels; refresh after UI changes. Not desktop coordinates.'
         return CallToolResult(content=[TextContent(type='text', text=json.dumps(state)),
-            ImageContent(type='image', mimeType=image.mime, data=image.encoded)])
+            ImageContent(type='image', mimeType=image.mime, data=image.encoded)], structuredContent=state)
     @server.tool()
     async def browser_act(tab: str, observation: str, target: str, operation: str, value: str = '') -> dict[str, Any]:
         """Click/fill/select/press an observed target, then inspect the resulting state. Stale targets fail."""
         return await adapter.act(tab, observation, target, operation, value)
+    @server.tool()
+    async def browser_click_at(tab: str, observation: str, x: float, y: float) -> dict[str, Any]:
+        """Click a visually identified viewport position from browser_screenshot, in CSS pixels. Requires unchanged pixels/viewport; consumes the observation before movement. Prefer browser_act for DOM targets. Inspect after uncertain effects; never retry blindly."""
+        return await adapter.click_at(tab, observation, x, y)
     return server
 
 

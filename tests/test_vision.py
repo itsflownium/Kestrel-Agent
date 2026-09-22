@@ -122,3 +122,32 @@ async def test_codex_sends_image_input_and_does_not_reuse_image_context(tmp_path
         assert thread.turn.call_args.args[0]=='Text only'
     finally:
         await runtime.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('content,expected', [
+    ('{"x": 120, "y": 45.5}', {'x': 120, 'y': 45.5}),
+    ('[{"label": "Save"}]', [{'label': 'Save'}]),
+    ('{"x": 1, "x": 2}', None),
+    ('{"x": NaN}', None),
+    ('```json\n{"x": 1}\n```', None),
+    ('The button is near the center.', None),
+    ('42', None),
+])
+async def test_image_structured_output_is_strict_and_stays_model_interpretation(tmp_path, monkeypatch, content, expected):
+    from kestrel_agent.tools import ToolExecutor
+    from kestrel_agent.schema import bind
+    monkeypatch.setenv('KESTREL_HOME', str(tmp_path/'state'))
+    workspace = tmp_path/'workspace'; workspace.mkdir()
+    (workspace/'image.png').write_bytes(png())
+    runtime = SimpleNamespace(complete=AsyncMock(return_value=content))
+    tool = ToolExecutor(Settings(), workspace, runtime, None, None, 'test', AsyncMock())
+    result = await tool.execute('inspect_image', {'source':'image.png', 'question':'Locate the button as JSON'})
+    assert result['content'] == content
+    assert result['evidence_kind'] == 'model_image_interpretation'
+    if expected is None:
+        assert 'data' not in result
+    else:
+        assert result['data'] == expected
+        if isinstance(expected, dict):
+            assert bind('${locate.data.x}', {'locate': result}) == 120
