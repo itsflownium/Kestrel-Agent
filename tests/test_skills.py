@@ -1,4 +1,6 @@
 import json
+import hashlib
+import os
 from pathlib import Path
 from unittest.mock import AsyncMock
 
@@ -6,6 +8,84 @@ import pytest
 
 from kestrel_agent.config import Settings
 from kestrel_agent.skill_registry import SkillRegistry, install, rollback, versions
+
+
+@pytest.mark.parametrize('header', [
+    'disable-model-invocation: true\ndisable-model-invocation: false\n',
+    'metadata:\n  category: research\n  category: coding\n',
+])
+def test_duplicate_skill_metadata_is_rejected(tmp_path, monkeypatch, header):
+    reg = registry(tmp_path, monkeypatch)
+    package(tmp_path/'private'/'skills', header=header)
+    assert not reg.catalog('sample')['skills']
+    assert 'unique string keys' in reg.issues[0]['error']
+
+
+def test_duplicate_capability_fields_are_rejected(tmp_path, monkeypatch):
+    reg = registry(tmp_path, monkeypatch)
+    folder = package(tmp_path/'private'/'skills')
+    (folder/'kestrel.json').write_text('{"required_tools":["research"],"required_tools":[]}')
+    assert not reg.catalog('sample')['skills']
+
+
+def test_reference_rejects_symlink_directory_even_within_package(tmp_path, monkeypatch):
+    reg = registry(tmp_path, monkeypatch)
+    folder = package(tmp_path/'private'/'skills')
+    (folder/'references').mkdir()
+    (folder/'references'/'safe.md').write_text('Supporting detail')
+    (folder/'alias').symlink_to(folder/'references', target_is_directory=True)
+    with pytest.raises(ValueError, match='symlinks'):
+        reg.load('sample-skill', 'alias/safe.md')
+
+
+def test_catalog_version_hashes_the_same_bytes_that_were_parsed(tmp_path, monkeypatch):
+    from kestrel_agent import skill_registry
+    reg = registry(tmp_path, monkeypatch)
+    folder = package(tmp_path/'private'/'skills', body='Original procedure')
+    original_text = (folder/'SKILL.md').read_text()
+    original_read = skill_registry.read_text
+    def mutate_after_read(path, root):
+        value = original_read(path, root)
+        if Path(path) == folder/'SKILL.md':
+            Path(path).write_text(value.replace('Original procedure', 'Changed procedure'))
+        return value
+    monkeypatch.setattr(skill_registry, 'read_text', mutate_after_read)
+    skill = reg.discover()['sample-skill']
+    assert skill.body == 'Original procedure'
+    assert skill.version == hashlib.sha256((original_text + json.dumps(skill.requirements, sort_keys=True)).encode()).hexdigest()
+
+
+@pytest.mark.parametrize('tamper', ['modified', 'added', 'symlink'])
+def test_rollback_rejects_tampered_archive_and_keeps_current_skill(tmp_path, monkeypatch, tamper):
+    reg = registry(tmp_path, monkeypatch)
+    source = package(tmp_path/'source', body='First procedure')
+    first = install(source)
+    package(tmp_path/'source', body='Current procedure')
+    install(source, replace=True)
+    archive = tmp_path/'private'/'skill_versions'/'sample-skill'/first['version']
+    if tamper == 'modified':
+        (archive/'SKILL.md').write_text((archive/'SKILL.md').read_text().replace('First', 'Forged'))
+    elif tamper == 'added':
+        (archive/'unexpected.txt').write_text('Unrecorded content')
+    else:
+        (archive/'SKILL.md').unlink()
+        (archive/'SKILL.md').symlink_to(source/'SKILL.md')
+    with pytest.raises(ValueError):
+        rollback('sample-skill', first['version'])
+    assert reg.load('sample-skill')['guidance'] == 'Current procedure'
+
+
+def test_install_checks_actual_snapshot_bytes_and_rejects_fifo(tmp_path, monkeypatch):
+    registry(tmp_path, monkeypatch)
+    source = package(tmp_path/'source')
+    (source/'large.bin').write_bytes(b'x' * 2_000_001)
+    with pytest.raises(ValueError, match='byte limit'):
+        install(source)
+    (source/'large.bin').unlink()
+    os.mkfifo(source/'pipe')
+    with pytest.raises(ValueError, match='regular file'):
+        install(source)
+    assert not (tmp_path/'private'/'skills'/'sample-skill').exists()
 
 
 def package(root, name='sample-skill', body='Use the observed inputs.', header=''):

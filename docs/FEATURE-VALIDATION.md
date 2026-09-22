@@ -92,3 +92,12 @@ The full suite passed **380 tests in 162.45 seconds**. Repeating the same data f
 `doctor` now distinguishes credential presence, model selection, installed dependencies and actual runtime probes. Standard mode labels Jev disabled instead of warning about a missing optional key. Explicit `--runtime-checks` or `/doctor runtime` queries Docker daemon/image metadata and launches/closes isolated Chromium; no containers, pulls or pages are involved. Local macOS diagnostics read only the current process's Accessibility flag.
 
 **50 focused readiness/setup/provider/UI tests passed in 6.91 seconds**, including actual subprocess timeout/kill/reap, no-probe defaults, credential redaction boundaries and explicit chat flags. Live runtime checks on this machine reported Chromium ready, Docker daemon unavailable and Accessibility missing. No native app was inspected, no OS permission changed, and no live Docker execution is claimed. The previous full regression result is 380 before this diagnostic feature.
+
+
+## Skill package integrity and final regression checkpoint
+
+Rollback and reinstall now verify recorded archive hashes before modifying an active skill. Skill file reads pin package-relative directories, reject symlinks and non-regular files, and enforce actual byte limits. Discovery versions hash the same entrypoint bytes that were parsed. Duplicate YAML/JSON metadata keys are rejected and `/doctor` cannot be shadowed by a skill.
+
+Nine new cases cover duplicate/nested metadata, duplicate capability fields, symlink reference directories, a file changed between parsing and hashing, modified/added/symlinked rollback archives, oversized files and FIFOs. The focused skill/library/general suite passed **32 tests**. The final complete regression suite passed **399 tests in 171.20 seconds**, including the readiness additions and real browser/MCP/PTY fixtures. No new live-model quality claim is attached to this integrity change.
+
+The first packaging invocation was denied access to the uv cache by the restricted shell. The approved build then produced both the source distribution and wheel; wheel inspection found all 13 bundled skills and the readiness, registry, browser, desktop and vision modules. This validates packaging, not the pending live runtime and broad behavioral gates in COMPLETION-AUDIT-SEP22.md.

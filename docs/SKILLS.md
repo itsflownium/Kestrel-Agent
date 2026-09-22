@@ -1,6 +1,6 @@
 # Portable skills
 
-Kestrel discovers bundled skills, explicitly installed local packages, and trusted project skill directories. Skills use Agent Skills-style YAML frontmatter (`name`, `description`) plus Markdown instructions. Discovery supplies metadata; instructions and relative references load on demand. Five bundled procedures cover research briefs, document comparison, data audits, file organization, and meeting action extraction.
+Kestrel discovers bundled skills, explicitly installed local packages, and trusted project skill directories. Skills use Agent Skills-style YAML frontmatter (`name`, `description`) plus Markdown instructions. Discovery supplies metadata; instructions and relative references load on demand. Thirteen bundled procedures cover coding, terminal work, research, documents, data, browser workflows, and related tasks.
 
 ```sh
 kestrel skills list
@@ -20,6 +20,10 @@ Project discovery looks for `.agents/skills` and `.kestrel/skills` at the neares
 A skill can include optional `kestrel.json` with `required_tools` and `required_env` identifier lists. Missing declared prerequisites block loading with an explanation; only variable names, never values, appear in diagnostics. Standard packages without this sidecar still load. `disable-model-invocation: true` is honored: these packages require an explicit user slash invocation. Other vendor-specific execution features (dynamic shell expansion, forked subagents, permission grants) are not implemented or silently executed.
 
 Limits: names must match the lowercase hyphenated directory name; frontmatter is bounded, aliases/anchors are rejected, skill/reference bodies are bounded, and symlink packages/references are rejected. Local installation copies at most 128 non-hidden files and 2 MB. Remote hub installation and arbitrary script execution are not part of this release. Inspect imported packages before using them; static validation does not prove instructions are trustworthy or useful.
+
+Package reads pin each directory below the package root and reject symlinks, non-regular files and oversized content. The byte limit applies to the actual read, not just an earlier file-size check. Metadata rejects duplicate YAML/JSON keys, including nested YAML keys. Entrypoint versions are calculated from the same text that was parsed.
+
+Rollback verifies the recorded archive hash before changing the active package. Modified, added or symlinked archive content causes refusal; the current installation remains intact. Reinstalling an existing version also verifies its archive rather than silently overwriting it. Installation copies a bounded in-memory snapshot and never executes package scripts. These checks protect local package integrity; they are not a sandbox against another process that controls the configured Kestrel home or its ancestor directories, nor behavioral certification of a skill.
 
 ## Verification
 

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "kestrel-agent"
 version = "0.1.0"
-description = "A terminal agent combining Codex, Jev, and reusable workflows."
+description = "A provider-flexible terminal agent for coding, research, and reusable workflows."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

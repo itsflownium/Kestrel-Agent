@@ -19,8 +19,15 @@ This audit preserves the requested scope. Implemented features and narrow smoke 
 | Recovery, evidence and verification | Persistent evidence, exact completion contracts, dependency scheduling, partial repair/effect reconciliation tests | Implemented foundations; broader fault and held-out task coverage remains open |
 | GEPA/applied research | Independent evaluation split/promotion guards and architecture research | No weight training; live optimization benefit and compact-loop assessment unverified |
 | Costs, speed and fair comparisons | Recorded usage/timing and independent small-task graders | No universal cost/quality/speed claim; provider pricing and missing usage prevent reliable dollar comparison |
-| Repeated PR publication | Stacked PRs through #36 plus workflow checkpoint follow-up | Published in stages, not merged; upstream integration still requires merging in dependency order |
+| Repeated PR publication | Stacked PRs through #44, including workflow provenance, browser frames, MCP observations, image bindings, invocation evidence and readiness checks | Published in stages, not merged; upstream integration still requires merging in dependency order |
 
 Current standard-mode results and retained artifacts are documented in `benchmarks/STANDARD-QUALITY-SEP22.md`. They show correctness ties on the tested coding and browser tasks. The test corpus is intentionally small and cannot justify an overall superiority claim. No product implementation contains benchmark answers or fixed model IDs for task solving; benchmark fixtures specify Astra medium to control the comparison.
 
 The proposed architecture and remaining gates are recorded in TASK-ARCHITECTURE.md and ARCHITECTURE-IMPLEMENTATION.md. Finishing remaining capabilities requires implementation and evidence, not renaming them as complete.
+
+## Latest handoff
+
+- Runtime diagnostics distinguish installed/configured dependencies from verified readiness. On this machine isolated Chromium launches, the configured Docker daemon is unavailable, and the current process lacks Accessibility permission. `/doctor runtime` checks these states without running a container, opening a webpage or controlling an app.
+- The examined data-reconciliation failure was repaired through generic invocation-evidence retrieval and improved repair guidance. The follow-up passed 2/2 for both standard Kestrel and direct Codex. The original Kestrel 1/2 result is preserved in `benchmarks/DATA-RECONCILIATION-SEP22.md`; the repeated fixture is not held-out evidence of superiority.
+- All local source changes are available to the existing editable installation after restarting `kestrel`. Publishing a PR does not update another user's checkout or merge the stacked changes upstream.
+- Remaining major deliverables: independent skill/workflow behavioral certification and promotion; background work and steering; live Docker/native-desktop/provider conformance; broader held-out coding, research, document and visual-workflow evaluations; and the compact action-loop architecture assessment. General browser/native visual coverage is still incomplete. These remain in scope and are not declared finished because of a time limit.
