@@ -72,6 +72,12 @@ CASES = [
 
 async def allow(_): return True
 
+try:
+    from benchmarks.data_reconciliation import case as reconciliation_case, grade_artifact
+except ModuleNotFoundError:
+    from data_reconciliation import case as reconciliation_case, grade_artifact
+CASES.append(reconciliation_case())
+
 def json_answer(text):
     return json.loads(text)
 
@@ -80,6 +86,9 @@ def numeric_mapping(value, expected):
 
 async def grade(case,answer,workspace,runtime,events,commands):
     try:
+        if case == 'data_reconciliation':
+            artifact = (workspace/'report.json').read_text()
+            return grade_artifact((workspace/'ledger.csv').read_text(), artifact, answer), {'saved_report': artifact}
         if case=='exact_artifact':
             value=json.loads((workspace/'receipt.json').read_text())
             note=(workspace/'note.txt').read_bytes()

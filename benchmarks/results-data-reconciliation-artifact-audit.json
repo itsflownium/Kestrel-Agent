@@ -1,0 +1,42 @@
+{
+  "source_report_sha256": "29bd4f6152a3893631d4361910fe558c3b907901e62ff90c08225c528f3a73e1",
+  "note": "Artifact-only grades deliberately do not check final answer or agent completion. They never replace the original task verdict.",
+  "results": [
+    {
+      "arm": "codex",
+      "repetition": 2,
+      "task_passed": true,
+      "artifact_only_passed": true,
+      "scope_passed": true,
+      "seconds": 53.06,
+      "artifact_sha256": "f7cb87a0baad3f88740796e8c41e7a0d740dc482e5bd60d36fd41f88b69610e5"
+    },
+    {
+      "arm": "kestrel",
+      "repetition": 2,
+      "task_passed": false,
+      "artifact_only_passed": true,
+      "scope_passed": true,
+      "seconds": 86.587,
+      "artifact_sha256": "280f085da86091ece646b4260d11a451c3fe688d9161ec76d20024321262f7d9"
+    },
+    {
+      "arm": "kestrel",
+      "repetition": 1,
+      "task_passed": true,
+      "artifact_only_passed": true,
+      "scope_passed": true,
+      "seconds": 57.755,
+      "artifact_sha256": "869260440b3a11b595c10fcb1b2c7004c66b59f425a0390aed9853e5c6de3ee1"
+    },
+    {
+      "arm": "codex",
+      "repetition": 1,
+      "task_passed": true,
+      "artifact_only_passed": true,
+      "scope_passed": true,
+      "seconds": 46.319,
+      "artifact_sha256": "f7cb87a0baad3f88740796e8c41e7a0d740dc482e5bd60d36fd41f88b69610e5"
+    }
+  ]
+}
