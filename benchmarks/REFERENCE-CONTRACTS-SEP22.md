@@ -17,4 +17,18 @@ The live smoke uses Astra medium in standard mode with zero Jev calls. A disposa
 
 Result: **passed**, 106.003 seconds, three generation calls and four standard decision calls. The bad binding was recorded without dispatch, the diagnostic named `guidance`, the exact text was saved, no other workspace paths changed, and the agent returned `SAVED`. Source/harness hashes, observations, invocation-related traces and outcome hashes are in `results-reference-recovery.json`.
 
-This is a controlled fault-recovery smoke, not a native-Codex comparison or evidence that naturally generated plans never make reference mistakes. Extra reviews and a workspace inventory were needed before completion, so it does not demonstrate a speed win. The larger coding comparison was not rerun for this contract-only change; its last measured result remains Kestrel 1/2 versus native Codex 2/2.
+This is a controlled fault-recovery smoke, not a native-Codex comparison or evidence that naturally generated plans never make reference mistakes. Extra reviews and a workspace inventory were needed before completion, so it does not demonstrate a speed win. The preceding two-pair coding result remains Kestrel 1/2 versus native Codex 2/2. A subsequent single-pair regression is recorded below; it does not replace those results.
+
+
+## Final paired coding regression
+
+After the complete test suite passed, the same exposed three-module ledger task was run once per agent with Astra medium, standard mode, a five-minute deadline and a 20-generation-call allowance. The implementation and grader were unchanged during execution. The seeded schedule ran native Codex first, then Kestrel; one pair cannot separate ordering effects or model variability.
+
+| Agent | Completion | Independent grading | Seconds | Scope |
+| --- | --- | --- | ---: | --- |
+| Native Codex | Passed | 334/334 | 132.722 | Passed |
+| Kestrel standard | Passed | 334/334 | 235.894 | Passed |
+
+Kestrel used six generation calls, three standard decision calls and zero Jev calls. It needed a repair plan to retrieve full specification, write-invocation and verification evidence after its first completion review. It then completed without another code change. It was approximately 78% slower than native Codex, so this is a correctness tie on one known task, not a speed win or broad quality advantage. The generation-call allowance exceeds the product default of six, even though this successful run used six calls.
+
+`results-multifile-reference-contracts.json` retains both full outcomes, observations, traces, source/grader hashes, artifacts and scope manifests. `results-multifile-reference-contracts-artifact-audit.json` independently rechecks the saved files: both pass the original 334 checks and the additional post-protocol 80-digit Decimal exactness check. The earlier failed runs remain unchanged.
