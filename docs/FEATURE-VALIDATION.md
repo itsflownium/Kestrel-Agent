@@ -80,3 +80,9 @@ Single-image MCP results now expose a locally validated top-level image_id; mult
 ## General-agent data reconciliation
 
 A new independently graded saved-report task compares standard Kestrel with its data-audit skill against direct Astra medium. Kestrel completed 1/2 repetitions; native Codex completed 2/2. All four saved artifacts and final workspace scopes pass separately. Kestrel's failed run stopped during repair after its verifier could not inspect a truncated invocation, despite a correct saved report. That task remains failed. See `benchmarks/DATA-RECONCILIATION-SEP22.md` for timings, trace findings and limitations. Twenty-nine grader/benchmark regression tests passed; no fixture-specific product changes were made.
+
+## Retrievable invocation evidence
+
+Tool results now link to separate redacted invocation records, with status and executor-boundary flags. Context exposes those IDs and uses spare excerpt space for arguments. Repair guidance explains how retained checks persist without invalid references. Three new tests cover restart/retrieval/session isolation, larger complete argument excerpts within budget, and honest handling of legacy records. Existing tests still reject dropped failing checks and invalid references.
+
+The full suite passed **380 tests in 162.45 seconds**. Repeating the same data fixture produced Kestrel **2/2** and native Codex **2/2** passes, with no Kestrel repair rounds. The original failure remains retained. Rerunning an examined fixture is evidence for this repair, not broad task superiority or independent skill certification. See EVIDENCE.md and the benchmark follow-up for details and timing caveats.
