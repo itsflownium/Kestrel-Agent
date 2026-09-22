@@ -198,7 +198,12 @@ async def main():
                             record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=?',(sid,))]
                         else:
                             await runtime.start()
-                            thread=await runtime.codex.thread_start(model=settings.model,cwd=str(workspace),ephemeral=True,sandbox=Sandbox.workspace_write,approval_mode=ApprovalMode.deny_all,config={'web_search':'disabled','apps._default.enabled':False},developer_instructions='Complete the user task accurately. Use only the supplied workspace files. No connected apps, network, or unrelated files. Report actual observed outcomes.')
+                            config = (await runtime.rpc('config/read', {'includeLayers':False})).get('config', {})
+                            isolated = {'web_search':'disabled', 'apps._default.enabled':False,
+                                'sandbox_workspace_write.network_access':False,
+                                **{f'mcp_servers.{name}.enabled':False for name in (config.get('mcp_servers') or {})},
+                                **{f'plugins.{name}.enabled':False for name in (config.get('plugins') or {})}}
+                            thread=await runtime.codex.thread_start(model=settings.model,cwd=str(workspace),ephemeral=True,sandbox=Sandbox.workspace_write,approval_mode=ApprovalMode.deny_all,config=isolated,developer_instructions='Complete the user task accurately. Use only the supplied workspace files. No connected apps, network, or unrelated files. Report actual observed outcomes.')
                             turn=await thread.turn(case['prompt'],effort=ReasoningEffort.medium)
                             runtime.active_turn=turn
                             result=await turn.run()

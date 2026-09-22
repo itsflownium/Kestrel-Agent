@@ -1,0 +1,47 @@
+{
+  "seed": 20260922,
+  "cases_per_artifact": 500,
+  "source": "results-standard-coding-sep22.json",
+  "results": [
+    {
+      "arm": "kestrel",
+      "repetition": 2,
+      "passed": true,
+      "result": {
+        "exitCode": 0,
+        "stdout": "PASS 500\n",
+        "stderr": ""
+      }
+    },
+    {
+      "arm": "codex",
+      "repetition": 2,
+      "passed": true,
+      "result": {
+        "exitCode": 0,
+        "stdout": "PASS 500\n",
+        "stderr": ""
+      }
+    },
+    {
+      "arm": "codex",
+      "repetition": 1,
+      "passed": true,
+      "result": {
+        "exitCode": 0,
+        "stdout": "PASS 500\n",
+        "stderr": ""
+      }
+    },
+    {
+      "arm": "kestrel",
+      "repetition": 1,
+      "passed": true,
+      "result": {
+        "exitCode": 0,
+        "stdout": "PASS 500\n",
+        "stderr": ""
+      }
+    }
+  ]
+}

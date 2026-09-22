@@ -11,7 +11,7 @@ kestrel provider glm --model YOUR_MODEL_ID
 kestrel provider poolside --model YOUR_MODEL_ID
 ```
 
-Setup asks for the provider API key and then the **Jev API key** when missing. Both inputs are hidden; Enter skips. Interactive startup also asks for missing keys. Saved or environment-provided keys are reused without prompting. Skipping leaves the service unavailable until its key is configured; it does not silently disable Jev.
+Setup asks for the provider API key when missing. In **Jev mode**, it also asks for the Jev API key; **standard mode does not require or call Jev**. Inputs are hidden and saved or environment-provided keys are reused. Skipping a required key leaves that service unavailable. Use `/mode standard` for the main model alone, or `/mode jev` to enable Jev decisions.
 
 Inside the terminal, `/provider poolside` (or another name) asks for an editable base URL and model ID, then missing keys. `/provider` lists all names. `/model` lists model IDs from the active service when supported; `/model EXACT_ID` selects one. There is no hardcoded model catalog. `/model jev-key` and `/model provider-key` replace keys privately.
 
@@ -23,7 +23,7 @@ kestrel auth poolside
 kestrel auth jev
 ```
 
-`kestrel auth login` retains the official Codex OAuth flow and asks for a missing Jev key after sign-in. Other providers use API keys. No consumer-account OAuth is assumed for those services.
+`kestrel auth login` retains the official Codex OAuth flow. A Jev key is needed only when Jev mode is enabled. Other providers use API keys. No consumer-account OAuth is assumed for those services.
 
 ## Named setups
 
@@ -45,7 +45,7 @@ kestrel auth jev
 
 Aliases include `xiaomi`/`xiaomei` → `mimo`, `kimi` → `moonshot`, `zai`/`z.ai` → `glm`, `claude` → `anthropic`, and `custom` → `openai-compatible`.
 
-All endpoints can be overridden using `--base-url` or the interactive prompt. Use the endpoint appropriate to your account, region, deployment, and subscription. MiMo Token Plan and GLM Coding Plan credentials/endpoints can differ from general API access. A custom localhost HTTP server may omit its provider key; Jev still needs its own key.
+All endpoints can be overridden using `--base-url` or the interactive prompt. Use the endpoint appropriate to your account, region, deployment, and subscription. MiMo Token Plan and GLM Coding Plan credentials/endpoints can differ from general API access. A custom localhost HTTP server may omit its provider key; optional Jev mode needs its own key.
 
 MiMo uses the `api-key` header and `max_completion_tokens`. OpenAI uses `max_completion_tokens`; other compatible presets default to `max_tokens`. Anthropic uses native Messages with `x-api-key`; other listed services use Chat Completions with Bearer authentication. Advanced configuration can override these fields. JSON-schema support differs across models, so setup defaults to a prompted schema with local validation instead of assuming native structured-output support.
 
