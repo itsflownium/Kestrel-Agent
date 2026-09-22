@@ -97,11 +97,14 @@ def evaluate(registry, name, workflow, suite_path, store):
 def export(registry, name, workflow, evaluation_id, store, *, replace=False):
     from .completion import canonical
     from .workflow_templates import install
+    from .workflow_eval import runtime_fingerprint
     value = report(store, evaluation_id)
     if value.get('skill_name') != name or value.get('workflow_export') != workflow:
         raise ValueError('Evaluation belongs to a different skill or workflow export.')
     if not value.get('passed') or not value.get('positive_cases') or not value.get('negative_cases'):
         raise ValueError('Export requires a passing recorded suite with positive and negative cases.')
+    if value.get('runtime_sha256') != runtime_fingerprint():
+        raise ValueError('Evaluation runtime changed or was not recorded; rerun the suite before exporting.')
     _, content, package_hash = snapshot(registry, name)
     if package_hash != value.get('skill_package_sha256'):
         raise ValueError('Skill package changed since evaluation; test this version before exporting.')

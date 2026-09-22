@@ -130,3 +130,48 @@ def test_fixture_suite_is_a_bounded_regular_file(tmp_path,kind):
     else: path.write_bytes(b'x'*1_000_001)
     with pytest.raises(ValueError,match='regular non-symlink'):
         read_suite_bytes(path)
+
+
+def test_parameter_regex_is_bounded_by_worker_timeout(tmp_path, monkeypatch):
+    import time
+    from kestrel_agent import workflow_eval
+    template = read(TEMPLATE)
+    template['parameters']['properties']['source']['pattern'] = '^(a+)+$'
+    suite = json.loads(SUITE.read_text())
+    suite['cases'] = suite['cases'][:1]
+    suite['cases'][0]['parameters']['source'] = 'a' * 35 + '!'
+    path = tmp_path/'template.json'; path.write_text(json.dumps(template))
+    cases = tmp_path/'suite.json'; cases.write_text(json.dumps(suite))
+    monkeypatch.setattr(workflow_eval, 'worker_timeout', lambda count: 2)
+    # Validation in the parent must never run, even before process creation.
+    monkeypatch.setattr(workflow_eval, 'validate_plans', lambda *args: pytest.fail('Unbounded parent validation'))
+    started = time.monotonic()
+    with pytest.raises(ValueError, match='timed out; no validation report'):
+        evaluate_files(path, cases)
+    assert time.monotonic() - started < 8
+    assert not (tmp_path/'saved').exists()
+
+
+def test_worker_runtime_mismatch_is_not_accepted(monkeypatch):
+    from kestrel_agent import workflow_eval
+    monkeypatch.setattr(workflow_eval, 'runtime_fingerprint', lambda: 'different-parent-runtime')
+    with pytest.raises(ValueError, match='Runtime changed'):
+        evaluate_files(TEMPLATE, SUITE)
+
+
+def test_runtime_fingerprint_tracks_sources_and_dependency_versions(tmp_path, monkeypatch):
+    from importlib import metadata
+    from types import SimpleNamespace
+    from kestrel_agent import workflow_eval
+    source = tmp_path/'workflow_eval.py'
+    source.write_text('# original implementation\n')
+    monkeypatch.setattr(workflow_eval, '__file__', str(source))
+    packages = [SimpleNamespace(metadata={'Name': 'fixture-dependency'}, version='1.0')]
+    monkeypatch.setattr(metadata, 'distributions', lambda: packages)
+    original = workflow_eval.runtime_fingerprint()
+    assert workflow_eval.runtime_fingerprint() == original
+    source.write_text('# changed implementation\n')
+    assert workflow_eval.runtime_fingerprint() != original
+    source.write_text('# original implementation\n')
+    packages[0].version = '2.0'
+    assert workflow_eval.runtime_fingerprint() != original

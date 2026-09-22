@@ -19,6 +19,24 @@ from .completion import canonical, parse_json
 from .workflow_templates import compile_workflow, read
 
 
+def worker_timeout(case_count):
+    return 30 * case_count + 10
+
+
+def runtime_fingerprint():
+    """Conservative local provenance, not independent or tamper-proof certification."""
+    from importlib.metadata import distributions
+    import platform
+    root = Path(__file__).resolve().parent
+    sources = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+               for path in sorted(root.rglob("*.py"))}
+    packages = sorted((dist.metadata["Name"], dist.version) for dist in distributions()
+                      if dist.metadata["Name"])
+    value = {"sources": sources, "packages": packages, "python": sys.version,
+             "platform": platform.platform()}
+    return hashlib.sha256(canonical(value).encode()).hexdigest()
+
+
 class Fixture(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
     name: str = Field(min_length=1, max_length=100)
@@ -86,6 +104,7 @@ async def run_worker(template, suite):
     from .scheduler import execute_plan
     from .completion import register, evaluate
 
+    fingerprint = runtime_fingerprint()
     plans = validate_plans(template, suite)
     settings = Settings(agent_mode='standard', shell=False, network=False,
                         permission='workspace', confirm_writes=False)
@@ -133,7 +152,9 @@ async def run_worker(template, suite):
                             'error': error})
     finally:
         store.close()
-    return {'version': 1, 'template_sha256': plans[0][1],
+    if runtime_fingerprint() != fingerprint:
+        raise ValueError('Runtime changed during evaluation; rerun the suite.')
+    return {'version': 1, 'runtime_sha256': fingerprint, 'template_sha256': plans[0][1],
             'suite_sha256': hashlib.sha256(canonical(suite.model_dump()).encode()).hexdigest(),
             'passed': all(result['passed'] for result in results), 'cases': results,
             'positive_cases': sum(case.kind == 'positive' for case in suite.cases),
@@ -156,7 +177,14 @@ def read_suite_bytes(path):
 def evaluate_files(template_path, suite_path):
     template = read(template_path)
     suite = Suite.model_validate(parse_json(read_suite_bytes(suite_path)))
-    validate_plans(template, suite)
+    # Only cheap structural checks belong in the parent. Compiling parameters
+    # can execute caller-supplied regular expressions and must be time bounded.
+    if any(not isinstance(action, dict)
+           or action.get('tool') not in {'read_file', 'write_file', 'list_files', 'search_files'}
+           or str(action.get('condition', 'always')).strip().lower() != 'always'
+           for action in template['actions']):
+        raise ValueError('Offline fixtures support unconditional file tools only; no models, shell, network or connectors.')
+    fingerprint = runtime_fingerprint()
     with tempfile.TemporaryDirectory(prefix='kestrel-workflow-eval-') as directory:
         # A separate process owns its private home; never mutate the caller's
         # global environment or write fixture sessions into the user's database.
@@ -167,12 +195,15 @@ def evaluate_files(template_path, suite_path):
             process = subprocess.run([sys.executable, '-m', 'kestrel_agent.workflow_eval'],
                                      input=json.dumps({'template': template, 'suite': suite.model_dump()}, ensure_ascii=False),
                                      text=True, capture_output=True, env=env, cwd=directory,
-                                     timeout=30 * len(suite.cases) + 10)
+                                     timeout=worker_timeout(len(suite.cases)))
         except subprocess.TimeoutExpired as error:
             raise ValueError('Offline fixture worker timed out; no validation report was accepted.') from error
         if process.returncode:
             raise ValueError('Offline fixture worker failed; no validation report was accepted.')
-        return parse_json(process.stdout)
+        result = parse_json(process.stdout)
+        if result.get('runtime_sha256') != fingerprint or runtime_fingerprint() != fingerprint:
+            raise ValueError('Runtime changed during evaluation; rerun the suite.')
+        return result
 
 
 if __name__ == '__main__':
