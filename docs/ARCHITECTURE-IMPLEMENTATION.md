@@ -33,3 +33,7 @@ The initial pending list above records the original audit, not the current featu
 The generation-only Codex adapter now explicitly disables installed plugins as well as configured MCP servers, apps, and shell execution. The native browser benchmark exposed why plugin configuration must be included; native tool calls belong to the controller's execution path, not its generation component.
 
 Still unverified or incomplete: native desktop/vision, live Docker daemon execution, broad provider conformance, independent skill/workflow behavioral certification, compact-loop assessment, and repeated held-out comparisons. Neither passing regression tests nor a faster isolated browser task establishes universal superiority or completes the original goal.
+
+## Docker recovery checkpoint
+
+The Docker execution backend now persists pre-launch cleanup receipts, holds OS-level workspace ownership during execution/recovery, and verifies run labels before removal. It checks cleanup after ordinary client exit as well as cancellation, and rejects a changed Docker-target fingerprint. Process-fixture tests kill a real worker and verify recovery by a new executor before another run starts. This improves the execution/recovery boundary; it does not establish actual daemon isolation or replace the pending live Docker and provider-conformance gates.
