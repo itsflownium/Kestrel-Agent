@@ -78,6 +78,12 @@ except ModuleNotFoundError:
     from data_reconciliation import case as reconciliation_case, grade_artifact
 CASES.append(reconciliation_case())
 
+try:
+    from benchmarks.source_synthesis import fixture as source_case, grade_sources
+except ModuleNotFoundError:
+    from source_synthesis import fixture as source_case, grade_sources
+CASES.append(source_case())
+
 def json_answer(text):
     return json.loads(text)
 
@@ -86,6 +92,10 @@ def numeric_mapping(value, expected):
 
 async def grade(case,answer,workspace,runtime,events,commands):
     try:
+        if case == 'source_synthesis':
+            artifact = (workspace/'claims.json').read_text()
+            files = {path.name:path.read_text() for path in workspace.glob('source-*.md')}
+            return grade_sources(files, artifact, answer), {'saved_claims':artifact}
         if case == 'data_reconciliation':
             artifact = (workspace/'report.json').read_text()
             return grade_artifact((workspace/'ledger.csv').read_text(), artifact, answer), {'saved_report': artifact}
@@ -165,9 +175,11 @@ async def main():
     parser.add_argument('--session-mode', choices=['fresh','task'],default='fresh')
     parser.add_argument('--no-setup-cache',action='store_true')
     parser.add_argument('--seed',type=int,default=20260921)
+    parser.add_argument('--fixture-seed', type=int, default=19073)
     parser.add_argument('--repeat',type=int,default=1,choices=range(1,11))
     args=parser.parse_args()
     tasks=[c for c in CASES if not args.tasks or c['id'] in args.tasks.split(',')]
+    tasks=[source_case(args.fixture_seed) if case['id']=='source_synthesis' else case for case in tasks]
     load_secrets()
     source=Path(__file__).resolve().parents[1]/'src/kestrel_agent'
     source_hash=hashlib.sha256(b''.join(p.read_bytes() for p in sorted(source.glob('*.py')))).hexdigest()
@@ -195,7 +207,7 @@ async def main():
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
                 commands=[]
-                record={'task':case['id'],'fixture_revision':case.get('revision',1),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'skill':args.skill if arm=='kestrel' else None,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
+                record={'task':case['id'],'fixture_revision':case.get('revision',1),'fixture_seed':case.get('fixture_seed'),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'skill':args.skill if arm=='kestrel' else None,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
                 try:
                     async with asyncio.timeout(180):
                         if arm=='kestrel':
