@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
 import re
 import shutil
 import uuid
 from pathlib import Path
+
+from .config import atomic_write, home
 
 
 def docker_argv(settings, workspace: Path, argv: list[str], cwd: str, name: str) -> list[str]:
@@ -24,6 +28,7 @@ def docker_argv(settings, workspace: Path, argv: list[str], cwd: str, name: str)
     if settings.permission == 'read-only':
         mount += ',readonly'
     result = ['docker', 'run', '--rm', '--pull=never', '--name', name,
+              '--label', f'io.kestrel.owner={name}',
               '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges',
               '--pids-limit=256', '--memory=2g', '--cpus=2',
               '--tmpfs', '/tmp:rw,nosuid,nodev,size=256m',
@@ -39,6 +44,18 @@ class DockerExecutor:
         self.settings, self.workspace = settings, workspace
         self.active: dict[str, asyncio.subprocess.Process] = {}
         self.pending_cleanup: set[str] = set()
+        self.targets: dict[str, str] = {}
+
+    async def _target_fingerprint(self):
+        code, output = await self._cleanup_command('context', 'inspect')
+        if code or not output or len(output) >= 4096:
+            raise RuntimeError('Cannot identify the Docker context; no command was started.')
+        context = json.loads(output)
+        if not isinstance(context, list) or len(context) != 1 or not isinstance(context[0], dict):
+            raise RuntimeError('Docker returned invalid context metadata.')
+        configuration = {key: os.environ.get(key) for key in (
+            'DOCKER_HOST', 'DOCKER_CONTEXT', 'DOCKER_CONFIG', 'DOCKER_TLS_VERIFY', 'DOCKER_CERT_PATH')}
+        return hashlib.sha256(json.dumps([context, configuration], sort_keys=True).encode()).hexdigest()
 
     async def _cleanup_command(self, *argv):
         process = await asyncio.create_subprocess_exec('docker', *argv,
@@ -66,6 +83,19 @@ class DockerExecutor:
     async def _remove(self, name):
         self.pending_cleanup.add(name)
         try:
+            if name in self.targets and await self._target_fingerprint() != self.targets[name]:
+                raise RuntimeError('Docker context changed; restore the original target before cleanup.')
+            code, owner = await self._cleanup_command('inspect', '--format',
+                '{{ index .Config.Labels "io.kestrel.owner" }}', name)
+            if code:
+                code, output = await self._cleanup_command('ps', '-aq', '--filter', f'name=^/{name}$')
+                if code or output.strip():
+                    raise RuntimeError('Container ownership or absence could not be confirmed.')
+                self.pending_cleanup.discard(name)
+                self.targets.pop(name, None)
+                return
+            if owner.decode(errors='replace').strip() != name:
+                raise RuntimeError('Container ownership label does not match the recorded run.')
             code, _ = await self._cleanup_command('rm', '-f', name)
             if code:
                 # --rm may already have removed it. Verify absence instead of
@@ -73,20 +103,71 @@ class DockerExecutor:
                 code, output = await self._cleanup_command('ps', '-aq', '--filter', f'name=^/{name}$')
                 if code or output.strip():
                     raise RuntimeError('Container still exists or Docker is unavailable.')
-        except (OSError, asyncio.TimeoutError, RuntimeError) as error:
+        except (OSError, ValueError, asyncio.TimeoutError, RuntimeError) as error:
             raise RuntimeError(f'Could not confirm container cleanup: {name}. '
-                               'Restore Docker access and retry cleanup before continuing.') from error
+                               'Restore the original Docker context/access and verify container ownership '
+                               'before retrying cleanup.') from error
         self.pending_cleanup.discard(name)
+        self.targets.pop(name, None)
+
+    def receipt_path(self):
+        key = hashlib.sha256(str(self.workspace.resolve()).encode()).hexdigest()
+        return home() / 'docker_runs' / key / 'pending.json'
 
     async def command(self, argv, cwd):
-        if self.pending_cleanup:
-            await self.close()
-        if not shutil.which('docker'):
-            raise RuntimeError('Docker CLI is missing. Install Docker or select the Codex execution backend in /setup.')
-        name = 'kestrel-' + uuid.uuid4().hex
-        command = docker_argv(self.settings, self.workspace, argv, cwd, name)
-        process = await asyncio.create_subprocess_exec(*command, stdin=asyncio.subprocess.DEVNULL,
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        # An OS lock is released on process death. A PID file cannot establish
+        # ownership reliably because PIDs can be reused after a crash.
+        from .jobs import ownership
+        receipt = self.receipt_path()
+        with ownership(receipt.with_suffix('.lock')) as acquired:
+            if not acquired:
+                raise RuntimeError('Another Kestrel Docker command owns this workspace. Wait for it to finish.')
+            if receipt.is_symlink():
+                raise RuntimeError('Docker cleanup receipt must not be a symbolic link.')
+            if receipt.exists():
+                if receipt.stat().st_size > 16000:
+                    raise RuntimeError('Invalid Docker cleanup receipt; inspect it before continuing.')
+                saved = json.loads(receipt.read_text())
+                if (not isinstance(saved, dict) or saved.get('workspace') != str(self.workspace.resolve())
+                        or not isinstance(saved.get('name'), str)
+                        or not re.fullmatch(r'kestrel-[a-f0-9]{32}', saved['name'])
+                        or not isinstance(saved.get('target'), str)
+                        or not re.fullmatch(r'[a-f0-9]{64}', saved['target'])):
+                    raise RuntimeError('Invalid Docker cleanup receipt; inspect it before continuing.')
+                self.targets[saved['name']] = saved['target']
+                await self._remove(saved['name'])
+                receipt.unlink()
+            if self.pending_cleanup:
+                await self.close()
+            if not shutil.which('docker'):
+                raise RuntimeError('Docker CLI is missing. Install Docker or select the Codex execution backend in /setup.')
+            name = 'kestrel-' + uuid.uuid4().hex
+            command = docker_argv(self.settings, self.workspace, argv, cwd, name)
+            target = await self._target_fingerprint()
+            atomic_write(receipt, json.dumps({'name': name, 'workspace': str(self.workspace.resolve()), 'target': target}))
+            self.targets[name] = target
+            try:
+                return await self._command(command, name)
+            finally:
+                # Confirm cleanup after every exit, including a disconnected or
+                # killed Docker client. Failed confirmation leaves the journal.
+                await asyncio.shield(self._remove(name))
+                receipt.unlink()
+
+    async def _command(self, command, name):
+        launch = asyncio.create_task(asyncio.create_subprocess_exec(*command, stdin=asyncio.subprocess.DEVNULL,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE))
+        cancelled = False
+        # Cancellation during subprocess creation must not lose the handle to a
+        # Docker client that has already started. Reap it before container cleanup.
+        while True:
+            try:
+                process = await asyncio.shield(launch)
+                break
+            except asyncio.CancelledError:
+                if launch.cancelled():
+                    raise
+                cancelled = True
         self.active[name] = process
         async def capture(stream):
             chunks, kept, total = [], 0, 0
@@ -100,14 +181,13 @@ class DockerExecutor:
         output = asyncio.create_task(capture(process.stdout))
         errors = asyncio.create_task(capture(process.stderr))
         try:
+            if cancelled:
+                raise asyncio.CancelledError
             await asyncio.wait_for(asyncio.gather(process.wait(), output, errors), self.settings.command_timeout_seconds)
             stdout, out_cut = output.result()
             stderr, err_cut = errors.result()
             return {'exitCode': process.returncode, 'stdout': stdout, 'stderr': stderr,
                     'output_truncated': out_cut or err_cut, 'execution_backend': 'docker'}
-        except (asyncio.CancelledError, asyncio.TimeoutError):
-            await asyncio.shield(self._remove(name))
-            raise
         finally:
             if process.returncode is None:
                 process.kill()
