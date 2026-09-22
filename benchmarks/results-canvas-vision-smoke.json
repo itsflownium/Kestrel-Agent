@@ -1,0 +1,39 @@
+{
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "agent_mode": "standard",
+  "passed": true,
+  "harness_sha256": "58dce41779ddf92581f54bb239429b316c8527a8229b44070dc69acffec43ceb",
+  "location": {
+    "content": "{\"x\":490,\"y\":245.5}",
+    "source": "before.png",
+    "evidence_kind": "model_image_interpretation",
+    "mime": "image/png",
+    "width": 1280,
+    "height": 720,
+    "sha256": "a3e2bd138084f51a881764dcf8831d866f88752abb589d349cd70cc90e018616",
+    "observed_at": 1790040448.765867
+  },
+  "point": {
+    "x": 490,
+    "y": 245.5
+  },
+  "readback": {
+    "content": "272EB07A",
+    "source": "after.png",
+    "evidence_kind": "model_image_interpretation",
+    "mime": "image/png",
+    "width": 1280,
+    "height": 720,
+    "sha256": "b647449d9078550447698fae43443f994384e5bb82090a0ab18882cc9e051947",
+    "observed_at": 1790040456.001704
+  },
+  "expected_code": "272EB07A",
+  "records": [
+    {
+      "kind": "green"
+    }
+  ],
+  "generation_calls": 2,
+  "jev_calls": 0
+}

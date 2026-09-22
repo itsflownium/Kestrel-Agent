@@ -75,7 +75,11 @@ async def test_browser_tools_work_through_real_mcp_transport():
     browser_server = create_browser_server(port, headless=True)
     mcp_app = browser_server.streamable_http_app()
     # MCP's lifespan also owns browser cleanup; fixture page shares the listener.
-    app = Starlette(routes=[Route('/fixture', lambda request: HTMLResponse(PAGE.decode())), Mount('/', app=mcp_app)], lifespan=mcp_app.router.lifespan_context)
+    canvas = '''<body style="margin:0"><canvas id="c" width="400" height="240"></canvas><p id="result"></p><script>
+    const c=document.getElementById('c'),g=c.getContext('2d');g.fillStyle='green';g.fillRect(80,60,140,60);
+    c.onclick=e=>document.getElementById('result').textContent=(e.offsetX>80&&e.offsetX<220&&e.offsetY>60&&e.offsetY<120)?'Canvas clicked':'Wrong position';
+    </script></body>'''
+    app = Starlette(routes=[Route('/fixture', lambda request: HTMLResponse(PAGE.decode())), Route('/canvas', lambda request: HTMLResponse(canvas)), Mount('/', app=mcp_app)], lifespan=mcp_app.router.lifespan_context)
     server = uvicorn.Server(uvicorn.Config(app, log_level='error'))
     task = asyncio.create_task(server.serve(sockets=[socket_]))
     pool = ConnectionPool(Settings(provider='anthropic', mcp_connections={'browser': Connection(url=f'http://127.0.0.1:{port}/mcp')}))
@@ -84,7 +88,7 @@ async def test_browser_tools_work_through_real_mcp_transport():
             while not server.started:
                 await asyncio.sleep(.01)
         catalog = await pool.catalog()
-        assert {t['name'] for t in catalog[0]['tools']} == {'browser_open','browser_tabs','browser_snapshot','browser_act','browser_screenshot'}
+        assert {t['name'] for t in catalog[0]['tools']} == {'browser_open','browser_tabs','browser_snapshot','browser_act','browser_screenshot','browser_click_at'}
         async def call(tool, arguments):
             result = await pool.call('browser', tool, arguments)
             assert not result.get('isError'), result
@@ -93,7 +97,8 @@ async def test_browser_tools_work_through_real_mcp_transport():
         state = await call('browser_open', {'url': f'http://127.0.0.1:{port}/fixture'})
         screenshot = await pool.call('browser', 'browser_screenshot', {'tab':state['tab']})
         assert not screenshot.get('isError'), screenshot
-        state = json.loads(screenshot['content'][0]['text'])
+        state = screenshot['structuredContent']
+        assert state == json.loads(screenshot['content'][0]['text'])
         pixels = next(block for block in screenshot['content'] if block['type'] == 'image')
         assert 'data' not in pixels
         assert pool.images.get(pixels['image_id']).width > 0
@@ -104,6 +109,13 @@ async def test_browser_tools_work_through_real_mcp_transport():
         save = next(t['target'] for t in state['targets'] if t['label'] == 'Save')
         state = await call('browser_act', {'tab':state['tab'], 'observation':state['observation'], 'target':save, 'operation':'click'})
         assert 'Saved: Through MCP' in state['text']
+        state = await call('browser_open', {'url':f'http://127.0.0.1:{port}/canvas'})
+        screenshot = await pool.call('browser','browser_screenshot',{'tab':state['tab']})
+        state = screenshot['structuredContent']
+        assert state == json.loads(screenshot['content'][0]['text'])
+        assert not state['targets']
+        state = await call('browser_click_at', {'tab':state['tab'],'observation':state['observation'],'x':150,'y':90})
+        assert 'Canvas clicked' in state['text']
     finally:
         await pool.close()
         server.should_exit = True
