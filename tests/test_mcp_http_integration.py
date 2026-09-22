@@ -12,7 +12,12 @@ from kestrel_agent.connections import Connection, ConnectionPool
 
 
 @pytest.mark.asyncio
-async def test_real_http_catalog_call_and_persistent_session_cleanup():
+async def test_real_http_catalog_call_and_persistent_session_cleanup(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    from kestrel_agent.schema import bind
+    from kestrel_agent.tools import ToolExecutor
+    monkeypatch.setenv('KESTREL_HOME', str(tmp_path/'state'))
     listener = socket.socket()
     listener.bind(('127.0.0.1', 0))
     port = listener.getsockname()[1]
@@ -53,6 +58,15 @@ async def test_real_http_catalog_call_and_persistent_session_cleanup():
         picture = await pool.call('fixture', 'picture', {})
         block = next(block for block in picture['content'] if block['type'] == 'image')
         assert 'data' not in block and pool.images.get(block['image_id']).width == 20
+        assert picture['image_id'] == block['image_id']
+        runtime = SimpleNamespace(connections=pool, complete=AsyncMock(return_value='A blue rectangle.'))
+        tool = ToolExecutor(Settings(), tmp_path, runtime, None, None, 'fixture', AsyncMock())
+        arguments = bind({'source': '${shot.image_id}', 'question': 'What is visible?'}, {'shot': picture})
+        inspection = await tool.execute('inspect_image', arguments)
+        sent = runtime.complete.call_args.kwargs['images'][0]
+        assert sent.data == pool.images.get(picture['image_id']).data
+        assert inspection['sha256'] == sent.sha256
+        assert inspection['evidence_kind'] == 'model_image_interpretation'
         await pool.close()
         assert not pool.images.entries
         assert worker.done() and not pool.workers

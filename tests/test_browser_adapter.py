@@ -97,6 +97,8 @@ async def test_browser_tools_work_through_real_mcp_transport():
         pixels = next(block for block in screenshot['content'] if block['type'] == 'image')
         assert 'data' not in pixels
         assert pool.images.get(pixels['image_id']).width > 0
+        assert screenshot['image_id'] == pixels['image_id']
+        assert screenshot['image_refs'][0]['content_index'] == 1
         field = next(t['target'] for t in state['targets'] if t['label'] == 'Name')
         state = await call('browser_act', {'tab':state['tab'], 'observation':state['observation'], 'target':field, 'operation':'fill', 'value':'Through MCP'})
         save = next(t['target'] for t in state['targets'] if t['label'] == 'Save')

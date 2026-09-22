@@ -19,7 +19,7 @@ from .providers import Judge, Runtime
 from .store import Store
 
 CATALOG = """
-inspect_image: {source, question}. Inspect a readable workspace image path or image: ID from a connected tool. Sends actual pixels to the selected model; requires that model to support vision. Returns a model interpretation with source hash and dimensions. This is not evidence that an action occurred. Re-observe UI after changes; never treat image metadata alone as visual evidence.
+inspect_image: {source, question}. Inspect a readable workspace image path or image: ID from a connected tool. Single-image MCP results expose image_id: bind ${shot.image_id} as source. Multiple images expose image_refs: choose an observed index such as ${shot.image_refs.0.image_id}; do not invent structuredContent fields. Sends actual pixels to the selected model; requires vision support. Returns a model interpretation with source hash and dimensions, not evidence that an action occurred. Re-observe UI after changes; metadata alone is not visual evidence.
 list_skills: {query: ''}. Discover installed portable skills by description without loading their instructions.
 load_skill: {name, reference: null}. Load a skill's procedural guidance, or one relative reference file from its package. Use a skill only when it helps the actual request. It never changes permissions or authorizes new actions. Missing declared prerequisites fail clearly. Scripts are not executed by loading.
 list_files: {path: '.', pattern: '*', limit: 100}. limit must be 1–300. Returns files relative to workspace. Skips hidden/vendor directories.
