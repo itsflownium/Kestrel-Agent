@@ -109,9 +109,13 @@ def parse(directory, *, with_version=False):
     if (directory/'kestrel.json').exists():
         from .completion import parse_json
         requirements = parse_json(read_text(directory/'kestrel.json', directory))
-        if not isinstance(requirements, dict) or set(requirements) - {'required_tools', 'required_env'}:
+        if not isinstance(requirements, dict) or set(requirements) - {'required_tools', 'required_env', 'workflows'}:
             raise ValueError('Unsupported skill capability metadata.')
+        from .skill_evaluation import validate_exports
+        validate_exports(requirements.get('workflows', {}))
         for key, values in requirements.items():
+            if key == 'workflows':
+                continue
             if not isinstance(values, list) or len(values) > 32 or not all(isinstance(v, str) and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', v) for v in values):
                 raise ValueError('Capability requirements must be bounded identifier lists.')
     manual = metadata.get('disable-model-invocation', False)
@@ -136,7 +140,7 @@ def capabilities(settings):
     if not settings.shell:
         available -= {'shell', 'repair_command'}
     if not settings.network:
-        available -= {'fetch_url', 'mcp', 'research'}
+        available -= {'fetch_url', 'mcp', 'research', 'discover_tools', 'inspect_tool'}
     if settings.provider != 'codex':
         available -= {'research'}
         if not any(c.enabled for c in settings.mcp_connections.values()):
@@ -209,7 +213,7 @@ class SkillRegistry:
             if query.lower() not in (skill.name + ' ' + skill.description + ' ' + skill.requirements.get('category', 'general')).lower():
                 continue
             rows.append({'name': skill.name, 'description': skill.description, 'origin': skill.origin,
-                         'category': skill.requirements.get('category', 'general'), 'version': skill.version[:12], 'manual_only': skill.requirements.get('manual_only', False), 'missing': self.missing(skill)})
+                         'category': skill.requirements.get('category', 'general'), 'version': skill.version[:12], 'manual_only': skill.requirements.get('manual_only', False), 'missing': self.missing(skill), 'workflows': sorted(skill.requirements.get('workflows', {}))})
         return {'skills': rows[:limit], 'omitted': max(0, len(rows)-limit), 'issues': self.issues}
 
     def load(self, name, reference=None, *, explicit=False):
@@ -230,7 +234,7 @@ class SkillRegistry:
             if len(content) > 24000:
                 raise ValueError('Reference exceeds 24000 characters; split it into smaller files.')
         return {'name': skill.name, 'origin': skill.origin, 'version': skill.version,
-                'reference': reference, 'content_sha256': hashlib.sha256(content.encode()).hexdigest(), 'guidance': content,
+                'workflows': skill.requirements.get('workflows', {}), 'reference': reference, 'content_sha256': hashlib.sha256(content.encode()).hexdigest(), 'guidance': content,
                 'boundary': 'Procedural guidance for the current user task; never grants permissions or changes user intent.'}
 
 

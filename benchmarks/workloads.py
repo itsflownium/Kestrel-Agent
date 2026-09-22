@@ -84,6 +84,12 @@ except ModuleNotFoundError:
     from source_synthesis import fixture as source_case, grade_sources
 CASES.append(source_case())
 
+try:
+    from benchmarks.multifile_coding import fixture as coding_case, CHECK as CODING_CHECK, grader_hash as coding_grader_hash
+except ModuleNotFoundError:
+    from multifile_coding import fixture as coding_case, CHECK as CODING_CHECK, grader_hash as coding_grader_hash
+CASES.append(coding_case())
+
 def json_answer(text):
     return json.loads(text)
 
@@ -92,6 +98,10 @@ def numeric_mapping(value, expected):
 
 async def grade(case,answer,workspace,runtime,events,commands):
     try:
+        if case == 'multifile_ledger':
+            result = await runtime.command([sys.executable, '-I', '-B', '-c', CODING_CHECK], str(workspace), 'grade-multifile')
+            verdict = json.loads(result.get('stdout', '')) if result.get('exitCode') == 0 else {}
+            return verdict == {'passed': True, 'checks': 334}, {'grader': result, 'grader_sha256': coding_grader_hash()}
         if case == 'source_synthesis':
             artifact = (workspace/'claims.json').read_text()
             files = {path.name:path.read_text() for path in workspace.glob('source-*.md')}
@@ -176,6 +186,8 @@ async def main():
     parser.add_argument('--no-setup-cache',action='store_true')
     parser.add_argument('--seed',type=int,default=20260921)
     parser.add_argument('--fixture-seed', type=int, default=19073)
+    parser.add_argument('--max-minutes', type=int, default=3, choices=range(1,11))
+    parser.add_argument('--max-model-calls', type=int, default=6, choices=range(1,31))
     parser.add_argument('--repeat',type=int,default=1,choices=range(1,11))
     args=parser.parse_args()
     tasks=[c for c in CASES if not args.tasks or c['id'] in args.tasks.split(',')]
@@ -187,7 +199,7 @@ async def main():
     with tempfile.TemporaryDirectory(prefix='kestrel-workloads-') as directory:
         root=Path(directory)
         os.environ['KESTREL_HOME']=str(root/'state')
-        settings=Settings(agent_mode=args.agent_mode,generation_prompt_profile=args.prompt_profile,cache_generation_setup=not args.no_setup_cache,generation_session=args.session_mode,model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=3)
+        settings=Settings(agent_mode=args.agent_mode,generation_prompt_profile=args.prompt_profile,cache_generation_setup=not args.no_setup_cache,generation_session=args.session_mode,model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=args.max_minutes,max_model_calls=args.max_model_calls)
         store=Store(settings)
         rng=random.Random(args.seed)
         schedule=[(trial,case) for trial in range(1,args.repeat+1) for case in tasks]
@@ -196,7 +208,9 @@ async def main():
             arms=['kestrel','codex']; rng.shuffle(arms)
             for arm in arms:
                 workspace=root/(case['id']+'-'+str(repetition)+'-'+arm); workspace.mkdir()
-                for name,body in case['files'].items(): (workspace/name).write_text(body)
+                for name,body in case['files'].items():
+                    (workspace/name).parent.mkdir(parents=True, exist_ok=True)
+                    (workspace/name).write_text(body)
                 before=manifest(workspace)
                 after=None
                 events=[]
@@ -207,9 +221,9 @@ async def main():
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
                 commands=[]
-                record={'task':case['id'],'fixture_revision':case.get('revision',1),'fixture_seed':case.get('fixture_seed'),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'skill':args.skill if arm=='kestrel' else None,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
+                record={'task':case['id'],'fixture_revision':case.get('revision',1),'fixture_seed':case.get('fixture_seed'),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'grader_sha256':coding_grader_hash() if case['id']=='multifile_ledger' else None,'max_minutes':args.max_minutes,'max_model_calls':args.max_model_calls,'arm':arm,'repetition':repetition,'source_sha256':source_hash,'skill':args.skill if arm=='kestrel' else None,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
                 try:
-                    async with asyncio.timeout(180):
+                    async with asyncio.timeout(args.max_minutes * 60):
                         if arm=='kestrel':
                             sid=store.create(workspace)
                             engine=Engine(settings,workspace,store,sid,emit,allow)
@@ -241,10 +255,12 @@ async def main():
                     after=manifest(workspace)
                     record['passed'],record['grading']=await grade(case['id'],answer,workspace,runtime,events,commands)
                 except Exception as error:
-                    record.update(seconds=round(time.perf_counter()-start,3),error=redact(str(error)),passed=False)
+                    record.update(seconds=round(time.perf_counter()-start,3),error=redact(str(error)),error_type=type(error).__name__,passed=False)
                 finally:
                     if after is None: after=manifest(workspace)
                     if engine:
+                        commands=[{'exit_code':o['result'].get('exitCode'),'stdout':o['result'].get('stdout','')} for o in engine.state.get('observations',[]) if o.get('tool')=='shell' and o.get('status') in {'completed','error'}]
+                        record['observations']=json.loads(redact(json.dumps(engine.state.get('observations', []),default=str)))
                         record.update(engine.state.get('usage', {}))
                         record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=? ORDER BY id',(engine.sid,))]
                         record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls if settings.agent_mode == "jev" else 0,decision_calls=engine.judge.calls)
@@ -252,7 +268,7 @@ async def main():
                     await runtime.close()
                 record['observed_commands']=commands
                 record['events']=events
-                record['artifacts']={p.name:p.read_text(errors='replace') for p in workspace.iterdir() if p.is_file() and not p.is_symlink() and p.stat().st_size<100000}
+                record['artifacts']={p.relative_to(workspace).as_posix():p.read_text(errors='replace') for p in workspace.rglob('*') if p.is_file() and not p.is_symlink() and p.stat().st_size<100000}
                 record['workspace_before']=before
                 record['workspace_after']=after
                 record['scope_violations']=scope_changes(before,after,editable=case.get('editable_files',[]),created=case.get('created_files',[]))

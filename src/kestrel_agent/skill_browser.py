@@ -19,7 +19,7 @@ class SkillCompleter(Completer):
         candidates = {command: 'Command' for command in self.commands}
         for name, skill in self.skills.items():
             candidates['/' + name] = skill.description
-            for action in ('show', 'inspect', 'use'):
+            for action in ('show', 'inspect', 'use', 'workflows'):
                 candidates[f'/skills {action} {name}'] = skill.description
         for candidate, description in candidates.items():
             if candidate.startswith(text):
@@ -53,7 +53,8 @@ def browser_application(registry, query='', **application_kwargs):
         if row:
             skill = registry.discover().get(row['name'])
             preview.text = (f"/{row['name']}  ·  {row.get('category', 'general')}  ·  {row['origin']}\n"
-                            f"Status: {', '.join(row['missing']) or 'Available'}\n\n"
+                            f"Status: {', '.join(row['missing']) or 'Available'}\n"
+                            f"Workflow exports: {', '.join(row.get('workflows', [])) or 'None declared'}\n\n"
                             + (skill.body if skill else 'Skill is no longer available.'))
         else:
             preview.text = 'No matching skills. Change your search.'
