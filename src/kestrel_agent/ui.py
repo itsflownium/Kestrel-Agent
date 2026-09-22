@@ -31,7 +31,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/steer", "/cancel", "/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -204,16 +204,23 @@ class Terminal:
                 if not message:
                     continue
                 self.show_intro = False
+                if message == '/exit':
+                    break
+                # These controls remain usable during work and approval waits.
+                if message.partition(' ')[0] in {'/steer', '/cancel', '/status', '/help', '/details'}:
+                    try:
+                        await self.command(message)
+                    except Exception as error:
+                        self.emit('warning', redact(str(error)))
+                    continue
                 if self.pending_approval is not None:
                     if message.lower() not in {"yes", "y", "no", "n"}:
                         self.emit("warning", "Please answer yes or no for the pending action.")
                     elif not self.pending_approval.done():
                         self.pending_approval.set_result(message.lower() in {"yes", "y"})
                     continue
-                if message == "/exit":
-                    break
                 if self.busy:
-                    self.emit("warning", "A task is running. Ctrl+C stops it before you send another request.")
+                    self.emit("warning", "A task is running. Use /steer YOUR UPDATE to revise it, or Ctrl+C to stop.")
                     continue
                 try:
                     if message.startswith("/"):
@@ -232,11 +239,33 @@ class Terminal:
     async def command(self, message: str):
         name, _, argument = message.partition(" ")
         argument = argument.strip()
-        if name == "/help":
+        if name == '/steer':
+            if not argument or len(argument) > 8000:
+                raise ValueError('Use /steer followed by an update of 1–8000 characters.')
+            if len(self.engine.state.get('user_updates', [])) >= 16:
+                raise ValueError('This task reached its 16-update limit; start a new task.')
+            if not self.engine.state.get('request') or self.engine.state.get('status') not in {'running', 'interrupted', 'error'}:
+                raise ValueError('There is no unfinished task to steer.')
+            if self.job and not self.job.done():
+                self.phase = 'stopping for your update'
+                self.job.cancel()
+                await asyncio.gather(self.job, return_exceptions=True)
+            self.engine.amend(argument)
+            self.emit('done', 'Update saved. Replanning with existing evidence and effect safeguards.')
+            self.busy = True
+            self.job = asyncio.create_task(self.work(None))
+        elif name == '/cancel':
+            if self.job and not self.job.done():
+                self.job.cancel()
+                await asyncio.gather(self.job, return_exceptions=True)
+            else:
+                self.emit('warning', 'No task is running.')
+        elif name == "/help":
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
                 ("/setup", "Configure models, auth, mode, and Docker execution"),
                 ("/doctor [runtime]", "Inspect configuration and optional runtime readiness"),
+                ("/steer UPDATE · /cancel", "Revise unfinished work or stop the current task"),
                 ("/memory [set|forget]", "Inspect or edit explicit preferences and project notes"),
                 ("/workflow [preview|run] NAME JSON", "Review or run a typed workflow with parameters"),
                 ("/connections [add NAME URL|remove NAME]", "Connect browser, desktop, and service tools over MCP"),

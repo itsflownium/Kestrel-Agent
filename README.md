@@ -130,6 +130,8 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/new` | Fresh conversation |
 | `/sessions`, `/resume ID` | List/reopen sessions |
 | `/continue` | Continue interrupted work |
+| `/steer UPDATE` | Stop, save an update, and replan unfinished work while preserving its evidence and effect safeguards |
+| `/cancel` | Stop active work without resuming; also works during an approval wait |
 | `/model`, `/model ID` | Model selection and Jev credential status |
 | `/provider [NAME]` | Configure provider, endpoint, model, and missing keys |
 | `/model jev-key`, `/model provider-key` | Hidden key entry |

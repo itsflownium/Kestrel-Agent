@@ -112,3 +112,12 @@ The first manual attempt incorrectly placed fixtures under protected Kestrel sto
 Thirteen new tests cover real worker execution, parent-storage isolation, wrong artifacts, unrelated errors, extra files, failed completion contracts, unsafe paths, unsupported tools, CLI failure exit codes and generated parameters. Initial twelve tests passed; a separate generated-input/CRLF test passed after byte-comparison strengthening. The final full suite passed **412 tests in 268.97 seconds**. The sample CLI's four cases passed and its report is retained in `examples/workflows/copy-text.report.json`. Wheel/source builds succeeded and wheel inspection confirmed the new module.
 
 This advances the workflow-evaluation infrastructure; independent skill certification, automatic promotion and external-tool behavioral suites remain pending. No new live-model benchmark or superiority claim is made.
+
+
+## Active-task steering and approval-wait controls
+
+`/steer UPDATE` now cancels and awaits the owned worker, saves the update and resumes through normal planning/reconciliation. Evidence, exact completion checks and completed/uncertain effect receipts remain. Updates are persisted, bounded, included in conversation history and cleared for a new task. Resumed tasks correctly enter running state. `/cancel`, `/status`, `/help` and `/details` work during active tasks; steering, cancellation and exit work during approval waits without granting permission.
+
+The full regression suite passed **423 tests in 278.65 seconds**. After collection, a completion-race test was added and update logging was extended to ordinary conversation history. The final focused steering/interrupt/dashboard suite passed **20 tests in 13.54 seconds**, including those changes. Tests cover cancellation ordering, approval wait cleanup, restart persistence, preserved requirements/receipts, a real completed file write retained without replay, and refusal to restart work that completes during steering. They use controlled model boundaries rather than a live-model quality benchmark.
+
+This implements bounded steering for one owned task. Detached/background jobs, concurrent tasks and broad external-action steering validation remain pending. Conflicting exact completion requirements require a new task. Usage shown after resumption is per-run; logs retain preceding runs.
