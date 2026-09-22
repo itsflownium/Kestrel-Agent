@@ -25,6 +25,7 @@ class Store:
         CREATE INDEX IF NOT EXISTS events_session ON events(session, id);
         CREATE TABLE IF NOT EXISTS evidence(id TEXT PRIMARY KEY, session TEXT, created REAL, body TEXT);
         CREATE TABLE IF NOT EXISTS workflows(id TEXT PRIMARY KEY, name TEXT, body TEXT, active INTEGER DEFAULT 0, created REAL);
+        CREATE TABLE IF NOT EXISTS workflow_provenance(id TEXT PRIMARY KEY, body TEXT NOT NULL);
         CREATE VIRTUAL TABLE IF NOT EXISTS workflow_search USING fts5(id UNINDEXED, name, body);
         CREATE TABLE IF NOT EXISTS templates(id TEXT PRIMARY KEY, body TEXT, created REAL);
         """)
@@ -105,12 +106,18 @@ class Store:
         rows = self.db.execute("""SELECT w.id,w.name,w.body FROM workflow_search f
             JOIN workflows w ON f.id=w.id WHERE workflow_search MATCH ? AND w.active=1
             ORDER BY rank LIMIT 3""", (" OR ".join('"' + w + '"' for w in words),))
-        return [dict(r) for r in rows]
+        return [dict(r) | {"provenance": self.workflow_provenance(r['id'])} for r in rows]
 
-    def add_workflow(self, name: str, body: str) -> str:
+    def workflow_provenance(self, wid: str) -> dict:
+        row = self.db.execute("SELECT body FROM workflow_provenance WHERE id=?", (wid,)).fetchone()
+        return json.loads(row[0]) if row else {"validation": "unverified", "source": "not recorded"}
+
+    def add_workflow(self, name: str, body: str, *, provenance: dict | None = None) -> str:
         wid = uuid.uuid4().hex[:10]
         self.db.execute("INSERT INTO workflows VALUES(?,?,?,?,?)", (wid, name, body, 0, time.time()))
         self.db.execute("INSERT INTO workflow_search VALUES(?,?,?)", (wid, name, body))
+        if provenance is not None:
+            self.db.execute("INSERT INTO workflow_provenance VALUES(?,?)", (wid, redact(json.dumps(provenance))))
         self.db.commit()
         return wid
 

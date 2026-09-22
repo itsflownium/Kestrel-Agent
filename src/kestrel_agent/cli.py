@@ -304,7 +304,7 @@ def workflows_list():
     store = Store(Settings.load())
     try:
         for row in store.db.execute("SELECT id,name,active FROM workflows ORDER BY created DESC"):
-            console.print(Text(f"{row['id']}  {'active' if row['active'] else 'candidate'}  {row['name']}"))
+            console.print(Text(f"{row['id']}  {'active guidance' if row['active'] else 'candidate'}  unverified  {row['name']}"))
     finally:
         store.close()
 
@@ -317,6 +317,7 @@ def workflows_show(workflow: str):
         if not row:
             raise typer.BadParameter("Unknown workflow ID.")
         console.print(Text(row[0]))
+        console.print(Text(json.dumps(store.workflow_provenance(workflow), indent=2, ensure_ascii=False)))
     finally:
         store.close()
 
@@ -336,11 +337,11 @@ def workflows_learn(session: str):
 
 @workflows_app.command("activate")
 def workflows_activate(workflow: str):
-    """Activate a recipe you have reviewed and tested."""
+    """Enable a reviewed recipe as planning guidance, without certifying its quality."""
     store = Store(Settings.load())
     try:
         store.activate(workflow)
-        console.print(f"Activated {workflow}.")
+        console.print(f"Activated {workflow} as unverified planning guidance. This does not certify behavioral quality.")
     finally:
         store.close()
 

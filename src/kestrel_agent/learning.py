@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import time
 import uuid
@@ -17,16 +18,37 @@ async def learn_workflow(store: Store, settings: Settings, sid: str, emit) -> st
     state = json.loads(record["state"])
     if state.get("status") != "completed":
         raise ValueError("Only completed sessions can propose workflow candidates.")
+    checks = state.get('completion_checks', {})
+    if any(entry.get('passed') is not True for entry in checks.values()):
+        raise ValueError('Resolve failed or pending completion checks before learning a workflow.')
+    if state.get('inflight') or state.get('uncertain_effects') or any(
+        status == 'uncertain' for status in state.get('statuses', {}).values()
+    ):
+        raise ValueError('Resolve uncertain or unfinished actions before learning a workflow.')
+    trace = json.dumps(store.history(sid, 60), default=str)[:40000]
+    provenance = {
+        'source_session': sid,
+        'source_state_sha256': hashlib.sha256(record['state'].encode()).hexdigest(),
+        'source_trace_sha256': hashlib.sha256(trace.encode()).hexdigest(),
+        'source_status': state['status'],
+        'completion_checks': {key: {'passed': entry['passed'], 'check': entry.get('check')}
+                              for key, entry in checks.items()},
+        'validation': 'unverified',
+        'boundary': 'One completed trace is not independent workflow evaluation. Manual activation permits guidance retrieval only.',
+    }
     runtime = Runtime(settings, Path(record["workspace"]), emit)
     try:
         text = await runtime.complete(
-            "Extract a reusable task procedure from this successful trace. Return concise Markdown: "
+            "Propose a reusable task procedure from this completed trace. Completion is not proof of independent validation. Return concise Markdown: "
             "a title, applicability conditions, parameter names, steps, bounded Jev decisions, "
             "completion checks, and failure cases. Replace instance-specific paths/names/data with parameters. "
             "Never include secrets. This is a candidate recipe, not executable code or authorization.\n"
-            + json.dumps(store.history(sid, 60), default=str)[:40000]
+            + trace
         )
-        return store.add_workflow(text.splitlines()[0].lstrip("# ")[:100], text)
+        if not text.strip():
+            raise ValueError('The provider returned an empty workflow candidate.')
+        provenance['recipe_sha256'] = hashlib.sha256(text.encode()).hexdigest()
+        return store.add_workflow(text.splitlines()[0].lstrip("# ")[:100], text, provenance=provenance)
     finally:
         await runtime.close()
 
