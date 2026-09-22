@@ -70,7 +70,7 @@ class Engine:
         self.state["started"] = time.time()
         if message is not None:
             self.log("user", message)
-            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
+            self.state.update(request=message, plan=None, results={}, statuses={}, observations=[], requirements={}, completion_checks={}, progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
             self.store.db.execute("UPDATE sessions SET title=? WHERE id=?", (redact(message[:100]), self.sid))
             self.store.db.commit()
             self.save()
@@ -146,6 +146,7 @@ Action condition is 'always' unless a single factual condition really changes wh
 Do not invent tool names, credentials, account access, or missing values.
 Use choose when semantic selection among existing candidates is needed: Jev will make the choice.
 When the available evidence is sufficient, include short self-contained new text/code directly in tool arguments. Use generate for longer content or when required evidence will only become available after earlier actions; include relevant dependency content in its prompt.
+For literal copying or appending, bind read_file.raw_text directly with the observed SHA256. raw_text preserves exact whitespace and is present only for complete small plain-text reads. Do not generate text just to copy or concatenate existing evidence.
 Reuse existing tool outputs directly in downstream arguments. For example, query_table.json_content is already valid numeric JSON text for write_file.content; do not generate another serialization of it.
 Do not add a generate action just to summarize results or reply: the controller already generates a final answer.
 If a tool result already provides the ENTIRE requested answer in the exact requested format, set final_response_ref to its whole-value reference, e.g. ${{compute.stdout}}. Otherwise use null. Jev will verify the candidate before returning it. query_table.json_content provides a JSON object with numeric totals; use it for JSON-only aggregation answers.
@@ -154,6 +155,7 @@ For existing-file edits, read first, then write_file with the observed SHA256.
 Tools that modify external state must respect the original user request and current permissions.
 If feedback says an action failed or has unknown outcome, investigate before repeating it.
 Never claim completion without observations. A nonzero shell exit or error is not success.
+Use completion_checks for concrete machine-checkable requirements explicitly supported by the request: result_equals compares a whole action reference (such as ${{run.exitCode}}) to expected_json; result_json_equals parses a complete JSON result string; file_text_equals and file_json_equals read a literal artifact path after execution. expected_json is a JSON-encoded literal, not a result reference or invented target. Keep stable check IDs across repairs; only result references may change, not expectations. Checks persist across replans and cannot be dropped to bypass a failure. Use [] where the request supplies no exact outcome. File checks support complete UTF-8 text up to 40000 characters/1000 lines. Jev still reviews original-task coverage and semantic correctness.
 Success criteria must be individually checkable against results, not vague quality claims.
 Success criteria should describe completed actions and evidence, not the final answer that the controller has yet to write.
 After an error, a recovery plan must finish the original task, not stop after diagnosing the problem.
@@ -214,6 +216,15 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             from .evidence import check_progress, register_requirements
             check_progress(self.state, self.settings.max_no_progress_rounds)
             plan = Plan.model_validate(self.state["plan"]) if self.state.get("plan") else await self.make_plan(feedback)
+            from .completion import register as register_checks, evaluate as evaluate_checks
+            if plan.mode == "answer" and self.state.get("completion_checks"):
+                failed_checks = await evaluate_checks(self.state, self.tools, set())
+                self.save()
+                if failed_checks:
+                    feedback = {"failed_completion_checks": failed_checks, "instruction": "Repair the unmet contracts before answering; preserve their IDs and expectations."}
+                    self.state["plan"] = None
+                    self.save()
+                    continue
             if plan.mode in {"answer", "clarify"}:
                 if plan.mode == "answer" and self.state.get("steps", 0):
                     check = await self.judge.decide({**self.context(), "answer": plan.message}, {
@@ -238,50 +249,16 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                         self.save()
                         continue
                 return plan.message
+            register_checks(self.state, plan.completion_checks)
             register_requirements(self.state, plan.success_criteria)
             if not self.state.get("plan"):
                 self.state.update(plan=plan.model_dump(), results={}, statuses={})
                 self.save()
-            while any(a.id not in self.state["statuses"] for a in plan.actions):
-                if self.state.get("steps", 0) >= self.settings.max_steps:
-                    raise RuntimeError("Step budget reached; review /status before continuing.")
-                ready = [a for a in plan.actions if a.id not in self.state["statuses"] and all(d in self.state["statuses"] for d in a.depends_on)]
-                if not ready:
-                    raise RuntimeError("No executable action; dependency state is inconsistent.")
-                runnable = []
-                for action in ready:
-                    outcome = self.dependency_outcome(action, self.state["statuses"])
-                    if outcome == "ready":
-                        runnable.append(action)
-                    else:
-                        self.state["statuses"][action.id] = outcome
-                ready = runnable
-                if not ready:
-                    continue
-                ready = ready[:max(0, self.settings.max_steps - self.state.get("steps", 0))]
-                template = self.store.template("gate", GATE_PROMPT)
-                questions = {a.id: {"instructions": f"{template}\nAction: {a.id}. Condition: {a.condition}.",
-                    "options": {"execute": "The condition is satisfied and the action advances the task.", "skip": "The condition is false or the action is unrelated to the task.", "need_context": "Cannot determine from the evidence."}} for a in ready}
-                decisions = await self.judge.decide({**self.context(), "actions": [a.model_dump() for a in ready]}, questions)
-                self.log("decisions", decisions)
-                approved = []
-                for action in ready:
-                    choice = decisions[action.id]["choice"]
-                    self.emit("decision", f"{action.id} → {choice}")
-                    if choice == "execute":
-                        approved.append(action)
-                    else:
-                        self.state["statuses"][action.id] = choice
-                reads = [a for a in approved if a.tool in READ_TOOLS]
-                effects = [a for a in approved if a.tool not in READ_TOOLS]
-                # Cancellation propagates to all in-flight operations before the checkpoint closes.
-                if reads:
-                    async with asyncio.TaskGroup() as group:
-                        for action in reads:
-                            group.create_task(self.perform(action))
-                for action in effects:
-                    await self.perform(action)
-                self.save()
+            from .scheduler import execute_plan
+            await execute_plan(self, plan, GATE_PROMPT)
+            failed_checks = await evaluate_checks(self.state, self.tools, {c.id for c in plan.completion_checks})
+            self.log("completion_checks", self.state.get("completion_checks", {}))
+            self.save()
             requirement_items = list(self.state["requirements"].items())
             questions = {f"criterion_{i}": {"instructions": self.store.template("verify", VERIFY_PROMPT) + "\nThe action plan has run, but the final response has NOT been written yet. A requirement solely about wording that future response is response_pending; never defer missing actions or evidence.\nRequirement: " + criterion["text"],
                 "options": {"met": "Explicitly supported by observations.", "not_met": "Contradicted or incomplete.", "unclear": "Not enough evidence.", "response_pending": "Only concerns the final answer, which has not yet been written."}} for i, (_, criterion) in enumerate(requirement_items)}
@@ -289,8 +266,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             errors = {k: v for k, v in self.state["statuses"].items() if v in {"error", "blocked", "need_context", "uncertain"}}
             for action_id, status in errors.items():
                 if status == "error":
-                    questions[f"recovery_{action_id}"] = {"instructions": f"Did later observed work successfully recover from the error in {action_id}, so it no longer prevents the ORIGINAL requested outcome? A proposed correction is insufficient; require execution evidence.",
-                        "options": {"met": "Recovery is proven by subsequent results.", "not_met": "Failure remains unresolved or uncertain."}}
+                    questions[f"recovery_{action_id}"] = {"instructions": f"Does the observed error in {action_id} still prevent the ORIGINAL requested outcome? Choose met only if later execution proves recovery, OR the user explicitly requested observing/reporting a failure without retry and that requested inspection is complete. An expected failed invocation remains a failure, not a successful command. Never infer permission to retry from an error; a proposed correction is not execution evidence.",
+                        "options": {"met": "Recovery is proven, or the explicitly requested failure observation is complete without an unauthorized retry.", "not_met": "Failure still prevents the requested outcome, or handling is uncertain."}}
             candidate = None
             if plan.final_response_ref and self.state["statuses"].get(plan.final_response_ref[2:].split(".")[0]) == "completed":
                 try:
@@ -321,8 +298,8 @@ FEEDBACK: {json.dumps(feedback, default=str)}
             self.save()
             self.log("verification", verdicts)
             errors = {k: v for k, v in errors.items() if verdicts.get(f"recovery_{k}", {}).get("choice") != "met"}
-            if errors or any(v["choice"] not in {"met", "response_pending"} for key, v in verdicts.items() if key not in {"reuse_response", "select_response"}):
-                feedback = {"execution_status": self.state["statuses"], "requirements": verdicts}
+            if failed_checks or errors or any(v["choice"] not in {"met", "response_pending"} for key, v in verdicts.items() if key not in {"reuse_response", "select_response"}):
+                feedback = {"execution_status": self.state["statuses"], "requirements": verdicts, "failed_completion_checks": failed_checks}
                 self.state["plan"] = None
                 self.save()
                 self.emit("warning", "More work needed · revising the plan")

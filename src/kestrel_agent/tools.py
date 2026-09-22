@@ -19,9 +19,9 @@ from .providers import Judge, Runtime
 from .store import Store
 
 CATALOG = """
-list_files: {path: '.', pattern: '*', limit: 100}. Returns files relative to workspace. Skips hidden/vendor directories.
-read_file: {path, start_line: 1, max_lines: 200}. Text, PDF, DOCX, XLSX supported. Returns content and source path. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
-search_files: {path: '.', query, limit: 30}. Literal text search across small text files.
+list_files: {path: '.', pattern: '*', limit: 100}. limit must be 1–300. Returns files relative to workspace. Skips hidden/vendor directories.
+read_file: {path, start_line: 1, max_lines: 200}. start_line must be >=1; max_lines must be 1–1000. Text, PDF, DOCX, XLSX supported. Returns numbered content and source path. Complete small plain-text reads also return raw_text with exact original whitespace; bind ${read.raw_text} for lossless copies or concatenation, never numbered content. Small valid JSON also returns parsed data; bind ${read.data} for candidate lists, never numbered content text.
+search_files: {path: '.', query, limit: 30}. Literal nonempty text search across small text files; limit must be 1–100.
 query_table: {path, operation: 'sum'|'mean'|'count'|'min'|'max', group_by: column_or_null, value_column: column_or_null, filters: [{column, op: 'eq'|'ne'|'gt'|'gte'|'lt'|'lte', value}]}. Deterministically aggregate CSV or JSON records. Filters are ANDed; eq/ne use exact text, ordered comparisons are numeric. Numeric operations skip invalid amounts and report skipped counts. Returns results mapping groups to decimal strings, plus json_content with numeric JSON values for exact answer reuse. Inspect unknown headers first. Prefer this over generating code for supported table operations.
 write_file: {path, content, expected_sha256: null}. Writes UTF-8 text. Supply prior hash to protect existing files.
 shell: {command: ['executable', 'arg'], cwd: '.'}. An argv array, not shell text; zsh -lc is possible with permission. Exit code is authoritative.
@@ -31,8 +31,9 @@ mcp: {server, tool, arguments: {}}. Use only tools present in the connected MCP 
 generate: {prompt}. Ask Codex for NEW code, prose, or analysis using task evidence. Returns {content}. Does not execute tools.
 research: {prompt}. Ask Codex to research the web with source links. Returns {content}.
 choose: {question, options: {id: description} OR a list of candidate values, values: {id: value}}. Jev chooses a bounded candidate or NONE. Returns {choice, value}. A list can be bound from ${scan.files}; values is then optional.
-read_evidence: {id, offset: 0, max_chars: 12000}. Read retained historical evidence from this session with explicit truncation and next_offset.
-search_evidence: {query, offset: 0, limit: 10}. Literal search across retained evidence in this session, including older observations omitted from context. Returns IDs, matching excerpts and read offsets. Empty query lists snapshots. These are historical snapshots, not current source contents.
+read_evidence: {id, offset: 0, max_chars: 12000}. offset must be >=0 and max_chars 1–20000. Read retained historical evidence from this session with explicit truncation and next_offset.
+search_evidence: {query, offset: 0, limit: 10}. query is at most 500 characters; offset >=0 and limit 1–20. Literal search across retained evidence in this session, including older observations omitted from context. Returns IDs, matching excerpts and read offsets. Empty query lists snapshots. These are historical snapshots, not current source contents.
+Argument types are strict and unknown keys are rejected. Do not serialize a shell argv as a string or an object as file content.
 Argument values can reference a declared dependency using ${action_id.content} or ${action_id.value}; whole-value references preserve types.
 """
 
@@ -83,6 +84,8 @@ class ToolExecutor:
                     continue
 
     async def execute(self, tool: str, args: dict) -> dict:
+        from .tool_contracts import validate_arguments
+        args = validate_arguments(tool, args)
         check_storage(self.settings, 1_000_000)
         if tool == "list_files":
             root = self.path(args.get("path", "."))
@@ -203,40 +206,53 @@ class ToolExecutor:
 
     def read_file(self, args: dict) -> dict:
         import hashlib
+        import io
+        import stat
         path = self.path(args["path"])
         if path.stat().st_size > 20_000_000:
+            raise ValueError("File exceeds 20 MB; narrow or preprocess it with an authorized command.")
+        # Parse and hash the same captured bytes. A later source change must not
+        # acquire a hash that would authorize overwriting it with older content.
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, "rb") as source:
+            if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
+                raise ValueError("read_file requires a regular file.")
+            source_bytes = source.read(20_000_001)
+        if len(source_bytes) > 20_000_000:
             raise ValueError("File exceeds 20 MB; narrow or preprocess it with an authorized command.")
         suffix = path.suffix.lower()
         source_truncated = False
         if suffix == ".pdf":
             from pypdf import PdfReader
-            pages = PdfReader(path).pages
+            pages = PdfReader(io.BytesIO(source_bytes)).pages
             source_truncated = len(pages) > 100
             text = "\n".join(f"[Page {i+1}]\n{page.extract_text() or ''}" for i, page in enumerate(pages[:100]))
         elif suffix == ".docx":
             from docx import Document
-            doc = Document(path)
+            doc = Document(io.BytesIO(source_bytes))
             text = "\n".join([p.text for p in doc.paragraphs] + [" | ".join(c.text for c in row.cells) for t in doc.tables for row in t.rows])
         elif suffix == ".xlsx":
             from openpyxl import load_workbook
-            book = load_workbook(path, read_only=True, data_only=True)
+            book = load_workbook(io.BytesIO(source_bytes), read_only=True, data_only=True)
             try:
                 source_truncated = any((sheet.max_row or 0) > 1000 for sheet in book)
                 text = "\n".join(f"[{sheet.title}] " + " | ".join(str(v) if v is not None else "" for v in row) for sheet in book for row in sheet.iter_rows(max_row=1000, values_only=True))
             finally:
                 book.close()
         else:
-            text = path.read_text(encoding="utf-8")
+            text = source_bytes.decode("utf-8")
         lines = text.splitlines()
         start = max(0, int(args.get("start_line", 1)) - 1)
         count = min(max(1, int(args.get("max_lines", 200))), 1000)
         full_excerpt = "\n".join(f"{i+1}: {line}" for i, line in enumerate(lines[start:start+count], start))
         excerpt = full_excerpt[:40000]
-        result = {"path": str(path), "content": excerpt, "total_lines": len(lines), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        result = {"path": str(path), "content": excerpt, "total_lines": len(lines), "sha256": hashlib.sha256(source_bytes).hexdigest()}
         result.update(start_line=start + 1, end_line=min(start + count, len(lines)),
                       next_line=start + count + 1 if start + count < len(lines) else None,
                       char_limit_reached=len(full_excerpt) > len(excerpt), source_truncated=source_truncated,
                       truncated=source_truncated or start > 0 or start + count < len(lines) or len(full_excerpt) > len(excerpt))
+        if suffix not in {".pdf", ".docx", ".xlsx"} and start == 0 and count >= len(lines) and len(text) <= 40000:
+            result["raw_text"] = text
         if suffix == ".json" and len(text) <= 40000:
             try:
                 result["data"] = json.loads(text)

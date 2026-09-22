@@ -326,12 +326,12 @@ def eval_command(dataset: Path = typer.Argument(..., exists=True, dir_okay=False
 
 
 @app.command("optimize")
-def optimize_command(train: Path = typer.Option(..., exists=True, dir_okay=False), validation: Path = typer.Option(..., exists=True, dir_okay=False), component: str = typer.Option("verify"), budget: int = typer.Option(30, min=1, max=100)):
+def optimize_command(train: Path = typer.Option(..., exists=True, dir_okay=False), validation: Path = typer.Option(..., exists=True, dir_okay=False), test: Path = typer.Option(..., exists=True, dir_okay=False), component: str = typer.Option("verify"), budget: int = typer.Option(30, min=1, max=100)):
     """Explicitly run offline GEPA optimization. Uses Jev and the selected provider; no task tools."""
     from .learning import optimize
     load_secrets()
-    path = optimize(Settings.load(), train, validation, component, budget, emit)
-    console.print(Text(f"Candidate saved for review: {path}\nUse a separate held-out dataset before activation."))
+    path = optimize(Settings.load(), train, validation, component, budget, emit, test_path=test)
+    console.print(Text(f"Candidate saved for review: {path}\nIndependent test results were saved; promotion checks the exact evaluated prompt."))
 
 
 @app.command("promote-prompt")
@@ -341,14 +341,17 @@ def promote_prompt(candidate: Path = typer.Argument(..., exists=True, dir_okay=F
     data = json.loads(candidate.read_text())
     if data.get("component") not in {"gate", "verify"} or not isinstance(data.get("instructions"), str):
         raise typer.BadParameter("Invalid prompt candidate.")
-    if data.get("validation_accuracy", 0) < data.get("baseline_accuracy", 1):
-        raise typer.BadParameter("Candidate regressed on validation and cannot be promoted.")
     store = Store(Settings.load())
     try:
         previous = store.template(data["component"], GATE_PROMPT if data["component"] == "gate" else VERIFY_PROMPT)
+        from .learning_guards import promotion_report
+        try:
+            promotion_report(store.db, data, previous)
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
         backup = home() / "candidates" / f"{data['component']}-backup-{int(time.time())}.json"
         backup.parent.mkdir(parents=True, exist_ok=True)
-        atomic_write(backup, json.dumps({"component": data["component"], "instructions": previous, "validation_accuracy": 1, "baseline_accuracy": 0}))
+        atomic_write(backup, json.dumps({"component": data["component"], "instructions": previous, "kind": "backup", "requires_evaluation": True}))
         store.db.execute("INSERT OR REPLACE INTO templates VALUES(?,?,?)", (data["component"], data["instructions"], time.time()))
         store.db.commit()
         console.print(Text(f"Activated {data['component']}. Previous version: {backup}"))

@@ -26,6 +26,9 @@ class Action(BaseModel):
         return value
 
 
+from .completion import CompletionCheck
+
+
 class Plan(BaseModel):
     model_config = ConfigDict(extra="forbid")
     mode: Literal["answer", "plan", "clarify"]
@@ -33,6 +36,7 @@ class Plan(BaseModel):
     actions: list[Action] = Field(max_length=12)
     success_criteria: list[str] = Field(max_length=8)
     final_response_ref: str | None = None
+    completion_checks: list[CompletionCheck] = Field(default_factory=list, max_length=8)
 
     @model_validator(mode="after")
     def valid_graph(self) -> "Plan":
@@ -47,10 +51,18 @@ class Plan(BaseModel):
             match = re.fullmatch(r"\$\{([a-z][a-z0-9_]*)\.([A-Za-z0-9_.]+)\}", self.final_response_ref)
             if self.mode != "plan" or not match or match.group(1) not in ids:
                 raise ValueError("final_response_ref must reference a declared action result.")
+        if self.mode != "plan" and self.completion_checks:
+            raise ValueError("Only execution plans can declare completion checks.")
+        if len({c.id for c in self.completion_checks}) != len(self.completion_checks):
+            raise ValueError("Completion check IDs must be unique.")
+        for check in self.completion_checks:
+            if check.kind.startswith("result_") and check.source[2:].split(".")[0] not in ids:
+                raise ValueError("Completion checks must reference declared action results.")
         for action in self.actions:
             if action.after != "success" and not action.depends_on:
                 raise ValueError("Failure/completion actions need dependencies.")
-            action.arguments()
+            from .tool_contracts import validate_arguments
+            validate_arguments(action.tool, action.arguments(), allow_references=True)
             if any(d not in ids or d == action.id for d in action.depends_on):
                 raise ValueError("Invalid dependency.")
             refs = re.findall(r"\$\{([a-z][a-z0-9_]*)(?:\.|\})", action.arguments_json)

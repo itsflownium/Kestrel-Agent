@@ -16,12 +16,12 @@ A general-purpose terminal AI agent powered by your chosen generation provider a
   ↳ read_file · Read the selected source
   ✓ source · completed
 
-  ready │ Codex default + Jev │ workspace │ Ctrl+C stop · /help
+  ready │ Codex default + Jev │ workspace │ Ctrl+C quit · /help
 ```
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
-**Status:** initial implementation with limited owner-authorized testing. 121 offline checks pass; terminal startup/help/exit and live Codex/Jev task execution have been exercised. Jev-led bounded tasks are faster in the small comparison; overall superiority is not established. See the [verified-answer comparisons](benchmarks/EVIDENCE-ANSWERS.md), [compact recovery results](benchmarks/COMPACT-RECOVERY.md), [provider setup](docs/PROVIDERS.md), [general-task improvements](benchmarks/INITIAL-CONTEXT.md), [Jev table benchmarks](benchmarks/JEV-TABLES.md), [latest controller tests](benchmarks/RESULT-REUSE.md), [broader workload report](benchmarks/WORKLOADS.md), [next improvements](benchmarks/NEXT-STEPS.md), and [initial comparison report](benchmarks/README.md) and [manual acceptance guide](docs/TESTING.md).
+**Status:** development build with owner-authorized live testing. The current suite has 190 offline checks. Quality and latency remain workload-dependent; general superiority over Codex is not established. See the [quality comparisons](benchmarks/QUALITY-PROFILES.md), [architecture measurements](benchmarks/ARCHITECTURE-FOUNDATIONS.md), [durable evidence results](benchmarks/DURABLE-EVIDENCE.md), [read scheduling checks](benchmarks/DEPENDENCY-SCHEDULING.md), [remaining architecture scope](docs/ARCHITECTURE-IMPLEMENTATION.md), and [manual acceptance guide](docs/TESTING.md).
 
 ## Install
 
@@ -94,8 +94,8 @@ flowchart TD
     L -. versioned questions .-> J
 ```
 
-- **The selected generation provider** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call after Jev routing. Native web research requires Codex. The user selects a fixed provider/model; there is no learned model router.
-- **Jev** routes every new request, evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
+- **The selected generation provider** creates plans, code, prose, and research when needed. Simple conversation can finish in one generation call followed by Jev answer review. Native web research requires Codex. The user selects a fixed provider/model; there is no learned model router.
+- **Jev** gates applicable fast paths, reviews direct answers, evaluates conditional action relevance, selects supplied candidates, checks explicit completion criteria, and judges whether final action claims match evidence. Independent questions are batched. Confidence is not treated as proof of correctness.
 - **Fast paths** can finish bounded arithmetic, single-record selection, and grouped numeric queries over explicitly named small CSV/JSON files with zero Codex calls. Arithmetic is computed locally after Jev routing. Record candidates and output field choices are derived from the actual file schema; a second Jev check verifies selection and requested fields. Unsupported formats, ambiguity, ties, or failed checks fall back to the general agent. There are no benchmark-answer lookups. These limited recipes do not replace general generation or prove universal speed improvements.
 - **The controller** validates dependency graphs and result bindings, enforces permissions, parallelizes independent reads, serializes writes, tracks budgets, and checkpoints operations. Jev cannot change permissions.
 - **Result reuse and recovery** let Jev approve an exact tool-produced answer or command receipt without final generation, even when the planner omitted a reuse reference. Selection shares the completion-check call; unresolved work cannot bypass it. Rejected candidates fall back to generation, and revised final answers are checked again before return. Plans can branch on success or failure.
@@ -141,7 +141,7 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/tools` | Discover configured MCP tools |
 | `/status` | Checkpoint and usage |
 | `/clear`, `/exit` | Clear display/exit |
-| `Ctrl+C`, `Alt+Enter` | Stop active work/insert newline |
+| `Ctrl+C`, `Alt+Enter` | Stop active work, or exit when idle / insert newline |
 
 ## Workflow memory and GEPA
 
@@ -162,12 +162,12 @@ These commands make requests only when explicitly invoked:
 
 ```sh
 kestrel eval examples/decisions.jsonl --component verify
-kestrel optimize --train train.jsonl --validation validation.jsonl --component verify --budget 30
-# Evaluate separately on held-out examples before activation:
+kestrel optimize --train train.jsonl --validation validation.jsonl --test test.jsonl --component verify --budget 30
+# Review the candidate; promotion checks the recorded independent evaluation:
 kestrel promote-prompt /absolute/path/to/reviewed-candidate.json
 ```
 
-Train/validation sets must not overlap. GEPA saves inactive candidates for review and never replays real shell/MCP actions. Its reflection callable uses the selected generation provider. Promotion preserves a previous prompt version.
+Train, validation, and final-test sets must have disjoint inputs and task families. GEPA saves inactive candidates for review and never replays real shell/MCP actions. Its reflection callable uses the selected generation provider. Promotion preserves a previous prompt version.
 
 ## Storage
 
@@ -193,3 +193,11 @@ uv run pytest
 No automatic test CI is enabled. Live benchmarks run only when explicitly invoked.
 
 MIT licensed. Kestrel is independent; Codex and Jev have their own access requirements and usage limits.
+
+
+Prompt optimization requires three disjoint task-family splits. In addition to the evaluation fields above, each optimization row needs a nonempty `family` and a `label`: either `{"kind":"human","reviewer":"name","reason":"independent review"}` or `{"kind":"exact_match","actual":true,"expected":true,"on_match":"yes","on_mismatch":"no"}`. Exact-match labels are derived from supplied outcomes; Kestrel does not attest that the external oracle ran. Agent verdicts alone are not accepted as labels.
+
+GEPA sees only training and validation data. After selecting a fixed prompt, Kestrel evaluates the baseline and candidate on the final test set. Test inputs and families are consumed once in the local store, including interrupted runs. Promotion requires the exact evaluated prompt and unchanged baseline, no validation accuracy regression, and no lost previously correct test example. Editing scores in candidate JSON cannot bypass the recorded evaluation. This is local experimental bookkeeping, not tamper-proof attestation or a guarantee of unseen-task quality. Backups preserve prior prompt text; activating a backup requires a new evaluation. Optimization never activates a prompt or trains model weights.
+
+
+Execution plans can declare deterministic completion checks for exact result values, JSON output, and saved text/JSON artifacts. Kestrel evaluates these without another model call and retains failures across replanning and resume. Jev still checks original-task coverage and semantic correctness; a passing equality check alone does not prove the whole task is complete. File checks reread current artifacts through the existing path permissions. They accept complete UTF-8 text up to 40,000 characters and 1,000 lines; expected literals are limited to 4,000 characters, with at most 8 checks per plan and 16 retained per task. No generated verifier code runs. Checks reject ambiguous JSON duplicate keys and non-finite values, and distinguish booleans from numbers. A changed expectation requires a new user request; recovery may bind a result check to a new action without weakening its target.

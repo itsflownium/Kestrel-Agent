@@ -1,0 +1,433 @@
+[
+  {
+    "task": "exact_artifact",
+    "fixture_revision": 1,
+    "harness_sha256": "d38cdf99a92f628c4e039abc878883a310625662e70f6530b339802e7cd84f0f",
+    "arm": "codex",
+    "repetition": 1,
+    "source_sha256": "90e6a6d912c91ffd27cb3ff1e9d17af78a7f02867ddc657aa0dc21d6234cfa84",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {},
+    "prompt": "Create receipt.json containing exactly the JSON object {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.",
+    "usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=13312, input_tokens=13731, output_tokens=6, reasoning_output_tokens=0, total_tokens=13737) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=18304, input_tokens=27208, output_tokens=199, reasoning_output_tokens=0, total_tokens=27407)",
+    "seconds": 12.048,
+    "answer": "SAVED",
+    "passed": true,
+    "grading": {
+      "saved_json": {
+        "accepted": true,
+        "count": 3,
+        "tags": [
+          "oak",
+          "pine"
+        ]
+      },
+      "note_bytes": [
+        114,
+        101,
+        97,
+        100,
+        121,
+        10
+      ]
+    },
+    "observed_commands": [
+      {
+        "exit_code": 0,
+        "stdout": "Verified both saved files.\n"
+      }
+    ],
+    "events": [
+      {
+        "kind": "codex_item",
+        "text": "root=UserMessageThreadItem(client_id=None, content=[UserInput(root=TextUserInput(text='Create receipt.json containing exactly the JSON object {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.', text_elements=[], type='text'))], id='01a0c3ac-4d72-79e3-89de-d393fe273bd0', type='userMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_04cc2f12384ae8f3016ab1117e3a3487d09718dcd1ef703bfc', memory_citation=None, phase=<MessagePhase.commentary: 'commentary'>, questions=None, text='I\u2019ll create the two files and verify their saved contents.\\n', type='agentMessage')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=CommandExecutionThreadItem(aggregated_output='Verified both saved files.\\n', command='/bin/zsh -lc \"python3 - <<\\'PY\\'\\nfrom pathlib import Path\\nimport json\\nreceipt = Path(\\'receipt.json\\')\\nnote = Path(\\'note.txt\\')\\nreceipt.write_bytes(b\\'{\\\\\"accepted\\\\\":true,\\\\\"count\\\\\":3,\\\\\"tags\\\\\":[\\\\\"oak\\\\\",\\\\\"pine\\\\\"]}\\')\\nnote.write_bytes(b\\'ready\\\\\\\\n\\')\\nvalue = json.loads(receipt.read_bytes())\\nassert value == {\\'accepted\\': True, \\'count\\': 3, \\'tags\\': [\\'oak\\', \\'pine\\']}\\nassert type(value[\\'accepted\\']) is bool\\nassert type(value[\\'count\\']) is int\\nassert note.read_bytes() == b\\'ready\\\\\\\\n\\'\\nprint(\\'Verified both saved files.\\')\\nPY\"', command_actions=[CommandAction(root=UnknownCommandAction(command='python3 - <<\\'PY\\'\\nfrom pathlib import Path\\nimport json\\nreceipt = Path(\\'receipt.json\\')\\nnote = Path(\\'note.txt\\')\\nreceipt.write_bytes(b\\'{\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}\\')\\nnote.write_bytes(b\\'ready\\\\n\\')\\nvalue = json.loads(receipt.read_bytes())\\nassert value == {\\'accepted\\': True, \\'count\\': 3, \\'tags\\': [\\'oak\\', \\'pine\\']}\\nassert type(value[\\'accepted\\']) is bool\\nassert type(value[\\'count\\']) is int\\nassert note.read_bytes() == b\\'ready\\\\n\\'\\nprint(\\'Verified both saved files.\\')\\nPY', type='unknown'))], cwd=LegacyAppPathString(root='/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-8zw0v1gg/exact_artifact-1-codex'), duration_ms=0, exit_code=0, id='exec-6118c4ed-76bc-4ffe-9310-020bd10a39ae', plugin_id=None, process_id='54915', script_path=None, source=<CommandExecutionSource.unified_exec_startup: 'unifiedExecStartup'>, status=<CommandExecutionStatus.completed: 'completed'>, type='commandExecution')"
+      },
+      {
+        "kind": "codex_item",
+        "text": "root=AgentMessageThreadItem(delivery=None, id='msg_04cc2f12384ae8f3016ab11185a00c87d0ab196102e9b1741e', memory_citation=None, phase=<MessagePhase.final_answer: 'final_answer'>, questions=None, text='SAVED', type='agentMessage')"
+      }
+    ],
+    "artifacts": {
+      "note.txt": "ready\n",
+      "receipt.json": "{\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}"
+    },
+    "workspace_before": {},
+    "workspace_after": {
+      "note.txt": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 6,
+        "sha256": "ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b"
+      },
+      "receipt.json": {
+        "mode": 420,
+        "type": "file",
+        "bytes": 49,
+        "sha256": "918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true
+  },
+  {
+    "task": "exact_artifact",
+    "fixture_revision": 1,
+    "harness_sha256": "d38cdf99a92f628c4e039abc878883a310625662e70f6530b339802e7cd84f0f",
+    "arm": "kestrel",
+    "repetition": 1,
+    "source_sha256": "90e6a6d912c91ffd27cb3ff1e9d17af78a7f02867ddc657aa0dc21d6234cfa84",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "session_mode": "fresh",
+    "prompt_profile": "default",
+    "setup_cache": true,
+    "seed": 20260921,
+    "input_files": {},
+    "prompt": "Create receipt.json containing exactly the JSON object {\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.",
+    "elapsed_seconds": 22.1,
+    "codex_calls": 2,
+    "jev_calls": 4,
+    "codex_input_tokens": 33712,
+    "codex_output_tokens": 309,
+    "jev_input_tokens": 11308,
+    "provider": "codex",
+    "generation_calls": 2,
+    "generation_input_tokens": 33712,
+    "generation_output_tokens": 309,
+    "telemetry": {
+      "generation_and_tools": [
+        {
+          "stage": "app_server_start",
+          "status": "completed",
+          "seconds": 0.067405
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 1e-06
+        },
+        {
+          "stage": "account_check",
+          "status": "completed",
+          "seconds": 0.006262
+        },
+        {
+          "stage": "config_read",
+          "status": "completed",
+          "seconds": 0.011148
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.131874
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.011624
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 13.051498,
+          "first_output_seconds": 4.200945
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 24573,
+          "schema_bytes": 2340,
+          "queue_seconds": 5.8e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 18909,
+            "output_tokens": 303,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 13.21267
+        },
+        {
+          "stage": "tool",
+          "tool": "write_file",
+          "action": "receipt",
+          "status": "completed",
+          "seconds": 0.098432
+        },
+        {
+          "stage": "tool",
+          "tool": "write_file",
+          "action": "note",
+          "status": "completed",
+          "seconds": 0.095737
+        },
+        {
+          "stage": "runtime_start",
+          "status": "completed",
+          "seconds": 2e-06
+        },
+        {
+          "stage": "thread_start",
+          "status": "completed",
+          "seconds": 0.090961
+        },
+        {
+          "stage": "turn_start",
+          "status": "completed",
+          "seconds": 0.01171
+        },
+        {
+          "stage": "turn_stream",
+          "seconds": 3.787199,
+          "first_output_seconds": 3.547994
+        },
+        {
+          "stage": "generation",
+          "provider": "codex",
+          "prompt_bytes": 6482,
+          "schema_bytes": 0,
+          "queue_seconds": 1e-05,
+          "status": "completed",
+          "usage": {
+            "input_tokens": 14803,
+            "output_tokens": 6,
+            "cached_input_tokens": 0,
+            "cache_write_input_tokens": 0,
+            "reasoning_output_tokens": 0
+          },
+          "seconds": 3.890052
+        }
+      ],
+      "decisions": [
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 4217,
+          "question_bytes": 750,
+          "status": "completed",
+          "seconds": 0.677636
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 5365,
+          "question_bytes": 744,
+          "status": "completed",
+          "seconds": 0.270241
+        },
+        {
+          "stage": "jev",
+          "questions": 4,
+          "state_bytes": 6432,
+          "question_bytes": 2812,
+          "status": "completed",
+          "seconds": 0.289396
+        },
+        {
+          "stage": "jev",
+          "questions": 1,
+          "state_bytes": 6183,
+          "question_bytes": 412,
+          "status": "completed",
+          "seconds": 0.254887
+        }
+      ]
+    },
+    "generation_cached_input_tokens": 0,
+    "generation_cache_write_input_tokens": 0,
+    "trace": [
+      {
+        "kind": "user",
+        "body": "\"Create receipt.json containing exactly the JSON object {\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}. Object key order and whitespace do not matter, but value types and array order do. Create note.txt containing exactly ready followed by one newline. Do not create or change any other files. Verify the saved files and reply exactly SAVED.\""
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"inspect_path\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-8zw0v1gg/exact_artifact-1-kestrel/receipt.json\", \"evidence_id\": \"a9cd3e8ae35e4dfd\"}"
+      },
+      {
+        "kind": "prefetch",
+        "body": "{\"tool\": \"inspect_path\", \"path\": \"/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-workloads-8zw0v1gg/exact_artifact-1-kestrel/note.txt\", \"evidence_id\": \"df86929c2ecf4535\"}"
+      },
+      {
+        "kind": "plan",
+        "body": "{\"mode\": \"plan\", \"message\": \"Create and verify both files, then reply exactly SAVED.\", \"actions\": [{\"id\": \"receipt\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"receipt.json\\\",\\\"content\\\":\\\"{\\\\\\\"accepted\\\\\\\":true,\\\\\\\"count\\\\\\\":3,\\\\\\\"tags\\\\\\\":[\\\\\\\"oak\\\\\\\",\\\\\\\"pine\\\\\\\"]}\\\",\\\"expected_sha256\\\":null}\", \"depends_on\": [], \"purpose\": \"Create the requested JSON file.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"note\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"note.txt\\\",\\\"content\\\":\\\"ready\\\\n\\\",\\\"expected_sha256\\\":null}\", \"depends_on\": [\"receipt\"], \"purpose\": \"Create the requested text file.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"receipt.json equals the requested JSON object, including value types and array order.\", \"note.txt contains exactly ready followed by one newline.\", \"Only receipt.json and note.txt are created or changed.\"], \"final_response_ref\": null, \"completion_checks\": [{\"id\": \"receipt_exact\", \"requirement\": \"Verify the saved JSON object.\", \"kind\": \"file_json_equals\", \"source\": \"receipt.json\", \"expected_json\": \"{\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}\"}, {\"id\": \"note_exact\", \"requirement\": \"Verify the saved text including its final newline.\", \"kind\": \"file_text_equals\", \"source\": \"note.txt\", \"expected_json\": \"\\\"ready\\\\n\\\"\"}]}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"receipt\": {\"choice\": \"execute\", \"confidence\": 0.99, \"probabilities\": {\"need_context\": 0.01, \"execute\": 0.99, \"skip\": 0.0}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"receipt\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"90172757b1ee4659\"}"
+      },
+      {
+        "kind": "decisions",
+        "body": "{\"note\": {\"choice\": \"execute\", \"confidence\": 0.95, \"probabilities\": {\"execute\": 0.96, \"need_context\": 0.02, \"skip\": 0.02}}}"
+      },
+      {
+        "kind": "action",
+        "body": "{\"id\": \"note\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"3a26a873ec9d419f\"}"
+      },
+      {
+        "kind": "completion_checks",
+        "body": "{\"receipt_exact\": {\"check\": {\"id\": \"receipt_exact\", \"requirement\": \"Verify the saved JSON object.\", \"kind\": \"file_json_equals\", \"source\": \"receipt.json\", \"expected_json\": \"{\\\"accepted\\\":true,\\\"count\\\":3,\\\"tags\\\":[\\\"oak\\\",\\\"pine\\\"]}\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd\"}, \"note_exact\": {\"check\": {\"id\": \"note_exact\", \"requirement\": \"Verify the saved text including its final newline.\", \"kind\": \"file_text_equals\", \"source\": \"note.txt\", \"expected_json\": \"\\\"ready\\\\n\\\"\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b\"}}"
+      },
+      {
+        "kind": "verification",
+        "body": "{\"criterion_0\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"met\": 0.99, \"response_pending\": 0.01, \"not_met\": 0.0, \"unclear\": 0.0}}, \"criterion_1\": {\"choice\": \"met\", \"confidence\": 0.98, \"probabilities\": {\"met\": 0.99, \"response_pending\": 0.01, \"not_met\": 0.0, \"unclear\": 0.0}}, \"criterion_2\": {\"choice\": \"met\", \"confidence\": 0.53, \"probabilities\": {\"met\": 0.65, \"response_pending\": 0.03, \"not_met\": 0.06, \"unclear\": 0.26}}, \"original_task\": {\"choice\": \"met\", \"confidence\": 0.87, \"probabilities\": {\"met\": 0.92, \"not_met\": 0.08, \"unclear\": 0.0}}}"
+      },
+      {
+        "kind": "answer_review",
+        "body": "{\"support\": {\"choice\": \"supported\", \"confidence\": 0.98, \"probabilities\": {\"unclear\": 0.0, \"unsupported\": 0.01, \"supported\": 0.99}}, \"attempt\": 1}"
+      },
+      {
+        "kind": "assistant",
+        "body": "\"SAVED\""
+      },
+      {
+        "kind": "usage",
+        "body": "{\"elapsed_seconds\": 22.1, \"codex_calls\": 2, \"jev_calls\": 4, \"codex_input_tokens\": 33712, \"codex_output_tokens\": 309, \"jev_input_tokens\": 11308, \"provider\": \"codex\", \"generation_calls\": 2, \"generation_input_tokens\": 33712, \"generation_output_tokens\": 309, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.067405}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 1e-06}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.006262}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.011148}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.131874}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.011624}, {\"stage\": \"turn_stream\", \"seconds\": 13.051498, \"first_output_seconds\": 4.200945}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 24573, \"schema_bytes\": 2340, \"queue_seconds\": 5.8e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 18909, \"output_tokens\": 303, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 13.21267}, {\"stage\": \"tool\", \"tool\": \"write_file\", \"action\": \"receipt\", \"status\": \"completed\", \"seconds\": 0.098432}, {\"stage\": \"tool\", \"tool\": \"write_file\", \"action\": \"note\", \"status\": \"completed\", \"seconds\": 0.095737}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.090961}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.01171}, {\"stage\": \"turn_stream\", \"seconds\": 3.787199, \"first_output_seconds\": 3.547994}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 6482, \"schema_bytes\": 0, \"queue_seconds\": 1e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 14803, \"output_tokens\": 6, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 3.890052}], \"decisions\": [{\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 4217, \"question_bytes\": 750, \"status\": \"completed\", \"seconds\": 0.677636}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 5365, \"question_bytes\": 744, \"status\": \"completed\", \"seconds\": 0.270241}, {\"stage\": \"jev\", \"questions\": 4, \"state_bytes\": 6432, \"question_bytes\": 2812, \"status\": \"completed\", \"seconds\": 0.289396}, {\"stage\": \"jev\", \"questions\": 1, \"state_bytes\": 6183, \"question_bytes\": 412, \"status\": \"completed\", \"seconds\": 0.254887}]}, \"generation_cached_input_tokens\": 0, \"generation_cache_write_input_tokens\": 0}"
+      }
+    ],
+    "seconds": 22.292,
+    "answer": "SAVED",
+    "passed": true,
+    "grading": {
+      "saved_json": {
+        "accepted": true,
+        "count": 3,
+        "tags": [
+          "oak",
+          "pine"
+        ]
+      },
+      "note_bytes": [
+        114,
+        101,
+        97,
+        100,
+        121,
+        10
+      ]
+    },
+    "observed_commands": [],
+    "events": [
+      {
+        "seconds": 1.256,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 14.6,
+        "kind": "plan",
+        "text": "Create and verify both files, then reply exactly SAVED."
+      },
+      {
+        "seconds": 14.6,
+        "kind": "planned",
+        "text": "receipt \u00b7 Create the requested JSON file."
+      },
+      {
+        "seconds": 14.6,
+        "kind": "planned",
+        "text": "note \u00b7 Create the requested text file."
+      },
+      {
+        "seconds": 14.794,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 15.57,
+        "kind": "decision",
+        "text": "receipt \u2192 execute"
+      },
+      {
+        "seconds": 15.57,
+        "kind": "tool",
+        "text": "write_file \u00b7 Create the requested JSON file."
+      },
+      {
+        "seconds": 15.952,
+        "kind": "done",
+        "text": "receipt \u00b7 completed"
+      },
+      {
+        "seconds": 16.143,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 16.512,
+        "kind": "decision",
+        "text": "note \u2192 execute"
+      },
+      {
+        "seconds": 16.512,
+        "kind": "tool",
+        "text": "write_file \u00b7 Create the requested text file."
+      },
+      {
+        "seconds": 16.892,
+        "kind": "done",
+        "text": "note \u00b7 completed"
+      },
+      {
+        "seconds": 17.27,
+        "kind": "judge",
+        "text": "Jev \u00b7 4 decisions"
+      },
+      {
+        "seconds": 17.758,
+        "kind": "model",
+        "text": "Codex \u00b7 thinking"
+      },
+      {
+        "seconds": 21.649,
+        "kind": "judge",
+        "text": "Jev \u00b7 1 decision"
+      },
+      {
+        "seconds": 22.292,
+        "kind": "usage",
+        "text": "22.1s \u00b7 codex 2 calls \u00b7 Jev 4 calls"
+      }
+    ],
+    "artifacts": {
+      "note.txt": "ready\n",
+      "receipt.json": "{\"accepted\":true,\"count\":3,\"tags\":[\"oak\",\"pine\"]}"
+    },
+    "workspace_before": {},
+    "workspace_after": {
+      "note.txt": {
+        "mode": 384,
+        "type": "file",
+        "bytes": 6,
+        "sha256": "ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b"
+      },
+      "receipt.json": {
+        "mode": 384,
+        "type": "file",
+        "bytes": 49,
+        "sha256": "918c3825e1b5c98c38e24d49f9b407b713434cd0e0d58dd687bfd960e18825fd"
+      }
+    },
+    "scope_violations": [],
+    "scope_passed": true,
+    "verified_result_reuses": 0,
+    "table_fastpaths": 0
+  }
+]

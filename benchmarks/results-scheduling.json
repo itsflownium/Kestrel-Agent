@@ -1,0 +1,386 @@
+{
+  "scheduler_sha256": "b41acd3b18485586c73c62a165259b9d006a2d4ef8f1f1710656609c34c7d2b9",
+  "description": "Synthetic 20ms fast read, 200ms unrelated read, 200ms fast-read descendant; instantaneous mocked Jev.",
+  "results": [
+    {
+      "repetition": 1,
+      "mode": "dependency_driven",
+      "seconds": 0.22289495798759162,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.00016316596884280443
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.0001866660313680768
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.02133558294735849
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.0215689999749884
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20131137501448393
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.2227747499709949
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 1,
+      "mode": "batch_barrier",
+      "seconds": 0.40262825007084757,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.00014074996579438448
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.0001686670584604144
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.021293416968546808
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20116804202552885
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.20134220807813108
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.40253787499386817
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 2,
+      "mode": "dependency_driven",
+      "seconds": 0.22292508301325142,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.0002127080224454403
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.00024395796936005354
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.021380375022999942
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.02165095799136907
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20144929201342165
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.22281612502411008
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 2,
+      "mode": "batch_barrier",
+      "seconds": 0.4028214159188792,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.00012870796490460634
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.00015883299056440592
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.021337582962587476
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.2013244159752503
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.20151445793453604
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.4027490830048919
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 3,
+      "mode": "dependency_driven",
+      "seconds": 0.22291954106185585,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.00020116602536290884
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.0002275001024827361
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.021363541018217802
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.021634791046380997
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20115900004748255
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.2228179160738364
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 3,
+      "mode": "batch_barrier",
+      "seconds": 0.4028138330904767,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 9.841704741120338e-05
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.00012329209130257368
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.02129716705530882
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20130891702137887
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.20153275004122406
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.40273087506648153
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 4,
+      "mode": "dependency_driven",
+      "seconds": 0.2225995829794556,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.00020791601855307817
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.00023704103659838438
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.021376666030846536
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.02160374994855374
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20148233301006258
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.22247229097411036
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 4,
+      "mode": "batch_barrier",
+      "seconds": 0.40286212495993823,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.0001165829598903656
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.0001395420404151082
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.02135908300988376
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20134220796171576
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.20154558296781033
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.40276841702871025
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 5,
+      "mode": "dependency_driven",
+      "seconds": 0.22305749997030944,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.00023262493778020144
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.00026470900047570467
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.021432750043459237
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.021726917009800673
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.2014787090010941
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.22294020897243172
+        }
+      ],
+      "passed": true
+    },
+    {
+      "repetition": 5,
+      "mode": "batch_barrier",
+      "seconds": 0.40274187503382564,
+      "trace": [
+        {
+          "action": "fast",
+          "event": "start",
+          "seconds": 0.0001301249722018838
+        },
+        {
+          "action": "slow",
+          "event": "start",
+          "seconds": 0.0001614589709788561
+        },
+        {
+          "action": "fast",
+          "event": "finish",
+          "seconds": 0.02131916698999703
+        },
+        {
+          "action": "slow",
+          "event": "finish",
+          "seconds": 0.20110845903400332
+        },
+        {
+          "action": "child",
+          "event": "start",
+          "seconds": 0.20133312500547618
+        },
+        {
+          "action": "child",
+          "event": "finish",
+          "seconds": 0.4026376249967143
+        }
+      ],
+      "passed": true
+    }
+  ]
+}
