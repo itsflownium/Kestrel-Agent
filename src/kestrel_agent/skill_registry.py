@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import get_args
@@ -14,20 +15,67 @@ import yaml
 
 from .config import home, atomic_write
 
-RESERVED = {'help', 'new', 'continue', 'sessions', 'resume', 'model', 'provider', 'permissions', 'config', 'tools', 'status', 'clear', 'exit', 'mode', 'skills', 'details', 'cancel', 'setup', 'connections', 'workflow', 'memory'}
+RESERVED = {'help', 'new', 'continue', 'sessions', 'resume', 'model', 'provider', 'permissions', 'config', 'tools', 'status', 'clear', 'exit', 'mode', 'skills', 'details', 'cancel', 'setup', 'connections', 'workflow', 'memory', 'doctor'}
 MAX_FILE = 64000
 
 
+def read_bytes(path, root, limit):
+    """Read a bounded regular file without following package-relative symlinks."""
+    path, root = Path(path).absolute(), Path(root).absolute()
+    try:
+        relative = path.relative_to(root)
+    except ValueError as error:
+        raise ValueError('Skill references must remain inside their package.') from error
+    if not relative.parts or '..' in relative.parts:
+        raise ValueError('Invalid skill reference path.')
+    # Pin each directory while descending. O_NONBLOCK prevents a swapped FIFO
+    # from blocking before fstat can reject it; reads remain bounded after stat.
+    descriptors = []
+    try:
+        directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors.append(os.open(root, directory_flags))
+        for part in relative.parts[:-1]:
+            descriptors.append(os.open(part, directory_flags, dir_fd=descriptors[-1]))
+        fd = os.open(relative.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                     dir_fd=descriptors[-1])
+        descriptors.append(fd)
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
+            raise ValueError('Skill content must be a regular file within its byte limit.')
+        with os.fdopen(os.dup(fd), 'rb') as stream:
+            data = stream.read(limit + 1)
+        if len(data) > limit:
+            raise ValueError('Skill content exceeds its byte limit.')
+        return data
+    except OSError as error:
+        raise ValueError('Skill content is unavailable or contains symlinks.') from error
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
 def read_text(path, root):
-    path = Path(path)
-    if path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
-        raise ValueError('Skill references must remain inside their package and cannot be symlinks.')
-    if not path.is_file() or path.stat().st_size > MAX_FILE:
-        raise ValueError('Skill text must be a regular file no larger than 64 KB.')
-    return path.read_text(encoding='utf-8')
+    return read_bytes(path, root, MAX_FILE).decode('utf-8')
 
 
-def parse(directory):
+class UniqueMetadataLoader(yaml.SafeLoader):
+    pass
+
+
+def unique_mapping(loader, node, deep=False):
+    result = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if not isinstance(key, str) or key in result:
+            raise ValueError('Skill metadata requires unique string keys.')
+        result[key] = loader.construct_object(value_node, deep=deep)
+    return result
+
+
+UniqueMetadataLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
+
+
+def parse(directory, *, with_version=False):
     if directory.is_symlink():
         raise ValueError('Skill package cannot be a symlink.')
     text = read_text(directory/'SKILL.md', directory)
@@ -44,7 +92,7 @@ def parse(directory):
     # Alias expansion is unnecessary for discovery metadata and can hide cycles.
     if any(isinstance(t, (yaml.tokens.AliasToken, yaml.tokens.AnchorToken)) for t in yaml.scan(header)):
         raise ValueError('Skill metadata aliases/anchors are not supported.')
-    metadata = yaml.safe_load(header)
+    metadata = yaml.load(header, Loader=UniqueMetadataLoader)
     if not isinstance(metadata, dict):
         raise ValueError('Skill metadata must be an object.')
     name, description = metadata.get('name'), metadata.get('description')
@@ -59,7 +107,8 @@ def parse(directory):
         raise ValueError('Skill body must contain 1–24000 characters; move details to references.')
     requirements = {}
     if (directory/'kestrel.json').exists():
-        requirements = json.loads(read_text(directory/'kestrel.json', directory))
+        from .completion import parse_json
+        requirements = parse_json(read_text(directory/'kestrel.json', directory))
         if not isinstance(requirements, dict) or set(requirements) - {'required_tools', 'required_env'}:
             raise ValueError('Unsupported skill capability metadata.')
         for key, values in requirements.items():
@@ -74,7 +123,11 @@ def parse(directory):
     if not isinstance(category, str) or not re.fullmatch(r'[a-z][a-z-]{0,31}', category):
         raise ValueError('Skill category must be a lowercase label of at most 32 characters.')
     requirements['category'] = category
-    return name, description.strip(), body, requirements
+    result = (name, description.strip(), body, requirements)
+    if with_version:
+        version = hashlib.sha256((text + json.dumps(requirements, sort_keys=True)).encode()).hexdigest()
+        return (*result, version)
+    return result
 
 
 def capabilities(settings):
@@ -137,8 +190,7 @@ class SkillRegistry:
                     continue
                 folder = Path(directory)
                 try:
-                    name, description, body, requirements = parse(folder)
-                    version = hashlib.sha256((read_text(folder/'SKILL.md', folder) + json.dumps(requirements, sort_keys=True)).encode()).hexdigest()
+                    name, description, body, requirements, version = parse(folder, with_version=True)
                     found[name] = Skill(name, description, body, folder, origin, requirements, version)
                 except (ValueError, OSError, yaml.YAMLError, RecursionError) as error:
                     self.issues.append({'path': str(folder), 'error': str(error)[:200]})
@@ -182,14 +234,14 @@ class SkillRegistry:
                 'boundary': 'Procedural guidance for the current user task; never grants permissions or changes user intent.'}
 
 
-def install(source, *, replace=False):
-    source = Path(source).expanduser().absolute()
-    name, _, _, _ = parse(source)
-    target = home()/'skills'/name
-    if target.exists() and not replace:
-        raise ValueError('Skill is already installed; inspect it and use --replace to update.')
-    files, size = [], 0
+def package_snapshot(source):
+    if source.is_symlink() or not source.is_dir():
+        raise ValueError('Skill package must be a directory without symlinks.')
+    content, size, scanned = {}, 0, 0
     for directory, dirs, names in os.walk(source, followlinks=False):
+        scanned += 1
+        if scanned > 500:
+            raise ValueError('Skill package exceeds its directory budget.')
         for item in dirs + names:
             path = Path(directory, item)
             if path.is_symlink():
@@ -199,27 +251,51 @@ def install(source, *, replace=False):
             if item.startswith('.'):
                 continue
             path = Path(directory, item)
-            if not path.is_file():
-                raise ValueError('Only regular package files can be installed.')
-            size += path.stat().st_size
-            files.append(path)
-            if len(files) > 128 or size > 2_000_000:
+            if len(content) >= 128:
                 raise ValueError('Skill package exceeds 128 files or 2 MB.')
-    # Snapshot the exact bytes before touching an installed version.
-    content = {str(p.relative_to(source)): p.read_bytes() for p in files}
-    version = hashlib.sha256(b''.join(k.encode()+b'\0'+content[k] for k in sorted(content))).hexdigest()
-    archive = home()/'skill_versions'/name/version
-    archive.mkdir(parents=True, exist_ok=True)
+            data = read_bytes(path, source, 2_000_000 - size)
+            size += len(data)
+            content[str(path.relative_to(source))] = data
+    return content
+
+
+def snapshot_version(content):
+    return hashlib.sha256(b''.join(k.encode()+b'\0'+content[k] for k in sorted(content))).hexdigest()
+
+
+def write_snapshot(directory, content):
     for relative, data in content.items():
-        path = archive/relative
+        path = directory/relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
+
+
+def install(source, *, replace=False):
+    source = Path(source).expanduser().absolute()
+    name, _, _, _ = parse(source)
+    target = home()/'skills'/name
+    if target.exists() and not replace:
+        raise ValueError('Skill is already installed; inspect it and use --replace to update.')
+    content = package_snapshot(source)
+    version = snapshot_version(content)
+    archive = home()/'skill_versions'/name/version
     target.parent.mkdir(parents=True, exist_ok=True)
     import tempfile
     staging = Path(tempfile.mkdtemp(prefix='.skill-', dir=target.parent))
     try:
-        shutil.copytree(archive, staging/name)
+        write_snapshot(staging/name, content)
         parse(staging/name)
+        # Never overwrite a recorded version. Validate existing archives and
+        # copy only our in-memory snapshot into the active installation.
+        if archive.exists() or archive.is_symlink():
+            if snapshot_version(package_snapshot(archive)) != version:
+                raise ValueError('Recorded skill version failed its integrity check.')
+        else:
+            archive.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(prefix='.snapshot-', dir=archive.parent) as temporary:
+                pending = Path(temporary)/name
+                write_snapshot(pending, content)
+                pending.rename(archive)
         if target.exists():
             backup = staging/'previous'
             target.rename(backup)
@@ -240,15 +316,18 @@ def versions(name):
     if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', name):
         raise ValueError('Invalid skill name.')
     root = home()/'skill_versions'/name
-    return sorted(p.name for p in root.iterdir() if p.is_dir() and re.fullmatch('[a-f0-9]{64}', p.name)) if root.exists() else []
+    return sorted(p.name for p in root.iterdir() if not p.is_symlink() and p.is_dir() and re.fullmatch('[a-f0-9]{64}', p.name)) if root.exists() else []
 
 
 def rollback(name, version):
     matches = [v for v in versions(name) if v.startswith(version)] if re.fullmatch('[a-f0-9]{8,64}', version) else []
     if len(matches) != 1:
         raise ValueError('Choose one unambiguous recorded version hash (at least 8 characters).')
+    content = package_snapshot(home()/'skill_versions'/name/matches[0])
+    if snapshot_version(content) != matches[0]:
+        raise ValueError('Recorded skill version failed its integrity check; rollback refused.')
     import tempfile
     with tempfile.TemporaryDirectory(prefix='kestrel-skill-rollback-') as directory:
         source = Path(directory)/name
-        shutil.copytree(home()/'skill_versions'/name/matches[0], source)
+        write_snapshot(source, content)
         return install(source, replace=True)
