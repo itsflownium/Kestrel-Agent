@@ -255,10 +255,12 @@ async def main():
                     after=manifest(workspace)
                     record['passed'],record['grading']=await grade(case['id'],answer,workspace,runtime,events,commands)
                 except Exception as error:
-                    record.update(seconds=round(time.perf_counter()-start,3),error=redact(str(error)),passed=False)
+                    record.update(seconds=round(time.perf_counter()-start,3),error=redact(str(error)),error_type=type(error).__name__,passed=False)
                 finally:
                     if after is None: after=manifest(workspace)
                     if engine:
+                        commands=[{'exit_code':o['result'].get('exitCode'),'stdout':o['result'].get('stdout','')} for o in engine.state.get('observations',[]) if o.get('tool')=='shell' and o.get('status') in {'completed','error'}]
+                        record['observations']=json.loads(redact(json.dumps(engine.state.get('observations', []),default=str)))
                         record.update(engine.state.get('usage', {}))
                         record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=? ORDER BY id',(engine.sid,))]
                         record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls if settings.agent_mode == "jev" else 0,decision_calls=engine.judge.calls)
