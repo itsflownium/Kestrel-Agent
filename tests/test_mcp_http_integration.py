@@ -61,3 +61,52 @@ async def test_real_http_catalog_call_and_persistent_session_cleanup():
         server.should_exit = True
         await asyncio.wait_for(task, 5)
         listener.close()
+
+
+@pytest.mark.asyncio
+async def test_engine_refreshes_configured_observation_over_real_mcp(tmp_path, monkeypatch):
+    from unittest.mock import AsyncMock
+    from kestrel_agent.engine import Engine
+    from kestrel_agent.schema import Action
+    from kestrel_agent.store import Store
+    monkeypatch.setenv('KESTREL_HOME', str(tmp_path/'state'))
+    listener = socket.socket()
+    listener.bind(('127.0.0.1', 0))
+    port = listener.getsockname()[1]
+    listener.listen()
+    app = FastMCP('Observation fixture', host='127.0.0.1', port=port, json_response=True)
+    current = {'value': 'before'}
+    class Observation(BaseModel):
+        value: str
+    @app.tool()
+    def observe() -> Observation:
+        return Observation(value=current['value'])
+    server = uvicorn.Server(uvicorn.Config(app.streamable_http_app(), log_level='error'))
+    task = asyncio.create_task(server.serve(sockets=[listener]))
+    config = Settings(agent_mode='standard', provider='openai-compatible', mcp_connections={
+        'fixture': Connection(url=f'http://127.0.0.1:{port}/mcp', read_only_tools=['observe'])})
+    store = Store(config)
+    confirm = AsyncMock(return_value=True)
+    engine = Engine(config, tmp_path, store, store.create(tmp_path), lambda *args: None, confirm)
+    engine.state.update(results={}, statuses={})
+    try:
+        async with asyncio.timeout(5):
+            while not server.started:
+                if task.done():
+                    await task
+                await asyncio.sleep(.01)
+        for name, value in [('first', 'before'), ('second', 'after')]:
+            current['value'] = value
+            await engine.perform(Action(id=name, tool='mcp',
+                arguments_json='{"server":"direct:fixture","tool":"observe","arguments":{}}',
+                depends_on=[], purpose='Read current state', condition='always'))
+            assert engine.state['statuses'][name] == 'completed'
+            assert engine.state['results'][name]['structuredContent']['value'] == value
+        assert confirm.await_count == 2
+        assert engine.state['completed_effects'] == []
+    finally:
+        await engine.close()
+        store.close()
+        server.should_exit = True
+        await asyncio.wait_for(task, 5)
+        listener.close()

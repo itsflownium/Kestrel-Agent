@@ -92,7 +92,7 @@ class Engine:
             self.log("user", original_message)
             if selected_skills:
                 self.log("selected_skills", selected_skills)
-            self.state.update(request=message, user_memory=retrieved_memory, selected_skills=selected_skills, plan=None, results={}, statuses={}, observations=[], requirements={}, completion_checks={}, repair_snapshot=None, effect_receipts=[], progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
+            self.state.update(request=message, user_memory=retrieved_memory, selected_skills=selected_skills, plan=None, results={}, statuses={}, action_effects={}, observations=[], requirements={}, completion_checks={}, repair_snapshot=None, effect_receipts=[], progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
             if initial_plan is not None:
                 self.state["plan"] = initial_plan.model_dump()
                 self.log("explicit_workflow_plan", initial_plan.model_dump())
@@ -406,6 +406,10 @@ FEEDBACK: {json.dumps(feedback, default=str)}
         effect = action.tool in {"write_file", "shell", "mcp"}
         try:
             args = bind(action.arguments(), self.state["results"])
+            if action.tool == 'mcp':
+                from .connections import is_observation
+                effect = not is_observation(self.settings, args)
+            self.state.setdefault('action_effects', {})[action.id] = effect
             legacy_fingerprint = hashlib.sha256(json.dumps([action.tool, args], sort_keys=True).encode()).hexdigest()
             fingerprint = legacy_fingerprint
             if effect:

@@ -14,15 +14,33 @@ class Connection(BaseModel):
     url: str
     bearer_env: str | None = Field(default=None, pattern=r'^[A-Za-z_][A-Za-z0-9_]*$')
     enabled: bool = True
+    read_only_tools: list[str] = Field(default_factory=list, max_length=100)
 
     @model_validator(mode='after')
     def valid_url(self):
+        if len(set(self.read_only_tools)) != len(self.read_only_tools) or any(
+            not name or name != name.strip() or len(name) > 128 for name in self.read_only_tools
+        ):
+            raise ValueError('Read-only tool names must be unique, nonempty exact names of up to 128 characters.')
         parsed = urlsplit(self.url)
         if not parsed.hostname or parsed.username or parsed.password or parsed.fragment or parsed.query:
             raise ValueError('Use an MCP endpoint without embedded credentials, query, or fragment.')
         if parsed.scheme != 'https' and not (parsed.scheme == 'http' and parsed.hostname in {'localhost', '127.0.0.1', '::1'}):
             raise ValueError('MCP requires HTTPS, except localhost HTTP servers.')
         return self
+
+
+def is_observation(settings, arguments):
+    """Only explicit local configuration can classify a remote call as a read.
+
+    This controls replay accounting, never permission checks or auto-approval.
+    Remote catalog annotations and tool names alone are not trusted declarations.
+    """
+    server, tool = arguments.get('server'), arguments.get('tool')
+    if not isinstance(server, str) or not server.startswith('direct:'):
+        return False
+    connection = settings.mcp_connections.get(server[len('direct:'):])
+    return bool(connection and connection.enabled and tool in connection.read_only_tools)
 
 
 class ConnectionPool:

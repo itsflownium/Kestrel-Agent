@@ -128,7 +128,7 @@ async def run(args):
             os.environ['KESTREL_HOME'] = str(root/'state')
             settings = Settings(agent_mode='standard' if args.mode == 'direct-codex' else args.mode, model='gpt-6-astra', effort='medium', permission='workspace',
                 network=True, shell=False, max_model_calls=12, max_minutes=4,
-                mcp_connections={'browser':Connection(url=f'http://127.0.0.1:{port}/mcp')})
+                mcp_connections={'browser':Connection(url=f'http://127.0.0.1:{port}/mcp', read_only_tools=['browser_tabs', 'browser_snapshot', 'browser_screenshot'])})
             store = Store(settings)
             sid = store.create(workspace)
             async def confirm(description):
