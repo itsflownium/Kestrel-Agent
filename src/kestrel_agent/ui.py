@@ -28,7 +28,7 @@ from .provider_presets import PRESETS, select, label as provider_label
 
 COMMANDS = ["/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
-    "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
+    "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
     "approval": "#f9e2af bold", "completion-menu.completion": "bg:#20232b #cdd6f4",
     "completion-menu.completion.current": "bg:#3a4554 #ffffff",
@@ -87,49 +87,18 @@ class Terminal:
         return [("class:status", f"  {status}  "), ("", details)]
 
     def input_prompt(self):
-        width = max(12, min(self.console.size.width - 4, 88))
-        label = "Permission · yes / no" if self.pending_approval is not None else ("Working · Ctrl+C to stop" if self.busy else "Message Kestrel")
-        return [("class:input-border", "\n  " + "─" * width + "\n"),
-                ("class:hint", f"  {label}\n"), ("class:prompt", "  ❯ ")]
+        width = max(12, min(self.console.size.width - 4, 112))
+        label = "ALLOW ONCE? · yes / no" if self.pending_approval is not None else ("WORKING · Ctrl+C stops" if self.busy else "YOUR NEXT TASK")
+        return [("class:input-border", "\n ╭─ "), ("class:hint", label),
+                ("class:input-border", " " + "─" * max(0, width - len(label) - 4) + "\n │ "),
+                ("class:prompt", "› ")]
 
     def welcome(self):
+        from .dashboard import command_desk
         self.refresh_skills()
-        width = min(self.console.size.width, 92)
         self.console.print()
-        brand = Table.grid(padding=(0, 2))
-        brand.add_column(style="bold #8bd5ca", no_wrap=True)
-        brand.add_column()
-        brand.add_row("  ╲  ╱\n   ◇\n  ╱  ╲", Text.assemble(
-            ("KESTREL", "bold #e6edf3"), (f"   v{__version__}\n", "#8993a7"),
-            ("Think deeply. Move lightly.\n", "#a8acb8"),
-            ("Your terminal, with a little more lift.", "#8993a7")))
-        self.console.print(brand)
-        self.console.print()
-        workspace = str(self.workspace)
-        user_home = str(Path.home())
-        if workspace == user_home or workspace.startswith(user_home + "/"):
-            workspace = "~" + workspace[len(user_home):]
-        info = Table.grid(padding=(0, 2))
-        info.add_column(style="#8993a7")
-        info.add_column(style="#d8dee9", overflow="fold")
-        info.add_row("Workspace", workspace)
-        info.add_row("Provider", provider_label(self.settings))
-        info.add_row("Models", f"{self.settings.model or 'default'}  ·  {self.settings.agent_mode}")
-        info.add_row("Execution", self.settings.execution_backend + (" · " + self.settings.docker_image if self.settings.execution_backend == 'docker' else " sandbox"))
-        info.add_row("Access", f"{self.settings.permission} · network {'on' if self.settings.network else 'off'}")
-        catalog = self.skill_registry.catalog()
-        info.add_row("Skills", f"{len(catalog['skills'])} available · /skills to explore")
-        self.console.print(Panel(info, title="[bold #8bd5ca]Your workspace[/]", title_align="left",
-                                 subtitle=f"[dim]session {self.sid}[/dim]", subtitle_align="right",
-                                 width=width, box=box.ROUNDED, border_style="#414b60", padding=(1, 2)))
-        suggestions = Text.assemble(
-            ("  Start anywhere\n", "bold #d8dee9"),
-            ("  Explain a project   ·   Compare documents   ·   Research an idea\n\n", "#8993a7"),
-            ("  /setup", "#8bd5ca"), (" configure    ", "#8993a7"),
-            ("/skills", "#8bd5ca"), (" extend    ", "#8993a7"),
-            ("/permissions", "#8bd5ca"), (" access    ", "#8993a7"),
-            ("/help", "#8bd5ca"), (" all commands", "#8993a7"))
-        self.console.print(suggestions)
+        self.console.print(command_desk(self.settings, self.workspace, self.sid,
+                                        self.skill_registry.catalog(), self.console.size.width))
 
     def emit(self, kind: str, text: str):
         if kind in {"model", "judge", "tool", "connecting"}:
