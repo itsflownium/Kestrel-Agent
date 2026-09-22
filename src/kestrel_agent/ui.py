@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import json
 import os
 import re
 import time
 from pathlib import Path
 
+from prompt_toolkit.formatted_text import ANSI, to_formatted_text
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
@@ -17,6 +19,8 @@ from rich.console import Console
 from rich import box
 from rich.markdown import Markdown
 from rich.panel import Panel
+from rich.padding import Padding
+from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
 
@@ -26,7 +30,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -39,6 +43,8 @@ class Terminal:
     def __init__(self, settings: Settings, workspace: Path, store: Store, sid: str):
         self.settings, self.workspace, self.store, self.sid = settings, workspace, store, sid
         self.console = Console(highlight=False)
+        self.show_intro = False
+        self._intro_cache = None
         self.phase = "ready"
         self.busy = False
         self.started_at = 0.0
@@ -87,18 +93,34 @@ class Terminal:
         return [("class:status", f"  {status}  "), ("", details)]
 
     def input_prompt(self):
-        width = max(12, min(self.console.size.width - 4, 112))
+        size = self.prompt.output.get_size()
+        columns = max(20, size.columns)
+        width = max(12, columns - 4)
         label = "ALLOW ONCE? · yes / no" if self.pending_approval is not None else ("WORKING · Ctrl+C stops" if self.busy else "YOUR NEXT TASK")
-        return [("class:input-border", "\n ╭─ "), ("class:hint", label),
+        intro = []
+        if self.show_intro:
+            from .dashboard import command_desk
+            key = (columns, size.rows)
+            if self._intro_cache is None or self._intro_cache[0] != key:
+                output = io.StringIO()
+                renderer = Console(file=output, width=columns, force_terminal=True, color_system='truecolor', highlight=False)
+                if size.rows < 34:
+                    renderer.print(Text(' K E S T R E L  / COMMAND DESK', style='bold #e8b86d'))
+                    renderer.print(Text(f' {self.settings.model or "Provider default"} · {self.settings.agent_mode} · {self.settings.execution_backend}'))
+                    renderer.print(Text(' /setup · /skills · /workflow · /connections · /help', style='#80cec5'))
+                else:
+                    renderer.print(command_desk(self.settings, self.workspace, self.sid, self._intro_catalog, columns))
+                self._intro_cache = (key, to_formatted_text(ANSI(output.getvalue())))
+            intro = self._intro_cache[1]
+        return intro + [("class:input-border", "\n ╭─ "), ("class:hint", label),
                 ("class:input-border", " " + "─" * max(0, width - len(label) - 4) + "\n │ "),
                 ("class:prompt", "› ")]
 
     def welcome(self):
-        from .dashboard import command_desk
         self.refresh_skills()
-        self.console.print()
-        self.console.print(command_desk(self.settings, self.workspace, self.sid,
-                                        self.skill_registry.catalog(), self.console.size.width))
+        self._intro_catalog = self.skill_registry.catalog()
+        self._intro_cache = None
+        self.show_intro = True
 
     def emit(self, kind: str, text: str):
         if kind in {"model", "judge", "tool", "connecting"}:
@@ -112,7 +134,7 @@ class Terminal:
                 if len(lines) > 5 or len(redact(text)) >= 600:
                     text += '\n… /details on shows subsequent full output; session logs retain evidence.' 
             self.console.print(Panel(Text(redact(text)), title="[dim]tool output[/dim]", title_align="left",
-                                     width=min(self.console.size.width, 100), box=box.ROUNDED,
+                                     width=self.console.size.width, box=box.ROUNDED,
                                      border_style="#303642", padding=(0, 1)))
             return
         symbols = {"model": ("◌", "#a6adc8"), "judge": ("◇", "#8bd5ca"), "plan": ("→", "#c4b5fd"),
@@ -159,9 +181,8 @@ class Terminal:
             else:
                 answer = await self.engine.run(message)
             self.console.print()
-            self.console.print(Text("  ◇ Kestrel", style="bold #8bd5ca"))
-            self.console.print(Panel(Markdown(answer), width=min(self.console.size.width, 100),
-                                     box=box.ROUNDED, border_style="#414b60", padding=(1, 2)))
+            self.console.print(Rule(Text(" Kestrel ", style="bold #80cec5"), align="left", style="#465366"))
+            self.console.print(Padding(Markdown(answer), (1, 2)))
         except asyncio.CancelledError:
             self.emit("warning", "Stopped. /continue resumes the task; /status shows its checkpoint.")
         except Exception as error:
@@ -181,6 +202,7 @@ class Terminal:
                     break
                 if not message:
                     continue
+                self.show_intro = False
                 if self.pending_approval is not None:
                     if message.lower() not in {"yes", "y", "no", "n"}:
                         self.emit("warning", "Please answer yes or no for the pending action.")
@@ -213,6 +235,7 @@ class Terminal:
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
                 ("/setup", "Configure models, auth, mode, and Docker execution"),
+                ("/memory [set|forget]", "Inspect or edit explicit preferences and project notes"),
                 ("/workflow [preview|run] NAME JSON", "Review or run a typed workflow with parameters"),
                 ("/connections [add NAME URL|remove NAME]", "Connect browser, desktop, and service tools over MCP"),
                 ("/details [on|off]", "Show or hide detailed agent activity"),
@@ -230,6 +253,29 @@ class Terminal:
                 if not argument or argument.lower() in (command + " " + meaning).lower():
                     table.add_row(command, meaning)
             self.console.print(table)
+        elif name == "/memory":
+            import shlex
+            from .memory import Memory
+            memory = Memory(self.store)
+            parts = shlex.split(argument)
+            if parts and parts[0] == 'set':
+                if len(parts) != 5 or parts[1] not in {'project', 'global'}:
+                    raise ValueError('Use /memory set project|global note|preference KEY "CONTENT"')
+                memory.put(parts[3], parts[4], workspace=self.workspace if parts[1] == 'project' else None, kind=parts[2])
+                self.emit('done', 'Saved memory ' + parts[3])
+            elif parts and parts[0] == 'forget':
+                if len(parts) != 3 or parts[1] not in {'project', 'global'}:
+                    raise ValueError('Use /memory forget project|global KEY')
+                memory.forget(parts[2], workspace=self.workspace if parts[1] == 'project' else None)
+                self.emit('done', 'Forgot memory for future retrieval. Prior conversation logs remain.')
+            elif parts:
+                raise ValueError('Use /memory, /memory set project|global note|preference KEY "CONTENT", or /memory forget project|global KEY')
+            else:
+                table = Table('Key', 'Scope', 'Kind', 'Content', box=box.SIMPLE)
+                for row in memory.list(self.workspace):
+                    table.add_row(row['key'], 'global' if row['scope'] == '*' else 'project', row['kind'] + (' (expired)' if row['expired'] else ''), row['content'])
+                self.console.print(table)
+                self.console.print('  /memory set project note KEY "CONTENT" · /memory forget project KEY', style='dim')
         elif name == "/workflow":
             from .workflow_templates import directory, load, compile_workflow
             from .completion import parse_json

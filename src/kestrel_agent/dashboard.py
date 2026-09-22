@@ -20,7 +20,7 @@ BORDER = '#465366'
 
 
 def command_desk(settings, workspace, sid, catalog, width):
-    width = min(max(20, width), 116)
+    width = max(20, width)
     title = Text.assemble((' K E S T R E L ', f'bold {ACCENT}'), (' / COMMAND DESK', MUTED))
     model = Text.assemble((settings.model or 'Provider default', f'bold {INK}'),
                           ('  ·  ' + label(settings), MUTED))

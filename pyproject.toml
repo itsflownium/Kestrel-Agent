@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 learning = ["gepa==0.1.4"]
-dev = ["pytest>=8,<10", "pytest-asyncio>=1,<2"]
+dev = ["pytest>=8,<10", "pytest-asyncio>=1,<2", "pyte>=0.8,<1"]
 
 [project.scripts]
 kestrel = "kestrel_agent.cli:app"
