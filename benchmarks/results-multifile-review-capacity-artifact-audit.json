@@ -1,0 +1,45 @@
+{
+  "source": "results-multifile-review-capacity.json",
+  "source_sha256": "df70047db416c3f6318b0bd0cbad12db6b5cb288d2057ccfa3cdc0e939407db4",
+  "grader_sha256": "6abde2d4b70bd4b00886ab129da696ee0040497ca050f15601f959c85f0c0e51",
+  "large_check_sha256": "ba4e6e313a1f402c3846bc5985cfd7073a826b05dcc2abe8c2365bb58c203b99",
+  "note": "Post-run artifact diagnostics do not turn an incomplete or timed-out agent run into a pass. Large-number exactness was added after the initial frozen protocol.",
+  "results": [
+    {
+      "arm": "codex",
+      "repetition": 1,
+      "original_run_passed": true,
+      "artifact_checks_passed": true,
+      "large_exactness_passed": true,
+      "grader": {
+        "exitCode": 0,
+        "stdout": "{\"checks\": 334, \"passed\": true}\n",
+        "stderr": ""
+      },
+      "large_exactness": {
+        "exitCode": 0,
+        "stdout": "EXACT LARGE TOTAL PASS\n",
+        "stderr": ""
+      },
+      "artifact_sha256": "7f796b62f3f337502c9c6744841d6a433acd8a3b4c1a3786a6b348b1b7341b71"
+    },
+    {
+      "arm": "kestrel",
+      "repetition": 1,
+      "original_run_passed": true,
+      "artifact_checks_passed": true,
+      "large_exactness_passed": true,
+      "grader": {
+        "exitCode": 0,
+        "stdout": "{\"checks\": 334, \"passed\": true}\n",
+        "stderr": ""
+      },
+      "large_exactness": {
+        "exitCode": 0,
+        "stdout": "EXACT LARGE TOTAL PASS\n",
+        "stderr": ""
+      },
+      "artifact_sha256": "baf85dbe53ccbd049c66ad9c013973bf74ae738aeb9f88f8184a146e983671b8"
+    }
+  ]
+}

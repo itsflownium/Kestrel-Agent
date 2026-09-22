@@ -105,7 +105,7 @@ class Terminal:
             if self._intro_cache is None or self._intro_cache[0] != key:
                 output = io.StringIO()
                 renderer = Console(file=output, width=columns, force_terminal=True, color_system='truecolor', highlight=False)
-                if size.rows < 34:
+                if size.rows < 42:
                     renderer.print(Text(' K E S T R E L  / COMMAND DESK', style='bold #e8b86d'))
                     renderer.print(Text(f' {self.settings.model or "Provider default"} · {self.settings.agent_mode} · {self.settings.execution_backend}'))
                     renderer.print(Text(' /setup · /skills · /workflow · /connections · /help', style='#80cec5'))
