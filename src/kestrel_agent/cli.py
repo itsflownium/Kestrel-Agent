@@ -113,17 +113,20 @@ def setup_agent():
 
 
 @app.command()
-def doctor(online: bool = typer.Option(False, "--online", help="Explicitly contact Codex account and Jev model-list endpoints; no generation.")):
-    """Inspect setup. Network checks run only with --online."""
+def doctor(online: bool = typer.Option(False, "--online", help="Check selected provider authentication/model listing and optional Jev; no generation."),
+           runtime_checks: bool = typer.Option(False, '--runtime-checks', help='Probe the configured Docker daemon/image and launch isolated Chromium; no tasks or image pulls.')):
+    """Inspect setup; provider and runtime probes require explicit flags."""
     load_secrets()
     settings = Settings.load()
     used = check_storage(settings)
     console.print(f"Kestrel {__version__}\nManaged storage: {used / 1_000_000:.1f} MB / {settings.max_storage_bytes / 1_000_000:.0f} MB")
-    console.print(f"Data: {home()}\nAccess: {settings.permission}\nJev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}")
+    console.print(f"Data: {home()}\nAccess: {settings.permission}")
     console.print(Text(f"Mode: {settings.agent_mode}\nExecution: {settings.execution_backend}"))
-    if settings.execution_backend == "docker":
-        import shutil
-        console.print(Text(f"Docker CLI: {shutil.which('docker') or 'missing'}\nImage: {settings.docker_image} (availability not checked)"))
+    from .readiness import inspect_readiness
+    table = Table('Capability', 'State', 'Details', box=None)
+    for row in asyncio.run(inspect_readiness(settings, runtime_checks=runtime_checks)):
+        table.add_row(row['name'], row['state'], Text(row['detail']))
+    console.print(table)
     if online:
         async def check():
             runtime = Runtime(settings, Path.cwd(), emit)
