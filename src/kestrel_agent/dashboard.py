@@ -1,5 +1,6 @@
 """Responsive terminal command desk; renders without starting providers."""
 from pathlib import Path
+import sys
 
 from rich import box
 from rich.console import Group
@@ -17,6 +18,9 @@ MUTED = '#98a6b8'
 ACCENT = '#e8b86d'
 TEAL = '#80cec5'
 BORDER = '#465366'
+
+def newline_shortcut():
+    return 'Option+Enter' if sys.platform == 'darwin' else 'Alt+Enter'
 
 
 def command_desk(settings, workspace, sid, catalog, width):
@@ -66,8 +70,8 @@ def command_desk(settings, workspace, sid, catalog, width):
     separator = '\n' if width < 60 else '  ·  '
     footer = Text(f'v{__version__}  ·  {sid[:12]}' + separator + f'network {"on" if settings.network else "off"}', style=MUTED)
     hints = Text.assemble(('Ask naturally', f'bold {INK}'), ('  or use a command above.\n', MUTED),
-                          ('Tab', TEAL), (' commands  ·  ', MUTED), ('Alt+Enter', TEAL),
-                          (' newline  ·  ', MUTED), ('Ctrl+C', TEAL), (' quit when idle', MUTED))
+                          ('Tab', TEAL), (' commands  ·  ', MUTED), (newline_shortcut(), TEAL),
+                          (' / Esc, Enter newline  ·  ', MUTED), ('Ctrl+C', TEAL), (' quit when idle', MUTED))
     return Panel(Group(title, Text(''), model, strip, Text(''), cards, Text(''),
                        location, footer, Text(''), Rule(style=BORDER), hints),
                  width=width, box=box.SIMPLE, padding=(0, 1), border_style=BORDER)

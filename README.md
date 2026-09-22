@@ -138,7 +138,7 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/tools` | Discover configured MCP tools |
 | `/status` | Checkpoint and usage |
 | `/clear`, `/exit` | Clear display/exit |
-| `Ctrl+C`, `Alt+Enter` | Stop active work, or exit when idle / insert newline |
+| `Ctrl+C`, `Option+Enter` (Mac) / `Alt+Enter` | Stop active work, or exit when idle / insert newline (also Esc, then Enter) |
 
 ## Workflow memory and GEPA
 
