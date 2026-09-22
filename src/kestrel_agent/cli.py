@@ -485,3 +485,32 @@ def connections_remove(name: str):
     settings.mcp_auto_allow = [entry for entry in settings.mcp_auto_allow if not entry.startswith(f'direct:{name}/')]
     settings.save()
     console.print(Text(f'Removed {name}.'))
+
+
+@workflows_app.command("install")
+def workflow_install(path: Path = typer.Argument(..., exists=True, dir_okay=False), replace: bool = typer.Option(False)):
+    """Install a local typed template. This does not execute or certify it."""
+    from .workflow_templates import install
+    name = install(path, replace)
+    console.print(Text(f'Installed {name}. Review with kestrel workflows preview {name} JSON_PARAMETERS. No actions ran.'))
+
+
+@workflows_app.command("templates")
+def workflow_templates():
+    from .workflow_templates import directory, read
+    for path in sorted(directory().glob('*.json')):
+        try:
+            value = read(path)
+            console.print(Text(f"{value['name']} · {value['description']}"))
+        except Exception as error:
+            console.print(Text(f'{path.name}: {error}', style='yellow'))
+
+
+@workflows_app.command("preview")
+def workflow_preview(name: str, parameters: str = '{}'):
+    """Compile and display a plan without executing it or contacting a model."""
+    from .workflow_templates import load, compile_workflow
+    from .completion import parse_json
+    plan, version = compile_workflow(load(name), parse_json(parameters))
+    console.print(Text(f'Workflow version: {version}'))
+    console.print_json(plan.model_dump_json())

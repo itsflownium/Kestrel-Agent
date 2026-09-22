@@ -63,7 +63,9 @@ class Engine:
         from .evidence import context
         return context(self.state, self.settings.max_context_chars)
 
-    async def run(self, message: str | None = None) -> str:
+    async def run(self, message: str | None = None, *, initial_plan: Plan | None = None) -> str:
+        if initial_plan is not None and (message is None or initial_plan.mode != "plan"):
+            raise ValueError("A workflow plan requires a new explicit request.")
         self.runtime.begin_task()
         self.judge.telemetry.records.clear()
         self.runtime.model_calls = self.judge.calls = 0
@@ -85,6 +87,9 @@ class Engine:
             if selected_skills:
                 self.log("selected_skills", selected_skills)
             self.state.update(request=message, selected_skills=selected_skills, plan=None, results={}, statuses={}, observations=[], requirements={}, completion_checks={}, repair_snapshot=None, effect_receipts=[], progress_signature=None, no_progress_rounds=0, steps=0, status="running", completed_effects=[])
+            if initial_plan is not None:
+                self.state["plan"] = initial_plan.model_dump()
+                self.log("explicit_workflow_plan", initial_plan.model_dump())
             self.store.db.execute("UPDATE sessions SET title=? WHERE id=?", (redact(message[:100]), self.sid))
             self.store.db.commit()
             self.save()
@@ -95,14 +100,14 @@ class Engine:
         try:
             async with asyncio.timeout(self.settings.max_minutes * 60):
                 result = None
-                if message is not None and not self.state.get("selected_skills"):
+                if message is not None and initial_plan is None and not self.state.get("selected_skills"):
                     from .fastpath import try_fastpath
                     try:
                         result = await try_fastpath(self, message)
                     except Exception as error:
                         self.emit("warning", f"Jev fast path unavailable; using the general agent: {redact(str(error))[:200]}")
                 if result is None:
-                    if message is not None:
+                    if message is not None and initial_plan is None:
                         from .prefetch import prefetch
                         await prefetch(self, message)
                     result = await self._loop()

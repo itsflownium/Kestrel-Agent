@@ -26,7 +26,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -169,13 +169,26 @@ class Terminal:
         finally:
             self.pending_approval = None
 
-    async def work(self, message: str | None):
+    async def work(self, message: str | None, workflow=None):
         self.busy = True
         self.started_at = time.monotonic()
         self.phase = "Routing"
         self.emit("connecting", f"{self.settings.agent_mode.capitalize()} mode · preparing your task")
         try:
-            answer = await self.engine.run(message)
+            if workflow is not None:
+                name, parameters = workflow
+                from .workflow_templates import load, compile_workflow
+                value = load(name)
+                plan, version = compile_workflow(value, parameters)
+                self.console.print_json(plan.model_dump_json())
+                if not await self.confirm(f'Run workflow {name} ({version[:12]}) with the displayed plan? Existing action permissions still apply.'):
+                    self.emit('warning', 'Workflow declined; no actions ran.')
+                    return
+                self.engine.log('workflow_version', {'name': name, 'sha256': version})
+                message = f'Execute the explicitly selected workflow {name}: {value["description"]}. Parameters: ' + json.dumps(parameters)
+                answer = await self.engine.run(message, initial_plan=plan)
+            else:
+                answer = await self.engine.run(message)
             self.console.print()
             self.console.print(Text("  ◇ Kestrel", style="bold #8bd5ca"))
             self.console.print(Panel(Markdown(answer), width=min(self.console.size.width, 100),
@@ -231,6 +244,7 @@ class Terminal:
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
                 ("/setup", "Configure models, auth, mode, and Docker execution"),
+                ("/workflow [preview|run] NAME JSON", "Review or run a typed workflow with parameters"),
                 ("/connections [add NAME URL|remove NAME]", "Connect browser, desktop, and service tools over MCP"),
                 ("/details [on|off]", "Show or hide detailed agent activity"),
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
@@ -247,6 +261,26 @@ class Terminal:
                 if not argument or argument.lower() in (command + " " + meaning).lower():
                     table.add_row(command, meaning)
             self.console.print(table)
+        elif name == "/workflow":
+            from .workflow_templates import directory, load, compile_workflow
+            from .completion import parse_json
+            operation, _, rest = argument.partition(' ')
+            if not operation:
+                for path in sorted(directory().glob('*.json')):
+                    self.console.print(Text('  ' + path.stem))
+                self.console.print('  /workflow preview NAME JSON · /workflow run NAME JSON', style='dim')
+            elif operation in {'preview', 'run'}:
+                template, _, raw = rest.partition(' ')
+                parameters = parse_json(raw or '{}')
+                plan, version = compile_workflow(load(template), parameters)
+                if operation == 'preview':
+                    self.console.print_json(plan.model_dump_json())
+                    self.console.print(Text('  Version: ' + version))
+                else:
+                    self.busy = True
+                    self.job = asyncio.create_task(self.work(None, workflow=(template, parameters)))
+            else:
+                raise ValueError('Use /workflow preview NAME JSON or /workflow run NAME JSON.')
         elif name == "/connections":
             import shlex
             from .connections import Connection
