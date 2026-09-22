@@ -31,7 +31,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -236,6 +236,7 @@ class Terminal:
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
                 ("/setup", "Configure models, auth, mode, and Docker execution"),
+                ("/doctor [runtime]", "Inspect configuration and optional runtime readiness"),
                 ("/memory [set|forget]", "Inspect or edit explicit preferences and project notes"),
                 ("/workflow [preview|run] NAME JSON", "Review or run a typed workflow with parameters"),
                 ("/connections [add NAME URL|remove NAME]", "Connect browser, desktop, and service tools over MCP"),
@@ -339,6 +340,14 @@ class Terminal:
             self.settings.ui_details = argument == 'on' if argument else not self.settings.ui_details
             self.settings.save()
             self.emit('done', 'Detailed activity ' + ('on' if self.settings.ui_details else 'off'))
+        elif name == "/doctor":
+            if argument not in {'', 'runtime'}:
+                raise ValueError('Use /doctor or /doctor runtime. Provider online checks are available through kestrel doctor --online.')
+            from .readiness import inspect_readiness
+            table = Table('Capability', 'State', 'Details', box=box.SIMPLE)
+            for row in await inspect_readiness(self.settings, runtime_checks=argument == 'runtime'):
+                table.add_row(row['name'], row['state'], Text(row['detail']))
+            self.console.print(table)
         elif name == "/setup":
             from .setup import configure
             prompt = PromptSession(history=DummyHistory(), output=self.prompt.output)

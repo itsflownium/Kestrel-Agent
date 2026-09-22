@@ -86,3 +86,9 @@ A new independently graded saved-report task compares standard Kestrel with its 
 Tool results now link to separate redacted invocation records, with status and executor-boundary flags. Context exposes those IDs and uses spare excerpt space for arguments. Repair guidance explains how retained checks persist without invalid references. Three new tests cover restart/retrieval/session isolation, larger complete argument excerpts within budget, and honest handling of legacy records. Existing tests still reject dropped failing checks and invalid references.
 
 The full suite passed **380 tests in 162.45 seconds**. Repeating the same data fixture produced Kestrel **2/2** and native Codex **2/2** passes, with no Kestrel repair rounds. The original failure remains retained. Rerunning an examined fixture is evidence for this repair, not broad task superiority or independent skill certification. See EVIDENCE.md and the benchmark follow-up for details and timing caveats.
+
+## Runtime readiness diagnostics
+
+`doctor` now distinguishes credential presence, model selection, installed dependencies and actual runtime probes. Standard mode labels Jev disabled instead of warning about a missing optional key. Explicit `--runtime-checks` or `/doctor runtime` queries Docker daemon/image metadata and launches/closes isolated Chromium; no containers, pulls or pages are involved. Local macOS diagnostics read only the current process's Accessibility flag.
+
+**50 focused readiness/setup/provider/UI tests passed in 6.91 seconds**, including actual subprocess timeout/kill/reap, no-probe defaults, credential redaction boundaries and explicit chat flags. Live runtime checks on this machine reported Chromium ready, Docker daemon unavailable and Accessibility missing. No native app was inspected, no OS permission changed, and no live Docker execution is claimed. The previous full regression result is 380 before this diagnostic feature.

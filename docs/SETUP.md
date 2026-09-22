@@ -14,7 +14,17 @@ Docker isolates shell commands only. Model API calls, file tools, and connected 
 
 ## Validation status
 
-Implementation is untested at the user's request to defer tests. The Docker CLI exists on the development machine, but its configured daemon socket was absent. No container run or UI regression suite was performed for this update.
+The initial setup implementation was published while testing was deferred. Subsequent setup, provider, Docker process, UI and full regression results are recorded in FEATURE-VALIDATION.md. Live Docker execution remains unverified because the configured daemon is unavailable; process-fixture tests do not substitute for a real container run.
+
+## Readiness diagnostics
+
+Run `kestrel doctor` or `/doctor` for local configuration/dependency checks. Credential presence is distinguished from authenticated access, missing Jev credentials are not a problem in standard mode, and an installed package is not reported as a working runtime.
+
+Use `kestrel doctor --runtime-checks` or `/doctor runtime` to check the selected Docker daemon and image and briefly launch/close isolated headless Chromium. Docker probes can contact the configured Docker context, including a remote context. They query metadata only: no containers, pulls, installs or page navigation. Docker probes time out after five seconds and kill/reap the probe process; Chromium checks are bounded to twenty seconds. Diagnostics do not display raw subprocess output.
+
+`kestrel doctor --online` separately checks the selected provider's authentication/model-list endpoint and Jev when that mode is selected. It does not generate an answer or establish model quality, vision support or compatibility with every task.
+
+On macOS, the local check reads the current process's Accessibility authorization flag without prompting, changing permissions or inspecting an app. A separately launched desktop-server can have different authorization. Run diagnostics in the environment that will host the server. The native adapter remains experimental until live app validation is completed. A ready browser/daemon check likewise establishes availability only, not end-to-end task success or external connector health.
 
 ## Live window resizing
 
