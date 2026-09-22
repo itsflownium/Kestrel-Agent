@@ -186,11 +186,13 @@ class Runtime:
             self.model_calls += 1
         self.emit("model", "Codex · researching" if research else "Codex · thinking")
         servers = self._setup.get("config", {}).get("mcp_servers", {}) or {}
+        plugins = self._setup.get("config", {}).get("plugins", {}) or {}
         thread_config = {
             "web_search": "live" if research and self.settings.network else "disabled",
             "features.shell_tool": False, "features.unified_exec": False, "features.code_mode": False,
             "apps._default.enabled": False,
             **{f"mcp_servers.{name}.enabled": False for name in servers},
+            **{f"plugins.{name}.enabled": False for name in plugins},
         }
         thread = self._generation_thread if self.settings.generation_session == "task" else None
         if thread is None:

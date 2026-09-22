@@ -1,0 +1,38 @@
+{
+  "kind": "live-browser-smoke",
+  "harness_sha256": "0408ecb2f0678bda9b829e991a82f965ad70db583baba186d3f0f5b63b0e76de",
+  "fixture_revision": 2,
+  "mode": "direct-codex",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "target": "Record-e436e8a3",
+  "baseline": null,
+  "prompt": "Using the connected browser, open http://127.0.0.1:49931/fixture. Enter Record-e436e8a3 in Record name and save the record exactly once. Verify the visible saved message and report the record name. Do not edit files or use other services.",
+  "answer": "I couldn\u2019t open the page because automatic approval review blocked the browser action under the \u201cnever\u201d approval policy. No record was saved, and no saved message could be verified.\n\nRequested record name: `Record-e436e8a3`.",
+  "elapsed_seconds": 13.918,
+  "usage": {
+    "native_codex_usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=11904, input_tokens=12133, output_tokens=52, reasoning_output_tokens=0, total_tokens=12185) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=31744, input_tokens=35742, output_tokens=155, reasoning_output_tokens=0, total_tokens=35897)",
+    "jev_calls": 0
+  },
+  "status": "completed",
+  "submitted": [],
+  "unexpected_files": [],
+  "observations": [
+    {
+      "tool": "mcp",
+      "status": "failed",
+      "arguments": {
+        "url": "http://127.0.0.1:49931/fixture"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_open",
+      "result": {},
+      "error": {
+        "message": "MCP tool call requires approval, but approval policy is never"
+      }
+    }
+  ],
+  "passed": false,
+  "visible_confirmation_observed": false,
+  "events": []
+}

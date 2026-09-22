@@ -1,0 +1,21 @@
+{
+  "kind": "live-browser-smoke",
+  "harness_sha256": "4845981ca4ac983ede1bb723d8dbec81f11f71bd8647a33f2584725416142b7f",
+  "fixture_revision": 2,
+  "mode": "direct-codex",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "target": "Record-4c7c140c",
+  "baseline": null,
+  "prompt": "Using the connected browser, open http://127.0.0.1:49792/fixture. Enter Record-4c7c140c in Record name and save the record exactly once. Verify the visible saved message and report the record name. Do not edit files or use other services.",
+  "error": "JSON-RPC error -32600: failed to load configuration: invalid transport\nin `mcp_servers.\"node_repl\"`\n",
+  "elapsed_seconds": 0.447,
+  "usage": null,
+  "status": null,
+  "submitted": [],
+  "unexpected_files": [],
+  "observations": [],
+  "passed": false,
+  "visible_confirmation_observed": false,
+  "events": []
+}

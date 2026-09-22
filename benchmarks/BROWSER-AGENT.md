@@ -21,3 +21,17 @@ python benchmarks/browser_agent.py --mode standard --output benchmarks/my-browse
 ```
 
 Install the browser extra and its matching Chromium runtime first. The development runs set `PLAYWRIGHT_BROWSERS_PATH=/tmp/kestrel-browser-runtime`. The harness gives the agent only the fixture's actual MCP catalog, disables shell tools, and declines unrelated connected actions. These controls are part of the evaluation scope.
+
+## Native Codex baseline follow-up
+
+A direct Codex run with the same Astra medium model, localhost form, browser adapter, and outcome oracle passed in **66.379 seconds**. It opened the page, filled the generated record name, clicked save once, and returned the observed confirmation. Only the fixture's three browser calls appear in its MCP observations. Report: `results-browser-direct-codex-reviewed.json`.
+
+The native run uses Codex automatic approval review; Kestrel uses fixture-only controller confirmation. This is a real configuration difference and contributes to wall time. These are sequential smoke measurements, not randomized paired trials. The earlier 47.647-second Jev run has equal observed correctness on this task; it does not establish a general quality or cost advantage.
+
+Three setup failures are retained and excluded from performance comparisons: `results-browser-direct-codex.json` exposed an unrelated bundled browser plugin; `results-browser-direct-codex-isolated.json` contains an invalid quoted configuration key; `results-browser-direct-codex-plugin-isolated.json` reached the intended tool but denied all approvals. None is counted as a Codex task-quality failure. The successful run retained automatic review rather than treating denied tool access as a model-quality result.
+
+The grader now normalizes native MCP JSON text content when structuredContent is null, rejects plain model claims, and rejects native runs that attempt another MCP server. Saved reports retain the exact harness fingerprint from their execution; later grader extraction/scope checks can be applied to the retained observations.
+
+Reproduce the baseline with `python benchmarks/browser_agent.py --mode direct-codex --output benchmarks/my-direct-codex.json`.
+
+After adding the skill library and disabling plugins in generation-only sessions, a fresh Kestrel+Jev run passed the same checks in **46.854 seconds**, with three Astra generation calls and ten Jev calls (`results-browser-agent-jev-library.json`). It saved exactly one correct record, observed confirmation, and created no workspace files. Against the single 66.379-second native run, this is a lower observed wall time, not a demonstrated general speed advantage. No claim of superior quality or lower dollar cost follows from this smoke fixture.

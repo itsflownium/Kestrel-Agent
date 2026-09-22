@@ -174,7 +174,7 @@ async def test_compact_profile_keeps_sandbox_and_tool_controls(tmp_path):
     from kestrel_agent.providers import COMPACT_GENERATION_INSTRUCTIONS
     runtime=Runtime(Settings(generation_prompt_profile='compact'),tmp_path,lambda *args:None)
     runtime.start=AsyncMock();runtime.account=AsyncMock(return_value={'account':{'id':'dummy'}})
-    runtime.rpc=AsyncMock(return_value={'config':{'mcp_servers':{'connected':{}}}})
+    runtime.rpc=AsyncMock(return_value={'config':{'mcp_servers':{'connected':{}}, 'plugins':{'browser@openai-bundled':{'enabled':True}}}})
     runtime.codex.thread_start=AsyncMock(return_value=FakeThread('one'))
     try:
         await runtime.complete('answer the task')
@@ -182,7 +182,7 @@ async def test_compact_profile_keeps_sandbox_and_tool_controls(tmp_path):
         assert options['base_instructions'] == COMPACT_GENERATION_INSTRUCTIONS
         assert options['sandbox'] == Sandbox.read_only
         assert options['approval_mode'] == ApprovalMode.deny_all
-        for key in ['features.shell_tool','features.unified_exec','features.code_mode','apps._default.enabled','mcp_servers.connected.enabled']:
+        for key in ['features.shell_tool','features.unified_exec','features.code_mode','apps._default.enabled','mcp_servers.connected.enabled','plugins.browser@openai-bundled.enabled']:
             assert options['config'][key] is False
         assert options['config']['web_search'] == 'disabled'
         assert 'host controller owns all actions' in options['developer_instructions']
