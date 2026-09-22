@@ -26,7 +26,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -231,6 +231,7 @@ class Terminal:
             table = Table(show_header=False, box=None, padding=(0, 2))
             for command, meaning in [
                 ("/setup", "Configure models, auth, mode, and Docker execution"),
+                ("/connections [add NAME URL|remove NAME]", "Connect browser, desktop, and service tools over MCP"),
                 ("/details [on|off]", "Show or hide detailed agent activity"),
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
                 ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List/select model and configure Jev key"),
@@ -246,6 +247,34 @@ class Terminal:
                 if not argument or argument.lower() in (command + " " + meaning).lower():
                     table.add_row(command, meaning)
             self.console.print(table)
+        elif name == "/connections":
+            import shlex
+            from .connections import Connection
+            parts = shlex.split(argument)
+            if parts and parts[0] == 'add':
+                if len(parts) not in {3, 4} or not re.fullmatch(r'[a-z][a-z0-9_-]{0,63}', parts[1]):
+                    raise ValueError('Use /connections add NAME URL [BEARER_ENV]')
+                connection = Connection(url=parts[2], bearer_env=parts[3] if len(parts) == 4 else None)
+                await self.engine.runtime.connections.close()
+                self.settings.mcp_connections[parts[1]] = connection
+                self.settings.save()
+                self.engine.mcp_tools = None
+                self.emit('done', 'Connection saved. Tools require approval unless explicitly allowlisted.')
+            elif parts and parts[0] == 'remove':
+                if len(parts) != 2 or parts[1] not in self.settings.mcp_connections:
+                    raise ValueError('Use /connections remove NAME with a configured name.')
+                await self.engine.runtime.connections.close()
+                del self.settings.mcp_connections[parts[1]]
+                self.settings.mcp_auto_allow = [entry for entry in self.settings.mcp_auto_allow if not entry.startswith(f'direct:{parts[1]}/')]
+                self.settings.save()
+                self.engine.mcp_tools = None
+            elif parts:
+                raise ValueError('Use /connections, /connections add NAME URL [BEARER_ENV], or /connections remove NAME.')
+            table = Table('Connection', 'Endpoint', 'Enabled', box=box.SIMPLE)
+            for key, value in self.settings.mcp_connections.items():
+                table.add_row('direct:' + key, value.url, str(value.enabled))
+            self.console.print(table)
+            self.console.print('  /connections add NAME URL [BEARER_ENV] · /tools discovers tools', style='dim')
         elif name == "/details":
             if argument and argument not in {'on', 'off'}:
                 raise ValueError('Use /details on or /details off.')

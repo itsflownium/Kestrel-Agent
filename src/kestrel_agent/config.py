@@ -8,6 +8,8 @@ import tempfile
 from pathlib import Path
 from typing import Literal
 
+from .connections import Connection
+
 from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -56,6 +58,7 @@ class Settings(BaseModel):
     shell: bool = True
     confirm_shell: bool = True
     confirm_writes: bool = False
+    mcp_connections: dict[str, Connection] = Field(default_factory=dict)
     mcp_auto_allow: list[str] = []
     max_parallel_reads: int = Field(default=4, ge=1, le=16)
     max_no_progress_rounds: int = Field(default=3, ge=1, le=10)

@@ -41,6 +41,8 @@ class Runtime:
         self.generator = HTTPGenerator(settings)
         from .execution import DockerExecutor
         self.docker = DockerExecutor(settings, workspace)
+        from .connections import ConnectionPool
+        self.connections = ConnectionPool(settings)
         self.codex = AsyncCodex(CodexConfig(cwd=str(workspace), env={key: "" for key in credential_envs(settings)}, client_name="kestrel", client_title="Kestrel", client_version="0.1.0"))
         self.started = False
         self.confirm = confirm
@@ -293,8 +295,9 @@ class Runtime:
         return self.tool_thread.id
 
     async def mcp_catalog(self) -> list[dict]:
+        direct = await self.connections.catalog()
         if self.settings.provider != "codex":
-            return []
+            return direct
         thread_id = await self.mcp_thread()
         data: list[dict] = []
         cursor = None
@@ -306,7 +309,14 @@ class Runtime:
             data.extend(result.get("data", []))
             cursor = result.get("nextCursor")
             if not cursor:
-                return data
+                return direct + data
+
+    async def mcp_call(self, server, tool, arguments):
+        if server.startswith("direct:"):
+            return await self.connections.call(server[len("direct:"):], tool, arguments)
+        if self.settings.provider != "codex":
+            raise ValueError("Configure a direct MCP connection for this provider.")
+        return await self.rpc("mcpServer/tool/call", {"threadId": await self.mcp_thread(), "server": server, "tool": tool, "arguments": arguments})
 
     async def cancel(self) -> None:
         if self.active_turn:
@@ -318,6 +328,7 @@ class Runtime:
                 pass
 
     async def close(self) -> None:
+        await self.connections.close()
         await self.docker.close()
         await self.generator.close()
         if self.started:

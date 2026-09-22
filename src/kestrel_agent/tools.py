@@ -177,7 +177,7 @@ class ToolExecutor:
                     raise PermissionError("Connected tool action declined.")
             self.runtime.mcp_active = True
             try:
-                result = await self.runtime.rpc("mcpServer/tool/call", {"threadId": await self.runtime.mcp_thread(), "server": server, "tool": name, "arguments": args.get("arguments", {})})
+                result = await self.runtime.mcp_call(server, name, args.get("arguments", {}))
             finally:
                 self.runtime.mcp_active = False
             if result.get("isError"):
