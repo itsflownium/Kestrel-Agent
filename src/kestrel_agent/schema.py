@@ -36,6 +36,7 @@ class Plan(BaseModel):
     actions: list[Action] = Field(max_length=12)
     success_criteria: list[str] = Field(max_length=8)
     final_response_ref: str | None = None
+    final_response_text: str | None = Field(default=None, min_length=1, max_length=1000)
     completion_checks: list[CompletionCheck] = Field(default_factory=list, max_length=8)
 
     @model_validator(mode="after")
@@ -47,6 +48,9 @@ class Plan(BaseModel):
             raise ValueError("An execution plan needs actions.")
         if self.mode != "plan" and self.actions:
             raise ValueError("Direct answers and clarification cannot execute tools.")
+        if self.final_response_text is not None:
+            if self.mode != 'plan' or not self.final_response_text.strip() or self.final_response_ref is not None:
+                raise ValueError('A planned fixed response requires an execution plan, nonblank text, and no result reference.')
         if self.final_response_ref is not None:
             match = re.fullmatch(r"\$\{([a-z][a-z0-9_]*)\.([A-Za-z0-9_.]+)\}", self.final_response_ref)
             if self.mode != "plan" or not match or match.group(1) not in ids:

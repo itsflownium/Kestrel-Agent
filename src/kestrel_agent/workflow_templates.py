@@ -20,7 +20,7 @@ def read(path):
     if path.is_symlink() or not path.is_file() or path.stat().st_size > 100000:
         raise ValueError('A workflow must be a regular JSON file no larger than 100 KB.')
     value = parse_json(path.read_text())
-    allowed = {'version', 'name', 'description', 'parameters', 'actions', 'success_criteria', 'completion_checks', 'final_response_ref'}
+    allowed = {'version', 'name', 'description', 'parameters', 'actions', 'success_criteria', 'completion_checks', 'final_response_ref', 'final_response_text'}
     if not isinstance(value, dict) or set(value) - allowed:
         raise ValueError('Unknown workflow fields.')
     if type(value.get('version')) is not int or value['version'] != 1:
@@ -99,6 +99,6 @@ def compile_workflow(value, parameters):
         checks.append(check)
     plan = Plan(mode='plan', message=value['description'], actions=actions,
         success_criteria=value.get('success_criteria', []), completion_checks=checks,
-        final_response_ref=value.get('final_response_ref'))
+        final_response_ref=value.get('final_response_ref'), final_response_text=value.get('final_response_text'))
     version = hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
     return plan, version

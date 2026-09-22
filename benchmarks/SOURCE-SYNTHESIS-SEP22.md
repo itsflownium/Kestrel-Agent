@@ -28,3 +28,16 @@ python benchmarks/workloads.py --agent-mode standard --skill research-brief --ta
 ```
 
 Thirty-eight source/data/benchmark grader tests passed in 0.82 seconds. No product behavior changed for this comparison.
+
+## Generic fixed-response follow-up
+
+The planner can now propose `final_response_text` for exact wording explicitly requested by the user. The existing outcome review also verifies that candidate before return. Failed completion checks, unfinished work and ungrounded candidates cannot take this return path; normal repair or final generation remains available. This is a generic optional contract, not a source-task or acknowledgement-word lookup.
+
+| Fixture seed | Kestrel | Seconds | Direct Codex | Seconds |
+| --- | --- | ---: | --- | ---: |
+| 19073 (examined variant) | Pass; scope clean | 54.361 | Pass; scope clean | 39.108 |
+| 83051 (new input variant) | Pass; scope clean | 53.405 | Pass; scope clean | 33.538 |
+
+Each Kestrel trace confirms a verified planned response, two generation calls, one decision call and zero Jev calls. The earlier run on seed 19073 took 68.214 seconds with three generation calls and two decision calls. The controller demonstrably removed those extra calls in the follow-up; the small, non-isolated timings do not establish a general latency or dollar-cost improvement. Kestrel remains slower than direct Codex on these samples, with correctness tied.
+
+Both variant processes again ran concurrently, but their arm order differed: Kestrel first for 19073, Codex first for 83051. The product regression suite ran after these live comparisons. New seed 83051 changes inputs within the same examined task family; it is not an independently authored research benchmark. Both original and follow-up results remain retained, including `results-source-fixed-response-19073.json` and `results-source-fixed-response-83051.json`.
