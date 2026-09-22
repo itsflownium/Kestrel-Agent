@@ -19,7 +19,7 @@ Objective: review all proposed improvements, implement those supported by eviden
 | GEPA independent test splits and outcome labels | Implemented; offline isolation/promotion tests; no live optimization quality claim | Family separation, untouched final evaluation, activation guards |
 | Generator/decision/execution/tool capability boundaries | Pending | Provider adapter conformance; existing sandbox guarantees retained |
 | Broader held-out evaluations and fair baselines | Pending | Frozen task families, randomized paired repeats, independent grading, failures retained |
-| Compact action loop versus current DAG | Pending assessment | Evaluate after measured simpler changes; retain or reject with reasons/evidence |
+| Compact action loop versus current DAG | Two paired dynamic-browser variants assessed; quality tied, fewer calls and lower time for benchmark-only one-action mode; graph default retained | Broader task families, recovery and counterbalanced comparisons required before promotion |
 | Publication and final completion audit | Pending | Reviewed PRs, source hashes, all requirements verified or explicitly rejected on evidence |
 
 ## General-agent extension requested 2026-09-21

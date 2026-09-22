@@ -39,7 +39,7 @@ Task-specific procedures live in focused skills rather than a growing universal 
 
 ## Next architecture gates
 
-1. Evaluate a short observe/act/check loop against the current plan graph on dynamic browser tasks, using identical models and tool adapters. Adopt it only if repeated independent outcomes support the change.
+1. A short observe/act/check loop has been compared with the plan graph on two matched dynamic-browser variants: both passed 2/2, with fewer calls and lower observed time for the one-action policy. See [the assessment](../benchmarks/INCREMENTAL-LOOP-SEP22.md). The graph remains the default; one task family is insufficient for promotion across coding and general work.
 2. An experimental app-scoped macOS Accessibility action adapter exists; live native validation remains blocked on permission. Image transport/inspection is now implemented (see VISION.md); only a successful image-input call supports a visual interpretation. A text-only model must not receive a claim that it saw an image.
 3. Certify workflow/skill revisions using isolated fixtures, unseen inputs, and effect-state oracles before describing them as reliable reusable automation.
 4. Compare quality on coding, browser, research, documents/data, and recovery separately. Preserve failures and tool-setup exclusions. No architecture or skill count proves superiority over another agent.

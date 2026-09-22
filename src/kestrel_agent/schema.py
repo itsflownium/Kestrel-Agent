@@ -119,3 +119,8 @@ def strict_schema(model: type[BaseModel]) -> dict[str, Any]:
 
     visit(schema)
     return schema
+
+
+class SingleActionPlan(Plan):
+    """Internal benchmark policy; does not replace the default graph schema."""
+    actions: list[Action] = Field(max_length=1)
