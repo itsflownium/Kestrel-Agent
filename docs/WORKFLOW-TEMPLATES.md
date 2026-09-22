@@ -19,3 +19,17 @@ Completion checks accept a typed `expected` value, converted to the existing `ex
 The `copy-text.json` example copies complete small UTF-8 text to a new destination without generating replacement content. It preserves whitespace and refuses to overwrite existing destinations without an observed hash. Install it like the read-document example, then pass `source` and `destination` parameters. Its limit is the file reader's complete-text limit (40,000 characters and 1,000 lines); extracted PDF/DOCX/XLSX text is not supported by this copy template.
 
 Behavioral regression tests execute this compiled template through the real scheduler, permission checks, file tools and SQLite checkpoints. They compare saved bytes for empty, Unicode and whitespace-sensitive inputs, and verify missing sources, existing destinations, read-only access, rejected approval, paths outside the workspace and truncated input. They stop before model repair or final-answer generation, so repair cannot hide a failing original template. This is narrow template coverage, not certification of arbitrary templates, semantic summaries or automatic promotion.
+
+## Run your own behavioral fixtures
+
+```sh
+kestrel workflows test examples/workflows/copy-text.json examples/workflows/copy-text.tests.json
+```
+
+The command runs the template in a separate process, with temporary task directories and separate temporary Kestrel storage. It does not modify your installed workflow, session database or selected model. Provider credentials are not passed in the child environment. The worker uses the actual scheduler and file-tool permissions; it does not call a model or repair the template. This is application-level isolation for the supported file tools, not a Docker or operating-system sandbox.
+
+A version-1 suite contains 1–24 named cases. Each case supplies `kind` (`positive` or `negative`), typed `parameters`, initial UTF-8 `files`, the complete `expected_files` tree, and `expected_statuses` for every action. An `error` status also requires a nonempty `expected_errors` substring for that action. Extra files, changed source files, wrong statuses and unrelated errors fail the case. Positive cases must complete every action and pass the template's completion checks. Unexpected runner exceptions cannot pass a negative case.
+
+The current runner supports unconditional `read_file`, `write_file`, `list_files` and `search_files` actions only. It rejects shell, model, network, connector and conditional actions before launching the worker. Suite size, case count and fixture file sizes are bounded; paths cannot escape their temporary workspace. Each case has a 20-second execution timeout, and the parent also bounds the worker's total lifetime. Exit code 0 means all specified expectations passed; 1 means at least one failed. Invalid input produces a command error.
+
+Reports include exact template/suite hashes and positive/negative case counts. They deliberately say `not_certified`: the caller authors the expectations, and the runner cannot prove independent authorship, held-out inputs, semantic quality, skill applicability or broad generalization. Use varied inputs and negative cases, review the oracles independently, and retain both passing and failing reports. Reports do not activate or promote workflows. Behavioral skill certification, external-tool fixtures and promotion remain separate pending work.

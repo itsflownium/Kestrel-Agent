@@ -523,6 +523,20 @@ def workflow_preview(name: str, parameters: str = '{}'):
     console.print_json(plan.model_dump_json())
 
 
+@workflows_app.command("test")
+def workflow_test(template: Path = typer.Argument(..., exists=True, dir_okay=False),
+                  suite: Path = typer.Argument(..., exists=True, dir_okay=False)):
+    """Run exact file fixtures in an isolated temporary workspace; no model calls."""
+    from .workflow_eval import evaluate_files
+    try:
+        report = evaluate_files(template, suite)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    console.print_json(json.dumps(report))
+    if not report['passed']:
+        raise typer.Exit(1)
+
+
 @memory_app.command("list")
 def memory_list(workspace: Path = typer.Option(Path.cwd(), "--workspace", "-C")):
     from .memory import Memory

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "unicode-and-whitespace",
+      "kind": "positive",
+      "parameters": {
+        "source": "notes.txt",
+        "destination": "saved/copy.txt"
+      },
+      "files": {
+        "notes.txt": "  Café 東京 🪶\n\n\tend  \n"
+      },
+      "expected_files": {
+        "notes.txt": "  Café 東京 🪶\n\n\tend  \n",
+        "saved/copy.txt": "  Café 東京 🪶\n\n\tend  \n"
+      },
+      "expected_statuses": {
+        "source": "completed",
+        "copy": "completed"
+      }
+    },
+    {
+      "name": "empty-source",
+      "kind": "positive",
+      "parameters": {
+        "source": "empty.txt",
+        "destination": "copy.txt"
+      },
+      "files": {
+        "empty.txt": ""
+      },
+      "expected_files": {
+        "empty.txt": "",
+        "copy.txt": ""
+      },
+      "expected_statuses": {
+        "source": "completed",
+        "copy": "completed"
+      }
+    },
+    {
+      "name": "missing-source",
+      "kind": "negative",
+      "parameters": {
+        "source": "missing.txt",
+        "destination": "copy.txt"
+      },
+      "files": {},
+      "expected_files": {},
+      "expected_statuses": {
+        "source": "error",
+        "copy": "blocked"
+      },
+      "expected_errors": {
+        "source": "No such file or directory"
+      }
+    },
+    {
+      "name": "existing-destination",
+      "kind": "negative",
+      "parameters": {
+        "source": "source.txt",
+        "destination": "copy.txt"
+      },
+      "files": {
+        "source.txt": "new",
+        "copy.txt": "keep"
+      },
+      "expected_files": {
+        "source.txt": "new",
+        "copy.txt": "keep"
+      },
+      "expected_statuses": {
+        "source": "completed",
+        "copy": "error"
+      },
+      "expected_errors": {
+        "copy": "Read the file first"
+      }
+    }
+  ]
+}

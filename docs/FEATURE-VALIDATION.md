@@ -101,3 +101,14 @@ Rollback and reinstall now verify recorded archive hashes before modifying an ac
 Nine new cases cover duplicate/nested metadata, duplicate capability fields, symlink reference directories, a file changed between parsing and hashing, modified/added/symlinked rollback archives, oversized files and FIFOs. The focused skill/library/general suite passed **32 tests**. The final complete regression suite passed **399 tests in 171.20 seconds**, including the readiness additions and real browser/MCP/PTY fixtures. No new live-model quality claim is attached to this integrity change.
 
 The first packaging invocation was denied access to the uv cache by the restricted shell. The approved build then produced both the source distribution and wheel; wheel inspection found all 13 bundled skills and the readiness, registry, browser, desktop and vision modules. This validates packaging, not the pending live runtime and broad behavioral gates in COMPLETION-AUDIT-SEP22.md.
+
+
+## User-runnable workflow behavior fixtures
+
+`kestrel workflows test TEMPLATE SUITE` now executes unconditional file workflows in a separate process with temporary task directories and private session storage. Exact full-file-tree bytes, every action status, expected error fragments and positive-case completion contracts are checked without model calls or repair. Other tools and conditional actions are rejected before execution. Reports include template/suite hashes and remain explicitly uncertified; caller-supplied oracles do not prove independent evaluation, held-out quality or broad skill applicability.
+
+The first manual attempt incorrectly placed fixtures under protected Kestrel storage; real file permissions rejected the inputs. The harness now separates private state from task directories. Negative cases also require matching error fragments so an unrelated permission failure cannot be accepted as a missing-input success.
+
+Thirteen new tests cover real worker execution, parent-storage isolation, wrong artifacts, unrelated errors, extra files, failed completion contracts, unsafe paths, unsupported tools, CLI failure exit codes and generated parameters. Initial twelve tests passed; a separate generated-input/CRLF test passed after byte-comparison strengthening. The final full suite passed **412 tests in 268.97 seconds**. The sample CLI's four cases passed and its report is retained in `examples/workflows/copy-text.report.json`. Wheel/source builds succeeded and wheel inspection confirmed the new module.
+
+This advances the workflow-evaluation infrastructure; independent skill certification, automatic promotion and external-tool behavioral suites remain pending. No new live-model benchmark or superiority claim is made.

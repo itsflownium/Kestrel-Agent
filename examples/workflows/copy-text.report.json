@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "template_sha256": "b2e512820dc7609f258568aa73f11d3a5ac344a67f383f3f9cacbf55e25e3b51",
+  "suite_sha256": "4c49b566d55cb9c991e42ca6490cb02a04b3d74844bf1c0a033ef799d39d76da",
+  "passed": true,
+  "cases": [
+    {
+      "name": "unicode-and-whitespace",
+      "kind": "positive",
+      "passed": true,
+      "files_match": true,
+      "statuses_match": true,
+      "expected_errors_match": true,
+      "statuses": {
+        "source": "completed",
+        "copy": "completed"
+      },
+      "completion_checks_passed": true,
+      "error": null
+    },
+    {
+      "name": "empty-source",
+      "kind": "positive",
+      "passed": true,
+      "files_match": true,
+      "statuses_match": true,
+      "expected_errors_match": true,
+      "statuses": {
+        "source": "completed",
+        "copy": "completed"
+      },
+      "completion_checks_passed": true,
+      "error": null
+    },
+    {
+      "name": "missing-source",
+      "kind": "negative",
+      "passed": true,
+      "files_match": true,
+      "statuses_match": true,
+      "expected_errors_match": true,
+      "statuses": {
+        "source": "error",
+        "copy": "blocked"
+      },
+      "completion_checks_passed": true,
+      "error": null
+    },
+    {
+      "name": "existing-destination",
+      "kind": "negative",
+      "passed": true,
+      "files_match": true,
+      "statuses_match": true,
+      "expected_errors_match": true,
+      "statuses": {
+        "source": "completed",
+        "copy": "error"
+      },
+      "completion_checks_passed": true,
+      "error": null
+    }
+  ],
+  "positive_cases": 2,
+  "negative_cases": 2,
+  "scope": "Offline unconditional file workflows; user-supplied exact file and action-status expectations.",
+  "certification": "not_certified",
+  "limitations": "No independent suite authorship or held-out split is verified. No model repair, final answer, shell, browser, desktop or external provider is evaluated. No automatic activation or promotion."
+}
