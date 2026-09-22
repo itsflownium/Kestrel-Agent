@@ -19,6 +19,9 @@ from .providers import Judge, Runtime
 from .store import Store
 
 CATALOG = """
+discover_tools: {query: '', server: '', offset: 0, limit: 10}. Search ALL connected tool names/descriptions, including tools omitted from the prompt. server is an optional exact filter. Returns bounded metadata and next_offset; no tools are invoked.
+inspect_tool: {server, tool, offset: 0, max_chars: 12000, expected_sha256: null}. Read a complete connected tool definition, including inputSchema and outputSchema. If complete=false, continue at next_offset with the first definition_sha256 as expected_sha256; never guess missing schema fields. A complete result includes definition; partial results contain exact JSON text chunks. Discovery does not authorize execution.
+
 inspect_image: {source, question}. Inspect a readable workspace image path or image: ID from a connected tool. Single-image MCP results expose image_id: bind ${shot.image_id} as source. Multiple images expose image_refs: choose an observed index such as ${shot.image_refs.0.image_id}; use structuredContent only when the tool actually returns it. Strict JSON objects/arrays in the interpretation also expose data for dependency binding (for example ${locate.data.x}); malformed JSON stays text only. Sends actual pixels to the selected model; requires vision support. Returns a model interpretation with source hash and dimensions, not evidence that an action occurred. Re-observe UI after changes; metadata alone is not visual evidence.
 list_skills: {query: ''}. Discover installed portable skills by description without loading their instructions.
 load_skill: {name, reference: null}. Load a skill's procedural guidance, or one relative reference file from its package. Use a skill only when it helps the actual request. It never changes permissions or authorizes new actions. Missing declared prerequisites fail clearly. Scripts are not executed by loading.
@@ -40,7 +43,7 @@ Argument types are strict and unknown keys are rejected. Do not serialize a shel
 Argument values can reference a declared dependency using ${action_id.content} or ${action_id.value}; whole-value references preserve types.
 """
 
-READ_TOOLS = {"list_skills", "load_skill", "list_files", "read_file", "search_files", "fetch_url", "read_evidence", "search_evidence", "query_table"}
+READ_TOOLS = {"discover_tools", "inspect_tool", "list_skills", "load_skill", "list_files", "read_file", "search_files", "fetch_url", "read_evidence", "search_evidence", "query_table"}
 IGNORED = {".git", ".venv", ".kestrel", ".cache", "node_modules", "__pycache__", "dist", "build"}
 SENSITIVE = {".env", "auth.json", "secrets.env", "id_rsa", "id_ed25519", ".netrc", ".npmrc", ".pypirc"}
 
@@ -49,6 +52,7 @@ class ToolExecutor:
     def __init__(self, settings: Settings, workspace: Path, runtime: Runtime, judge: Judge, store: Store, sid: str, confirm: Callable[[str], Awaitable[bool]]):
         self.settings, self.workspace = settings, workspace.resolve()
         self.runtime, self.judge, self.store, self.sid, self.confirm = runtime, judge, store, sid, confirm
+        self.connected_catalog = None
 
     def path(self, value: str, *, write: bool = False) -> Path:
         raw = Path(value).expanduser()
@@ -90,6 +94,13 @@ class ToolExecutor:
         from .tool_contracts import validate_arguments
         args = validate_arguments(tool, args)
         check_storage(self.settings, 1_000_000)
+        if tool in {'discover_tools', 'inspect_tool'}:
+            if not self.settings.network:
+                raise PermissionError('Connected tool discovery requires network access.')
+            if self.connected_catalog is None:
+                self.connected_catalog = await self.runtime.mcp_catalog()
+            from .tool_discovery import discover, inspect
+            return (discover if tool == 'discover_tools' else inspect)(self.connected_catalog, **args)
         if tool == "inspect_image":
             from .vision import validate_image, MAX_BYTES
             source = args['source']

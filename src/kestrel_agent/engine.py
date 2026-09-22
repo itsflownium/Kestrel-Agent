@@ -186,6 +186,9 @@ class Engine:
             except Exception as error:
                 self.emit("warning", f"Connected tools unavailable: {redact(str(error))[:200]}")
                 self.mcp_tools = []
+        self.tools.connected_catalog = self.mcp_tools
+        from .tool_discovery import preview as tool_preview
+        connected_preview = tool_preview(self.mcp_tools)
         history = self.store.conversation(self.sid, 6)
         from .skill_registry import SkillRegistry
         skill_catalog = SkillRegistry(self.settings, self.workspace).catalog(for_model=True)
@@ -233,7 +236,7 @@ SELECTED SKILLS: {json.dumps(self.state.get('selected_skills', []), default=str)
 AVAILABLE TOOLS:\n{CATALOG}
 PROVIDER CAPABILITIES: {"Codex research and registered MCP are available." if self.settings.provider == "codex" else "No native web research. Direct MCP connections are available when listed below. Use fetch_url for known URLs. Generate uses the configured model provider."}
 For browser or desktop tasks, inspect the current page/accessibility state first, act only on observed targets, and re-observe after navigation or mutations. Never invent selectors, coordinates, successful clicks, or a completed workflow. Prefer accessibility/text state; image metadata alone is not visual evidence. Use inspect_image on a returned image_id to inspect pixels with a vision-capable selected model. Its description is a model interpretation, not proof of a successful action. If image inspection fails or an image ID expires, request a fresh accessible observation; never guess.
-CONNECTED TOOLS (use only exact registered names): {json.dumps(self.mcp_tools, default=str)[:12000]}
+CONNECTED TOOLS (use only exact registered names): {json.dumps(connected_preview, ensure_ascii=False, separators=(",", ":"))}
 ACCESS: {self.settings.permission}; shell={self.settings.shell}; network={self.settings.network}
 WORKSPACE: {self.workspace}
 COMMAND EXECUTION: {self.settings.execution_backend}. {('Shell commands run inside image ' + self.settings.docker_image + ' with only the workspace mounted at /workspace. Use container paths inside argv, host workspace paths for file tools and cwd. Host executables, extra roots, credentials, and the Docker socket are NOT mounted. Packages must already exist in the selected image; images are never automatically pulled.') if self.settings.execution_backend == 'docker' else 'Shell commands use the Codex execution sandbox.'}

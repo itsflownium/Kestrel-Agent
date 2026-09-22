@@ -124,3 +124,60 @@ async def test_engine_refreshes_configured_observation_over_real_mcp(tmp_path, m
         server.should_exit = True
         await asyncio.wait_for(task, 5)
         listener.close()
+
+
+@pytest.mark.asyncio
+async def test_search_and_inspect_late_tool_then_permissioned_call_over_mcp(tmp_path, monkeypatch):
+    from unittest.mock import AsyncMock
+    from kestrel_agent.engine import Engine
+    from kestrel_agent.schema import Action
+    from kestrel_agent.store import Store
+    from kestrel_agent.tool_discovery import preview
+    import json
+    monkeypatch.setenv('KESTREL_HOME', str(tmp_path/'state'))
+    listener=socket.socket();listener.bind(('127.0.0.1',0));listener.listen()
+    port=listener.getsockname()[1]
+    app=FastMCP('Large catalog fixture', host='127.0.0.1', port=port, json_response=True)
+    calls=[]
+    for index in range(100):
+        def distractor() -> str:
+            raise AssertionError('Discovery must not invoke tools.')
+        app.add_tool(distractor, name=f'a_report_{index:03}', description='Unrelated reporting operation. '*30)
+    class RecordResult(BaseModel):
+        record_id: str
+        status: str
+    @app.tool(description='Find a record by its exact identifier. '*30)
+    def z_find_record(record_id: str) -> RecordResult:
+        calls.append(record_id)
+        return RecordResult(record_id=record_id, status='ready')
+    server=uvicorn.Server(uvicorn.Config(app.streamable_http_app(),log_level='error'))
+    task=asyncio.create_task(server.serve(sockets=[listener]))
+    config=Settings(agent_mode='standard',provider='openai-compatible',mcp_connections={
+        'fixture':Connection(url=f'http://127.0.0.1:{port}/mcp')})
+    store=Store(config);confirm=AsyncMock(return_value=True)
+    engine=Engine(config,tmp_path,store,store.create(tmp_path),lambda *_:None,confirm)
+    engine.state.update(results={},statuses={})
+    try:
+        async with asyncio.timeout(5):
+            while not server.started:
+                if task.done(): await task
+                await asyncio.sleep(.01)
+        tools=await engine.runtime.mcp_catalog()
+        assert preview(tools)['omitted_tools']>0
+        assert not any(item['tool']=='z_find_record' for item in preview(tools)['tools'])
+        for name,tool,args in [
+            ('search','discover_tools',{'query':'find_record'}),
+            ('schema','inspect_tool',{'server':'direct:fixture','tool':'z_find_record'}),
+            ('execute','mcp',{'server':'direct:fixture','tool':'z_find_record','arguments':{'record_id':'record-123'}}),
+        ]:
+            await engine.perform(Action(id=name,tool=tool,arguments_json=json.dumps(args),depends_on=[],purpose='Find the requested record',condition='always'))
+            assert engine.state['statuses'][name]=='completed'
+        assert engine.state['results']['search']['tools'][0]['tool']=='z_find_record'
+        definition=engine.state['results']['schema']['definition']
+        assert definition['inputSchema']['properties']['record_id']['type']=='string'
+        assert engine.state['results']['execute']['structuredContent']['status']=='ready'
+        assert calls==['record-123']
+        assert confirm.await_count==1
+    finally:
+        await engine.close();store.close();server.should_exit=True
+        await asyncio.wait_for(task,5);listener.close()
