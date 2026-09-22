@@ -17,7 +17,7 @@ In chat: `/skills`, `/skills search-words`, `/skills show NAME`, `/skills use NA
 
 Project discovery looks for `.agents/skills` and `.kestrel/skills` at the nearest Git root (or the working directory outside a repository), and requires explicit trust. Project packages override installed packages, which override bundled packages. Built-in command names cannot be shadowed by skills. Packages cannot change tool permissions, auto-execute scripts, or grant network/account access.
 
-A skill can include optional `kestrel.json` with `required_tools` and `required_env` identifier lists. Missing declared prerequisites block loading with an explanation; only variable names, never values, appear in diagnostics. Standard packages without this sidecar still load. `disable-model-invocation: true` is honored: these packages require an explicit user slash invocation. Other vendor-specific execution features (dynamic shell expansion, forked subagents, permission grants) are not implemented or silently executed.
+A skill can include optional `kestrel.json` with `required_tools` and `required_env` identifier lists and a `workflows` map of named exports to package-relative JSON templates. Missing declared prerequisites block loading with an explanation; only variable names, never values, appear in diagnostics. Standard packages without this sidecar still load. `disable-model-invocation: true` is honored: these packages require an explicit user slash invocation. Other vendor-specific execution features (dynamic shell expansion, forked subagents, permission grants) are not implemented or silently executed.
 
 Limits: names must match the lowercase hyphenated directory name; frontmatter is bounded, aliases/anchors are rejected, skill/reference bodies are bounded, and symlink packages/references are rejected. Local installation copies at most 128 non-hidden files and 2 MB. Remote hub installation and arbitrary script execution are not part of this release. Inspect imported packages before using them; static validation does not prove instructions are trustworthy or useful.
 
@@ -40,3 +40,27 @@ A live `data-audit` invocation on CSV aggregation passed numeric and recursive f
 The bundled library now includes code-review, debug-root-cause, workflow-designer, web-research, document-drafting, and incident-triage alongside the original seven skills. These provide task procedures, not new tools: document rendering, external services, and desktop access still require actual available capabilities. New skill guidance has schema/discovery validation, not independent proof of improved task quality.
 
 Design references: [OpenCode TUI](https://opencode.ai/v2/docs/cli/tui/) for command discovery and [Pi interactive mode](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/README.md#interactive-mode) for a compact editor/status layout. Kestrel keeps its own commands, styling, and permission model.
+
+## Evaluate and export a declared workflow
+
+A package may declare up to eight typed workflow exports:
+
+```json
+{"workflows":{"copy-text":"workflows/copy-text.json"}}
+```
+
+The interactive library displays these names, and `/skills workflows NAME` lists their paths without executing them. The bundled `workflow-designer` includes a general text-copy example. From a repository checkout:
+
+```sh
+kestrel skills workflows workflow-designer
+kestrel skills test workflow-designer copy-text examples/workflows/copy-text.tests.json
+kestrel skills report EVALUATION_ID
+kestrel skills export workflow-designer copy-text EVALUATION_ID
+kestrel workflows preview copy-text '{"source":"input.txt","destination":"output.txt"}'
+```
+
+The test command freezes the package and supplied suite, then runs the declared file workflow in the existing isolated worker. It records both passing and failing reports in local controller storage. Reports bind the package snapshot hash (the non-hidden files included by installation), entrypoint hash, export path, evaluated template, suite hash and observed case verdicts. Skill Markdown, other exports and package scripts are not executed. External tools and model calls remain unavailable in these fixtures.
+
+Export requires a recorded passing report for the requested skill/export, including both positive and negative cases, and unchanged packaged files. Editing instructions, templates or references invalidates that report for export. The exporter installs the exact frozen evaluated template; it executes no task actions. Existing templates require explicit `--replace`. Arbitrary report files or an evaluation ID from another skill/export are not accepted. Preview the installed template and run it explicitly through `/workflow run` with current parameters and normal permissions.
+
+This is scoped tested-workflow reuse, not independent skill certification. The caller supplies the expectations; the controller does not establish independent authorship, untouched evaluation inputs, semantic quality of the prose, or broad applicability. Positive-only suites can pass their tests but cannot authorize export. Reports do not automatically install, activate or execute anything. Local records and package hashes protect this workflow against accidental content changes and mismatched evidence; they are not a sandbox against an owner who directly modifies the application or its database.

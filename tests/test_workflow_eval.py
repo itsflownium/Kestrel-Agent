@@ -97,3 +97,36 @@ def test_new_parameters_are_executed_with_the_same_template(tmp_path):
     assert report['passed'], report
     assert report['positive_cases'] == 4
     assert report['certification'] == 'not_certified'
+
+
+def test_conditional_file_recovery_accepts_real_skip_status(tmp_path):
+    template=read(TEMPLATE)
+    template['actions'].append({'id':'recover','tool':'write_file','arguments':{'path':'failure.txt','content':'Source unavailable'},
+                               'depends_on':['source'],'after':'failure','condition':'always','purpose':'Record the requested source failure'})
+    suite={'version':1,'cases':[
+        {'name':'valid-source','kind':'positive','parameters':{'source':'input.txt','destination':'copy.txt'},
+         'files':{'input.txt':'Exact text'},'expected_files':{'input.txt':'Exact text','copy.txt':'Exact text'},
+         'expected_statuses':{'source':'completed','copy':'completed','recover':'skip'}},
+        {'name':'missing-source','kind':'negative','parameters':{'source':'missing.txt','destination':'copy.txt'},
+         'files':{},'expected_files':{'failure.txt':'Source unavailable'},
+         'expected_statuses':{'source':'error','copy':'blocked','recover':'completed'},'expected_errors':{'source':'No such file'}}]}
+    path=tmp_path/'workflow.json';path.write_text(json.dumps(template))
+    cases=tmp_path/'cases.json';cases.write_text(json.dumps(suite))
+    result=evaluate_files(path,cases)
+    assert result['passed'],result
+    assert result['positive_cases']==result['negative_cases']==1
+    suite['cases'][0]['kind']='negative'
+    with pytest.raises(ValueError,match='negative fixtures'):
+        validate_plans(template,Suite.model_validate(suite))
+
+
+@pytest.mark.parametrize('kind',['symlink','fifo','oversized'])
+def test_fixture_suite_is_a_bounded_regular_file(tmp_path,kind):
+    import os
+    from kestrel_agent.workflow_eval import read_suite_bytes
+    path=tmp_path/'suite.json'
+    if kind=='symlink': path.symlink_to(SUITE)
+    elif kind=='fifo': os.mkfifo(path)
+    else: path.write_bytes(b'x'*1_000_001)
+    with pytest.raises(ValueError,match='regular non-symlink'):
+        read_suite_bytes(path)

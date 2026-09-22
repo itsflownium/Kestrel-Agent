@@ -67,13 +67,14 @@ def validate_plans(template, suite):
         ids = {action.id for action in plan.actions}
         if set(case.expected_statuses) != ids:
             raise ValueError('Each fixture must specify expected status for every action.')
-        if any(status not in {'completed', 'error', 'blocked', 'skipped'} for status in case.expected_statuses.values()):
+        if any(status not in {'completed', 'error', 'blocked', 'skip'} for status in case.expected_statuses.values()):
             raise ValueError('Unsupported expected action status.')
         if set(case.expected_errors) != {key for key, value in case.expected_statuses.items() if value == 'error'}:
             raise ValueError('Every expected error action needs an expected_errors message fragment.')
-        all_completed = all(status == 'completed' for status in case.expected_statuses.values())
-        if (case.kind == 'positive') != all_completed:
-            raise ValueError('Positive fixtures must complete all actions; negative fixtures must expect a non-completed action.')
+        successful = (all(status in {'completed', 'skip'} for status in case.expected_statuses.values())
+                      and any(status == 'completed' for status in case.expected_statuses.values()))
+        if (case.kind == 'positive') != successful:
+            raise ValueError('Positive fixtures must complete required actions (unused branches may skip); negative fixtures must expect an error or blocked action.')
         plans.append((plan, version))
     return plans
 
@@ -142,14 +143,19 @@ async def run_worker(template, suite):
             'limitations': 'No independent suite authorship or held-out split is verified. No model repair, final answer, shell, browser, desktop or external provider is evaluated. No automatic activation or promotion.'}
 
 
+def read_suite_bytes(path):
+    from .skill_registry import read_bytes
+    path = Path(path).expanduser().absolute()
+    root = path.parent.resolve()
+    try:
+        return read_bytes(root/path.name, root, 1_000_000)
+    except ValueError as error:
+        raise ValueError('Workflow suite must be a regular non-symlink file no larger than 1 MB.') from error
+
+
 def evaluate_files(template_path, suite_path):
     template = read(template_path)
-    suite_path = Path(suite_path)
-    with suite_path.open('rb') as stream:
-        data = stream.read(1_000_001)
-    if len(data) > 1_000_000:
-        raise ValueError('Workflow fixture suite must be no larger than 1 MB.')
-    suite = Suite.model_validate(parse_json(data))
+    suite = Suite.model_validate(parse_json(read_suite_bytes(suite_path)))
     validate_plans(template, suite)
     with tempfile.TemporaryDirectory(prefix='kestrel-workflow-eval-') as directory:
         # A separate process owns its private home; never mutate the caller's

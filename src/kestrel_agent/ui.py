@@ -31,7 +31,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/jobs", "/jobs show", "/jobs cancel", "/steer", "/cancel", "/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/jobs", "/jobs show", "/jobs cancel", "/steer", "/cancel", "/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills workflows", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -421,6 +421,12 @@ class Terminal:
                     self.console.print(Text(f'Use /{selected} followed by your task.', style='cyan'))
             elif subcommand in {'show', 'inspect'}:
                 self.console.print(Markdown(self.skill_registry.load(rest.strip(), explicit=True)['guidance']))
+            elif subcommand == 'workflows':
+                skill = self.skill_registry.discover().get(rest.strip())
+                if skill is None:
+                    raise ValueError('Use /skills workflows NAME with an installed skill name.')
+                self.console.print_json(json.dumps(skill.requirements.get('workflows', {})))
+                self.console.print(Text('Test with: kestrel skills test NAME WORKFLOW SUITE.json; export using its recorded evaluation ID.'))
             elif subcommand == 'use':
                 skill, _, task = rest.partition(' ')
                 self.skill_registry.load(skill, explicit=True)
