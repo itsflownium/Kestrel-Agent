@@ -10,7 +10,7 @@ from pathlib import Path
 
 from prompt_toolkit.formatted_text import ANSI, to_formatted_text
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import WordCompleter
+from .skill_browser import SkillCompleter, browser_application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.history import DummyHistory
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -30,7 +30,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -65,7 +65,7 @@ class Terminal:
             event.current_buffer.insert_text("\n")
 
         self.prompt = PromptSession(
-            completer=WordCompleter(COMMANDS, sentence=True), complete_while_typing=False,
+            completer=SkillCompleter(COMMANDS, {}), complete_while_typing=True,
             style=STYLE, key_bindings=bindings,
             bottom_toolbar=self.toolbar, refresh_interval=0.15,
             reserve_space_for_menu=4,
@@ -76,7 +76,7 @@ class Terminal:
     def refresh_skills(self):
         from .skill_registry import SkillRegistry
         self.skill_registry = SkillRegistry(self.settings, self.workspace)
-        self.prompt.completer = WordCompleter(COMMANDS + ['/' + name for name in self.skill_registry.discover()], sentence=True)
+        self.prompt.completer = SkillCompleter(COMMANDS, self.skill_registry.discover())
 
     def toolbar(self):
         if self.pending_approval is not None:
@@ -354,7 +354,12 @@ class Terminal:
         elif name == "/skills":
             self.refresh_skills()
             subcommand, _, rest = argument.partition(' ')
-            if subcommand == 'show':
+            if not subcommand or subcommand == 'browse':
+                selected = await browser_application(self.skill_registry, rest.strip()).run_async()
+                if selected:
+                    self.console.print(Markdown(self.skill_registry.discover()[selected].body))
+                    self.console.print(Text(f'Use /{selected} followed by your task.', style='cyan'))
+            elif subcommand in {'show', 'inspect'}:
                 self.console.print(Markdown(self.skill_registry.load(rest.strip(), explicit=True)['guidance']))
             elif subcommand == 'use':
                 skill, _, task = rest.partition(' ')
@@ -362,11 +367,11 @@ class Terminal:
                 self.busy = True
                 self.job = asyncio.create_task(self.work('/' + skill + ' ' + task))
             else:
-                catalog = self.skill_registry.catalog('' if subcommand == 'check' else argument)
-                table = Table('Skill', 'Purpose', 'Status', box=box.SIMPLE, expand=False)
+                catalog = self.skill_registry.catalog('' if subcommand in {'check', 'list'} else rest if subcommand == 'search' else argument, limit=500)
+                table = Table('Skill', 'Category', 'Purpose', 'Status', box=box.SIMPLE, expand=True)
                 for skill in catalog['skills']:
                     status = ', '.join(skill['missing']) or ('manual' if skill['manual_only'] else skill['origin'])
-                    table.add_row('/' + skill['name'], skill['description'], status)
+                    table.add_row(Text('/' + skill['name']), Text(skill['category']), Text(skill['description']), Text(status))
                 self.console.print(table)
                 for issue in catalog['issues']:
                     self.emit('warning', f"{issue['path']}: {issue['error']}")

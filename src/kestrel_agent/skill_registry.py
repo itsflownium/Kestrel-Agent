@@ -69,6 +69,11 @@ def parse(directory):
     if not isinstance(manual, bool):
         raise ValueError('disable-model-invocation must be a boolean.')
     requirements['manual_only'] = manual
+    extra = metadata.get('metadata', {})
+    category = extra.get('category', 'general') if isinstance(extra, dict) else 'general'
+    if not isinstance(category, str) or not re.fullmatch(r'[a-z][a-z-]{0,31}', category):
+        raise ValueError('Skill category must be a lowercase label of at most 32 characters.')
+    requirements['category'] = category
     return name, description.strip(), body, requirements
 
 
@@ -149,10 +154,10 @@ class SkillRegistry:
         for skill in sorted(self.discover().values(), key=lambda x: x.name):
             if for_model and skill.requirements.get('manual_only'):
                 continue
-            if query.lower() not in (skill.name + ' ' + skill.description).lower():
+            if query.lower() not in (skill.name + ' ' + skill.description + ' ' + skill.requirements.get('category', 'general')).lower():
                 continue
             rows.append({'name': skill.name, 'description': skill.description, 'origin': skill.origin,
-                         'version': skill.version[:12], 'manual_only': skill.requirements.get('manual_only', False), 'missing': self.missing(skill)})
+                         'category': skill.requirements.get('category', 'general'), 'version': skill.version[:12], 'manual_only': skill.requirements.get('manual_only', False), 'missing': self.missing(skill)})
         return {'skills': rows[:limit], 'omitted': max(0, len(rows)-limit), 'issues': self.issues}
 
     def load(self, name, reference=None, *, explicit=False):

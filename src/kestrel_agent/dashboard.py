@@ -33,23 +33,24 @@ def command_desk(settings, workspace, sid, catalog, width):
                          ('/workflow', 'Saved plans'), ('/connections', 'External tools')]:
         task_rows.add_row(key, purpose)
     left = Panel(task_rows, title=Text('START HERE', style=f'bold {MUTED}'), title_align='left',
-                 border_style=BORDER, box=box.ROUNDED, padding=(1, 2))
+                 border_style=BORDER, box=box.SIMPLE, padding=(0, 1))
     skills = catalog.get('skills', [])
-    names = {skill['name'] for skill in skills}
-    suggested = ['terminal-engineer', 'research-brief', 'data-audit', 'browser-workflow']
-    shown = [name for name in suggested if name in names][:4]
-    if not shown:
-        shown = [skill['name'] for skill in skills[:4]]
     entries = Text(style=INK)
-    for index, name in enumerate(shown):
+    groups = {}
+    for skill in skills:
+        groups.setdefault(skill.get('category', 'general'), []).append(skill['name'])
+    for index, (category, names) in enumerate(sorted(groups.items())[:6]):
         if index:
             entries.append('\n')
-        entries.append('› ', style=TEAL)
-        entries.append('/' + name)
-    if not shown:
+        entries.append(category + '  ', style=TEAL)
+        entries.append('/' + names[0])
+        if len(names) > 1:
+            entries.append(f'  +{len(names)-1}', style=MUTED)
+    if not skills:
         entries.append('Install a skill to get started.', style=MUTED)
+    entries.append('\n/skills  browse all →', style=ACCENT)
     right = Panel(entries, title=Text(f'SKILL SHELF · {len(skills)}', style=f'bold {MUTED}'),
-                  title_align='left', border_style=BORDER, box=box.ROUNDED, padding=(1, 2))
+                  title_align='left', border_style=BORDER, box=box.SIMPLE, padding=(0, 1))
     if width >= 86:
         cards = Table.grid(expand=True, padding=(0, 2))
         cards.add_column(ratio=1)

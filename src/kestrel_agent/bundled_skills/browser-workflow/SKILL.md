@@ -1,6 +1,8 @@
 ---
 name: browser-workflow
 description: Complete browser or desktop workflows through connected tools using current accessibility observations and verified outcomes. Use for navigating interfaces, filling forms, and checking UI state.
+metadata:
+  category: browser
 ---
 
 # Browser and desktop workflows

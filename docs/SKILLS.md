@@ -26,3 +26,13 @@ Limits: names must match the lowercase hyphenated directory name; frontmatter is
 Existing 253-test suite passed after integration. Seven additional skill tests cover progressive discovery, references/path escape, symlinks, missing capabilities, explicit-only policy, project trust, install/update/rollback, nonexecution of scripts, and engine invocation preserving the original task. All five bundled entrypoints pass the skill-creator validator.
 
 A live `data-audit` invocation on CSV aggregation passed numeric and recursive file-scope grading: Kestrel 13.809 seconds (one Astra-medium generation, two Jev decisions), direct Codex 9.268 seconds. Raw evidence is in `benchmarks/results-portable-skills.json`, including the selected skill snapshot. This checks one skill integration, not general superiority or comprehensive validation of all procedures.
+
+## Interactive library
+
+`/skills` and `/skills browse [query]` open a searchable local library. Type to filter names, descriptions, categories, or origin; use Up/Down to select, Tab to focus the scrollable guidance preview, Enter to inspect, and Escape to return. Opening or selecting an entry never executes it. Invoke `/NAME your task` to use it.
+
+`/skills search QUERY` prints matching entries; `/skills list` prints the catalog. `/skills inspect NAME` aliases `/skills show NAME`. Slash completion includes subcommands and installed skill names. Packages can provide `metadata.category` in SKILL.md; absent categories appear under general. The home screen groups a selection by category.
+
+The bundled library now includes code-review, debug-root-cause, workflow-designer, web-research, document-drafting, and incident-triage alongside the original seven skills. These provide task procedures, not new tools: document rendering, external services, and desktop access still require actual available capabilities. New skill guidance has schema/discovery validation, not independent proof of improved task quality.
+
+Design references: [OpenCode TUI](https://opencode.ai/v2/docs/cli/tui/) for command discovery and [Pi interactive mode](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/README.md#interactive-mode) for a compact editor/status layout. Kestrel keeps its own commands, styling, and permission model.

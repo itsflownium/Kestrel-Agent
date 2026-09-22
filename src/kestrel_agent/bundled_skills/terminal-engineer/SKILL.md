@@ -1,6 +1,8 @@
 ---
 name: terminal-engineer
 description: Implement or repair software and command-line workflows with focused exploration, scoped edits, and evidence of outcomes. Use for coding, debugging, repository maintenance, and terminal automation.
+metadata:
+  category: coding
 ---
 
 # Terminal engineering
