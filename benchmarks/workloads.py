@@ -151,6 +151,7 @@ async def main():
     parser.add_argument('--output',default='benchmarks/results-workloads.json')
     parser.add_argument('--tasks',default='')
     parser.add_argument('--prompt-profile', choices=['default','compact'], default='default')
+    parser.add_argument('--skill', default=None)
     parser.add_argument('--agent-mode', choices=['jev','standard'], default='jev')
     parser.add_argument('--session-mode', choices=['fresh','task'],default='fresh')
     parser.add_argument('--no-setup-cache',action='store_true')
@@ -185,13 +186,13 @@ async def main():
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
                 commands=[]
-                record={'task':case['id'],'fixture_revision':case.get('revision',1),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
+                record={'task':case['id'],'fixture_revision':case.get('revision',1),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'skill':args.skill if arm=='kestrel' else None,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
                 try:
                     async with asyncio.timeout(180):
                         if arm=='kestrel':
                             sid=store.create(workspace)
                             engine=Engine(settings,workspace,store,sid,emit,allow)
-                            answer=await engine.run(case['prompt'])
+                            answer=await engine.run(('/' + args.skill + ' ' if args.skill else '') + case['prompt'])
                             commands=[{'exit_code':o['result'].get('exitCode'),'stdout':o['result'].get('stdout','')} for o in engine.state.get('observations',[]) if o.get('tool')=='shell' and o.get('status') in {'completed','error'}]
                             record.update(engine.state.get('usage',{}))
                             record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=?',(sid,))]

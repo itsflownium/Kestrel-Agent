@@ -89,7 +89,17 @@ class QueryTable(Arguments):
     filters: list[Predicate] = Field(default_factory=list, max_length=16)
 
 
+class ListSkills(Arguments):
+    query: str = Field(default='', max_length=200)
+
+
+class LoadSkill(Arguments):
+    name: str = Field(min_length=1, max_length=64)
+    reference: str | None = Field(default=None, max_length=500)
+
+
 CONTRACTS = {
+    'list_skills': ListSkills, 'load_skill': LoadSkill,
     'list_files': ListFiles, 'read_file': ReadFile, 'search_files': SearchFiles,
     'write_file': WriteFile, 'shell': Shell, 'repair_command': RepairCommand,
     'fetch_url': FetchURL, 'mcp': MCP, 'generate': Generate, 'research': Generate,

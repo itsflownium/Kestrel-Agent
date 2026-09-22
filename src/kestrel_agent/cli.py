@@ -20,10 +20,12 @@ from .store import Store
 app = typer.Typer(help="Kestrel · a general-purpose terminal agent", no_args_is_help=False, pretty_exceptions_enable=False)
 auth_app = typer.Typer(help="Manage Codex OAuth, provider API keys, and your Jev key.")
 config_app = typer.Typer(help="Configure access, models, budgets, and network settings.")
+skills_app = typer.Typer(help="Discover, inspect, install, and version portable skills.")
 workflows_app = typer.Typer(help="Review and manage reusable procedures.")
 app.add_typer(auth_app, name="auth")
 app.add_typer(config_app, name="config")
 app.add_typer(workflows_app, name="workflows")
+app.add_typer(skills_app, name="skills")
 console = Console(highlight=False)
 
 
@@ -372,6 +374,55 @@ def promote_prompt(candidate: Path = typer.Argument(..., exists=True, dir_okay=F
         console.print(Text(f"Activated {data['component']}. Previous version: {backup}"))
     finally:
         store.close()
+
+
+@skills_app.command("list")
+def list_skills(query: str = typer.Argument("")):
+    from .skill_registry import SkillRegistry
+    console.print_json(json.dumps(SkillRegistry(Settings.load(), Path.cwd()).catalog(query)))
+
+
+@skills_app.command("show")
+def show_skill(name: str):
+    from .skill_registry import SkillRegistry
+    console.print_json(json.dumps(SkillRegistry(Settings.load(), Path.cwd()).load(name, explicit=True)))
+
+
+@skills_app.command("check")
+def check_skills():
+    """Validate metadata and declared prerequisites; does not claim behavioral quality."""
+    list_skills()
+
+
+@skills_app.command("install")
+def install_skill(source: Path = typer.Argument(..., exists=True, file_okay=False), replace: bool = typer.Option(False)):
+    from .skill_registry import install
+    try:
+        console.print_json(json.dumps(install(source, replace=replace)))
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+
+
+@skills_app.command("trust")
+def trust_skills(workspace: Path = typer.Argument(Path.cwd(), exists=True, file_okay=False)):
+    settings = Settings.load()
+    path = str(workspace.resolve())
+    if path not in settings.trusted_skill_workspaces:
+        settings.trusted_skill_workspaces.append(path)
+        settings.save()
+    console.print(Text(f"Project skill discovery enabled for {path}. Skills do not grant tool permissions."))
+
+
+@skills_app.command("versions")
+def skill_versions(name: str):
+    from .skill_registry import versions
+    console.print_json(json.dumps(versions(name)))
+
+
+@skills_app.command("rollback")
+def rollback_skill(name: str, version: str):
+    from .skill_registry import rollback
+    console.print_json(json.dumps(rollback(name, version)))
 
 
 if __name__ == "__main__":

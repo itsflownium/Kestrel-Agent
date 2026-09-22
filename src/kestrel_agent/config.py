@@ -42,6 +42,7 @@ class Settings(BaseModel):
     generation_session: Literal["fresh", "task"] = "fresh"
     cache_generation_setup: bool = True
     effort: Literal["low", "medium", "high"] = "low"
+    trusted_skill_workspaces: list[str] = Field(default_factory=list)
     agent_mode: Literal["standard", "jev"] = "jev"
     max_decision_calls: int = Field(default=32, ge=1, le=300)
     jev_model: str = "jev-latest"

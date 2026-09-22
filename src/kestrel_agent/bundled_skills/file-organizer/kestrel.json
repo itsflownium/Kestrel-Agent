@@ -1,0 +1,6 @@
+{
+  "required_tools": [
+    "list_files",
+    "shell"
+  ]
+}
