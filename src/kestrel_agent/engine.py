@@ -72,7 +72,7 @@ class Engine:
         message = message.strip()
         if not message or len(message) > 8000:
             raise ValueError('A task update must contain 1–8000 characters.')
-        if self.state.get('status') not in {'interrupted', 'error'} or not self.state.get('request'):
+        if self.state.get('status') not in {'interrupted', 'error', 'needs_input'} or not self.state.get('request'):
             raise ValueError('Stop an unfinished task before adding an update.')
         updates = self.state.setdefault('user_updates', [])
         if len(updates) >= 16:
@@ -124,6 +124,7 @@ class Engine:
         elif self.state.get("status") == "completed":
             raise ValueError("This task already completed. Send a new message to start more work.")
         self.state['status'] = 'running'
+        self.state['awaiting_input'] = False
         try:
             async with asyncio.timeout(self.settings.max_minutes * 60):
                 result = None
@@ -138,7 +139,7 @@ class Engine:
                         from .prefetch import prefetch
                         await prefetch(self, message)
                     result = await self._loop()
-            self.state["status"] = "completed"
+            self.state["status"] = 'needs_input' if self.state.get('awaiting_input') else 'completed'
             self.log("assistant", result)
             return result
         except asyncio.CancelledError:
@@ -316,6 +317,7 @@ FEEDBACK: {json.dumps(feedback, default=str)}
                         self.state["plan"] = None
                         self.save()
                         continue
+                self.state['awaiting_input'] = plan.mode == 'clarify'
                 return plan.message
             register_checks(self.state, plan.completion_checks)
             register_requirements(self.state, plan.success_criteria)

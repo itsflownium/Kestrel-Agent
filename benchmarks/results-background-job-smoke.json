@@ -1,0 +1,30 @@
+{
+  "case": "read-only background file smoke",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "agent_mode": "standard",
+  "passed": true,
+  "record": {
+    "id": "dc8fb1d525204d1c828b5ebabad58f83",
+    "status": "completed",
+    "created": 1790038177.986832,
+    "updated": 1790038196.190412,
+    "workspace": "/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-job-smoke-ssdose_i/workspace",
+    "session": "995634b9977a",
+    "detail": "Task completed; answer and evidence are in the saved session.",
+    "phase": "Codex \u00b7 thinking",
+    "answer": "background-e407a6caea11",
+    "worker_owned": false
+  },
+  "expected": "background-e407a6caea11",
+  "usage": {
+    "generation_calls": 1,
+    "decision_calls": 1,
+    "jev_calls": 0,
+    "elapsed_seconds": 16.86
+  },
+  "observed_tools": [
+    "read_file"
+  ],
+  "worker_elapsed_seconds": 18.204
+}

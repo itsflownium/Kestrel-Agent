@@ -132,6 +132,7 @@ Default per-request budgets: **6 Codex calls, 32 Jev calls, 24 actions, 15 minut
 | `/continue` | Continue interrupted work |
 | `/steer UPDATE` | Stop, save an update, and replan unfinished work while preserving its evidence and effect safeguards |
 | `/cancel` | Stop active work without resuming; also works during an approval wait |
+| `/jobs [show|cancel ID]` | Inspect or cancel background work; start it with `kestrel jobs start TASK -C WORKSPACE` |
 | `/model`, `/model ID` | Model selection and Jev credential status |
 | `/provider [NAME]` | Configure provider, endpoint, model, and missing keys |
 | `/model jev-key`, `/model provider-key` | Hidden key entry |
