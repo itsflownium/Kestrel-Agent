@@ -58,3 +58,9 @@ The first complete regression invocation omitted the development Chromium path: 
 Learned recipes now record their source session, state/trace/recipe hashes and source completion-check outcomes. Pending/failed checks and unresolved actions prevent learning before a provider call. Manual activation is explicitly unverified planning guidance; source observations are not certification on new inputs. Legacy recipes migrate without losing their content or active state and display missing provenance honestly.
 
 Full suite: **351 passed in 142.47 seconds**. Subsequent focused checks cover a strengthened legacy migration case and an additional real CLI-output test: **10 provenance tests passed**. After updating planner guidance, provenance/evidence checks also passed (20 tests). The extra CLI test was added after full-suite collection and is not included in the 351 count. Independent skill/workflow behavioral certification and automatic promotion remain incomplete.
+
+## Embedded-frame browser support
+
+The browser adapter now observes nested/cross-origin frames, labels target ownership, excludes hidden ancestor frames and invalidates observations when any frame attaches, navigates or detaches. Bounds and truncation are reported. Read-only collection retries up to three times after frame-tree changes; actions are never replayed. Thirteen browser/frame/vision/grader tests pass, including real Chromium and MCP transport.
+
+Two live standard Kestrel/native Codex pairs passed the independent embedded-form oracle with zero Jev calls and exactly one saved record each. The first Kestrel run exposed a loading race and later recovery issues, all retained. With observation retries, Kestrel passed in 73.769 seconds versus Codex at 41.394 seconds. See `benchmarks/FRAME-BROWSER-SEP22.md` for all results and limitations. This expands tested capability, not a superiority claim.

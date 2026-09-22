@@ -101,16 +101,20 @@ async def run(args):
         value = await request.json()
         submitted.append(value)
         return JSONResponse({'message': 'Saved record: ' + str(value.get('name'))})
+    async def fixture(request):
+        if args.frames:
+            return HTMLResponse(f'<!doctype html><title>Embedded registration</title><body><h1>Registration desk</h1><iframe title="Registration form" src="http://localhost:{port}/form" style="width:700px;height:400px"></iframe></body>')
+        return await page(request)
     listener = socket.socket()
     listener.bind(('127.0.0.1', 0))
     port = listener.getsockname()[1]
     listener.listen()
     mcp = create_browser_server(port=port, headless=True).streamable_http_app()
-    app = Starlette(routes=[Route('/fixture', page), Route('/submit', submit, methods=['POST']), Mount('/', app=mcp)], lifespan=mcp.router.lifespan_context)
+    app = Starlette(routes=[Route('/fixture', fixture), Route('/form', page), Route('/submit', submit, methods=['POST']), Mount('/', app=mcp)], lifespan=mcp.router.lifespan_context)
     server = uvicorn.Server(uvicorn.Config(app, log_level='error'))
     server_task = asyncio.create_task(server.serve(sockets=[listener]))
     record = {'kind':'live-browser-smoke', 'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-              'fixture_revision':2, 'mode':args.mode, 'model':'gpt-6-astra', 'effort':'medium', 'target':target, 'baseline':'native-codex' if args.mode == 'direct-codex' else None,
+              'fixture_revision':3 if args.frames else 2, 'embedded_frame':args.frames, 'mode':args.mode, 'model':'gpt-6-astra', 'effort':'medium', 'target':target, 'baseline':'native-codex' if args.mode == 'direct-codex' else None,
               'approval_policy':'auto_review' if args.mode == 'direct-codex' else 'fixture-only-controller-confirmation'}
     try:
         async with asyncio.timeout(10):
@@ -179,4 +183,5 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--mode',choices=['jev','standard','direct-codex'],default='jev')
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--frames',action='store_true',help='Place the form in a cross-origin iframe')
     asyncio.run(run(parser.parse_args()))

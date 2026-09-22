@@ -1,0 +1,348 @@
+{
+  "kind": "live-browser-smoke",
+  "harness_sha256": "84430b662526a8eac58488cb9ab856d7fa7d1bfab790a199667f01cf070529c1",
+  "fixture_revision": 3,
+  "embedded_frame": true,
+  "mode": "direct-codex",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "target": "Record-e9d3686d",
+  "baseline": "native-codex",
+  "approval_policy": "auto_review",
+  "prompt": "Using the connected browser, open http://127.0.0.1:53573/fixture. Enter Record-e9d3686d in Record name and save the record exactly once. Verify the visible saved message and report the record name. Do not edit files or use other services.",
+  "answer": "Saved **Record-e9d3686d** exactly once. Verified the visible message: \u201cSaved record: Record-e9d3686d\u201d.",
+  "elapsed_seconds": 46.38,
+  "usage": {
+    "native_codex_usage": "last=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=11648, input_tokens=14891, output_tokens=34, reasoning_output_tokens=0, total_tokens=14925) model_context_window=258400 total=TokenUsageBreakdown(cache_write_input_tokens=0, cached_input_tokens=87680, input_tokens=100790, output_tokens=378, reasoning_output_tokens=0, total_tokens=101168)",
+    "jev_calls": 0
+  },
+  "status": "completed",
+  "submitted": [
+    {
+      "name": "Record-e9d3686d"
+    }
+  ],
+  "unexpected_files": [],
+  "observations": [
+    {
+      "tool": "mcp",
+      "status": "failed",
+      "arguments": {
+        "url": "http://127.0.0.1:53573/fixture"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_open",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "Error executing tool browser_open: Page frames changed during observation. Inspect again."
+          }
+        ],
+        "structuredContent": null
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {},
+      "server": "kestrel_browser_fixture",
+      "name": "browser_tabs",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"b4e1aa8faf\",\n  \"url\": \"http://127.0.0.1:53573/fixture\",\n  \"title\": \"Embedded registration\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "result": [
+            {
+              "tab": "b4e1aa8faf",
+              "url": "http://127.0.0.1:53573/fixture",
+              "title": "Embedded registration"
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "tab": "b4e1aa8faf"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_snapshot",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"b4e1aa8faf\",\n  \"observation\": \"cf3bb83bc86c40009e74d4454736742c\",\n  \"url\": \"http://127.0.0.1:53573/fixture\",\n  \"title\": \"Embedded registration\",\n  \"text\": \"Registration desk\\n[Frame f1: http://localhost:53573/form]\\nRecord name Save record\\n\\nNo record submitted\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"frame\": \"f1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"frame\": \"f1\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"frames\": [\n    {\n      \"frame\": \"f0\",\n      \"url\": \"http://127.0.0.1:53573/fixture\",\n      \"name\": \"\"\n    },\n    {\n      \"frame\": \"f1\",\n      \"url\": \"http://localhost:53573/form\",\n      \"name\": \"\"\n    }\n  ],\n  \"frames_truncated\": false,\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "b4e1aa8faf",
+          "observation": "cf3bb83bc86c40009e74d4454736742c",
+          "url": "http://127.0.0.1:53573/fixture",
+          "title": "Embedded registration",
+          "text": "Registration desk\n[Frame f1: http://localhost:53573/form]\nRecord name Save record\n\nNo record submitted",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "frame": "f1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "frame": "f1",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "frames": [
+            {
+              "frame": "f0",
+              "url": "http://127.0.0.1:53573/fixture",
+              "name": ""
+            },
+            {
+              "frame": "f1",
+              "url": "http://localhost:53573/form",
+              "name": ""
+            }
+          ],
+          "frames_truncated": false,
+          "targets_may_be_truncated": false,
+          "scope": "Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions."
+        }
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "tab": "b4e1aa8faf",
+        "observation": "cf3bb83bc86c40009e74d4454736742c",
+        "operation": "fill",
+        "target": "e1",
+        "value": "Record-e9d3686d"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_act",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"b4e1aa8faf\",\n  \"observation\": \"8c4a98713c90456ea183298dc0344779\",\n  \"url\": \"http://127.0.0.1:53573/fixture\",\n  \"title\": \"Embedded registration\",\n  \"text\": \"Registration desk\\n[Frame f1: http://localhost:53573/form]\\nRecord name Save record\\n\\nNo record submitted\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"frame\": \"f1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"frame\": \"f1\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"frames\": [\n    {\n      \"frame\": \"f0\",\n      \"url\": \"http://127.0.0.1:53573/fixture\",\n      \"name\": \"\"\n    },\n    {\n      \"frame\": \"f1\",\n      \"url\": \"http://localhost:53573/form\",\n      \"name\": \"\"\n    }\n  ],\n  \"frames_truncated\": false,\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "b4e1aa8faf",
+          "observation": "8c4a98713c90456ea183298dc0344779",
+          "url": "http://127.0.0.1:53573/fixture",
+          "title": "Embedded registration",
+          "text": "Registration desk\n[Frame f1: http://localhost:53573/form]\nRecord name Save record\n\nNo record submitted",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "frame": "f1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "frame": "f1",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "frames": [
+            {
+              "frame": "f0",
+              "url": "http://127.0.0.1:53573/fixture",
+              "name": ""
+            },
+            {
+              "frame": "f1",
+              "url": "http://localhost:53573/form",
+              "name": ""
+            }
+          ],
+          "frames_truncated": false,
+          "targets_may_be_truncated": false,
+          "scope": "Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions."
+        }
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "tab": "b4e1aa8faf",
+        "observation": "8c4a98713c90456ea183298dc0344779",
+        "operation": "click",
+        "target": "e2"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_act",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"b4e1aa8faf\",\n  \"observation\": \"8fe8e13b925246e4a867a8e8d420e4a8\",\n  \"url\": \"http://127.0.0.1:53573/fixture\",\n  \"title\": \"Embedded registration\",\n  \"text\": \"Registration desk\\n[Frame f1: http://localhost:53573/form]\\nRecord name Save record\\n\\nNo record submitted\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"frame\": \"f1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"frame\": \"f1\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"frames\": [\n    {\n      \"frame\": \"f0\",\n      \"url\": \"http://127.0.0.1:53573/fixture\",\n      \"name\": \"\"\n    },\n    {\n      \"frame\": \"f1\",\n      \"url\": \"http://localhost:53573/form\",\n      \"name\": \"\"\n    }\n  ],\n  \"frames_truncated\": false,\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "b4e1aa8faf",
+          "observation": "8fe8e13b925246e4a867a8e8d420e4a8",
+          "url": "http://127.0.0.1:53573/fixture",
+          "title": "Embedded registration",
+          "text": "Registration desk\n[Frame f1: http://localhost:53573/form]\nRecord name Save record\n\nNo record submitted",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "frame": "f1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "frame": "f1",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "frames": [
+            {
+              "frame": "f0",
+              "url": "http://127.0.0.1:53573/fixture",
+              "name": ""
+            },
+            {
+              "frame": "f1",
+              "url": "http://localhost:53573/form",
+              "name": ""
+            }
+          ],
+          "frames_truncated": false,
+          "targets_may_be_truncated": false,
+          "scope": "Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions."
+        }
+      },
+      "error": null
+    },
+    {
+      "tool": "mcp",
+      "status": "completed",
+      "arguments": {
+        "tab": "b4e1aa8faf"
+      },
+      "server": "kestrel_browser_fixture",
+      "name": "browser_snapshot",
+      "result": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"tab\": \"b4e1aa8faf\",\n  \"observation\": \"903cc8ae14354ee2958e3458c2c700a1\",\n  \"url\": \"http://127.0.0.1:53573/fixture\",\n  \"title\": \"Embedded registration\",\n  \"text\": \"Registration desk\\n[Frame f1: http://localhost:53573/form]\\nRecord name Save record\\n\\nSaved record: Record-e9d3686d\",\n  \"text_truncated\": false,\n  \"targets\": [\n    {\n      \"target\": \"e1\",\n      \"frame\": \"f1\",\n      \"tag\": \"input\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Record name\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    },\n    {\n      \"target\": \"e2\",\n      \"frame\": \"f1\",\n      \"tag\": \"button\",\n      \"role\": null,\n      \"type\": null,\n      \"label\": \"Save record\",\n      \"href\": null,\n      \"disabled\": false,\n      \"readonly\": false\n    }\n  ],\n  \"frames\": [\n    {\n      \"frame\": \"f0\",\n      \"url\": \"http://127.0.0.1:53573/fixture\",\n      \"name\": \"\"\n    },\n    {\n      \"frame\": \"f1\",\n      \"url\": \"http://localhost:53573/form\",\n      \"name\": \"\"\n    }\n  ],\n  \"frames_truncated\": false,\n  \"targets_may_be_truncated\": false,\n  \"scope\": \"Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions.\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "tab": "b4e1aa8faf",
+          "observation": "903cc8ae14354ee2958e3458c2c700a1",
+          "url": "http://127.0.0.1:53573/fixture",
+          "title": "Embedded registration",
+          "text": "Registration desk\n[Frame f1: http://localhost:53573/form]\nRecord name Save record\n\nSaved record: Record-e9d3686d",
+          "text_truncated": false,
+          "targets": [
+            {
+              "target": "e1",
+              "frame": "f1",
+              "tag": "input",
+              "role": null,
+              "type": null,
+              "label": "Record name",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            },
+            {
+              "target": "e2",
+              "frame": "f1",
+              "tag": "button",
+              "role": null,
+              "type": null,
+              "label": "Save record",
+              "href": null,
+              "disabled": false,
+              "readonly": false
+            }
+          ],
+          "frames": [
+            {
+              "frame": "f0",
+              "url": "http://127.0.0.1:53573/fixture",
+              "name": ""
+            },
+            {
+              "frame": "f1",
+              "url": "http://localhost:53573/form",
+              "name": ""
+            }
+          ],
+          "frames_truncated": false,
+          "targets_may_be_truncated": false,
+          "scope": "Visible DOM in up to 20 frames, 150 targets total. No canvas or desktop actions."
+        }
+      },
+      "error": null
+    }
+  ],
+  "passed": true,
+  "visible_confirmation_observed": true,
+  "events": []
+}
