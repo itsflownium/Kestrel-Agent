@@ -31,7 +31,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/steer", "/cancel", "/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/jobs", "/jobs show", "/jobs cancel", "/steer", "/cancel", "/doctor", "/doctor runtime", "/memory", "/memory set", "/memory forget", "/workflow", "/workflow run", "/workflow preview", "/connections", "/connections add", "/connections remove", "/connections reads", "/setup", "/details", "/details on", "/details off", "/skills", "/skills browse", "/skills search", "/skills list", "/skills inspect", "/skills show", "/skills check", "/skills use", "/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#e8b86d bold", "input-border": "#465366", "hint": "#98a6b8",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -184,6 +184,8 @@ class Terminal:
             self.console.print()
             self.console.print(Rule(Text(" Kestrel ", style="bold #80cec5"), align="left", style="#465366"))
             self.console.print(Padding(Markdown(answer), (1, 2)))
+            if getattr(self.engine, 'state', {}).get('status') == 'needs_input':
+                self.emit('warning', 'Use /steer YOUR ANSWER to continue this task with the requested information.')
         except asyncio.CancelledError:
             self.emit("warning", "Stopped. /continue resumes the task; /status shows its checkpoint.")
         except Exception as error:
@@ -207,7 +209,7 @@ class Terminal:
                 if message == '/exit':
                     break
                 # These controls remain usable during work and approval waits.
-                if message.partition(' ')[0] in {'/steer', '/cancel', '/status', '/help', '/details'}:
+                if message.partition(' ')[0] in {'/steer', '/cancel', '/status', '/help', '/details', '/jobs'}:
                     try:
                         await self.command(message)
                     except Exception as error:
@@ -239,12 +241,22 @@ class Terminal:
     async def command(self, message: str):
         name, _, argument = message.partition(" ")
         argument = argument.strip()
-        if name == '/steer':
+        if name == '/jobs':
+            from .jobs import list_jobs, status, cancel
+            parts = argument.split()
+            if not parts:
+                result = list_jobs()
+            elif len(parts) == 2 and parts[0] in {'show', 'cancel'}:
+                result = status(parts[1]) if parts[0] == 'show' else cancel(parts[1])
+            else:
+                raise ValueError('Use /jobs, /jobs show ID, or /jobs cancel ID. Start jobs with kestrel jobs start TASK -C WORKSPACE.')
+            self.console.print_json(json.dumps(result))
+        elif name == '/steer':
             if not argument or len(argument) > 8000:
                 raise ValueError('Use /steer followed by an update of 1–8000 characters.')
             if len(self.engine.state.get('user_updates', [])) >= 16:
                 raise ValueError('This task reached its 16-update limit; start a new task.')
-            if not self.engine.state.get('request') or self.engine.state.get('status') not in {'running', 'interrupted', 'error'}:
+            if not self.engine.state.get('request') or self.engine.state.get('status') not in {'running', 'interrupted', 'error', 'needs_input'}:
                 raise ValueError('There is no unfinished task to steer.')
             if self.job and not self.job.done():
                 self.phase = 'stopping for your update'
@@ -266,6 +278,7 @@ class Terminal:
                 ("/setup", "Configure models, auth, mode, and Docker execution"),
                 ("/doctor [runtime]", "Inspect configuration and optional runtime readiness"),
                 ("/steer UPDATE · /cancel", "Revise unfinished work or stop the current task"),
+                ("/jobs [show|cancel ID]", "Inspect or cancel owned background jobs"),
                 ("/memory [set|forget]", "Inspect or edit explicit preferences and project notes"),
                 ("/workflow [preview|run] NAME JSON", "Review or run a typed workflow with parameters"),
                 ("/connections [add NAME URL|remove NAME]", "Connect browser, desktop, and service tools over MCP"),
@@ -427,6 +440,9 @@ class Terminal:
             self.console.clear()
             self.welcome()
         elif name in {"/new", "/resume"}:
+            if name == '/resume':
+                from .jobs import assert_session_available
+                assert_session_available(argument)
             sid = self.store.create(self.workspace) if name == "/new" else argument
             record = self.store.session(sid)
             await self.engine.close()

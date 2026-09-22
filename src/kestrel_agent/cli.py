@@ -24,12 +24,14 @@ memory_app = typer.Typer(help="Inspect, edit, or forget explicitly saved prefere
 connections_app = typer.Typer(help="Configure provider-independent MCP tool connections.")
 skills_app = typer.Typer(help="Discover, inspect, install, and version portable skills.")
 workflows_app = typer.Typer(help="Review and manage reusable procedures.")
+jobs_app = typer.Typer(help="Start, inspect and cancel owned background jobs.")
 app.add_typer(auth_app, name="auth")
 app.add_typer(config_app, name="config")
 app.add_typer(workflows_app, name="workflows")
 app.add_typer(skills_app, name="skills")
 app.add_typer(connections_app, name="connections")
 app.add_typer(memory_app, name="memory")
+app.add_typer(jobs_app, name="jobs")
 console = Console(highlight=False)
 
 
@@ -44,6 +46,8 @@ def launch(workspace: Path, session: str | None = None):
     store = Store(settings)
     try:
         if session:
+            from .jobs import assert_session_available
+            assert_session_available(session)
             workspace = Path(store.session(session)["workspace"])
         else:
             session = store.create(workspace.resolve())
@@ -89,6 +93,37 @@ def sessions():
         console.print(table)
     finally:
         store.close()
+
+
+@jobs_app.command('start')
+def job_start(request: str, workspace: Path = typer.Option(Path.cwd(), '--workspace', '-C', exists=True, file_okay=False)):
+    """Run a detached task. Required approvals stop it for interactive continuation."""
+    from .jobs import start
+    load_secrets()
+    job_id = start(request, workspace, Settings.load())
+    console.print(Text(f'Started job {job_id}. Inspect with kestrel jobs show {job_id}.'))
+
+
+@jobs_app.command('list')
+def job_list():
+    from .jobs import list_jobs
+    console.print_json(json.dumps(list_jobs()))
+
+
+@jobs_app.command('show')
+def job_show(job_id: str):
+    from .jobs import status
+    result = status(job_id)
+    console.print_json(json.dumps(result))
+    if result.get('session') and not result['worker_owned']:
+        next_step = '/steer YOUR ANSWER supplies the requested information.' if result['status'] == 'needs_input' else '/continue resumes unfinished work.'
+        console.print(Text(f"Inspect the session with kestrel resume {result['session']}. {next_step}"))
+
+
+@jobs_app.command('cancel')
+def job_cancel(job_id: str):
+    from .jobs import cancel
+    console.print_json(json.dumps(cancel(job_id)))
 
 
 @app.command("setup")
