@@ -551,5 +551,14 @@ def memory_forget(key: str, global_scope: bool = typer.Option(False, "--global")
         store.close()
 
 
+@app.command("browser-server")
+def browser_server(port: int = typer.Option(8931, min=1024, max=65535), headless: bool = typer.Option(False)):
+    """Serve isolated browser tools on localhost; connect with kestrel connections add."""
+    from .browser import serve_browser
+    console.print(Text(f'Browser tools: http://127.0.0.1:{port}/mcp'))
+    console.print('Only trusted local MCP clients should connect. Ctrl+C stops the server and closes its browser.')
+    serve_browser(port, headless)
+
+
 if __name__ == "__main__":
     app()

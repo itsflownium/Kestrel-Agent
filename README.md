@@ -1,23 +1,20 @@
 # Kestrel
 
-A general-purpose terminal AI agent powered by your chosen model provider, with optional Jev assistance, with reusable workflows and configurable permissions for coding, research, and everyday tasks.
+A general-purpose terminal AI agent powered by your chosen model provider, with optional Jev assistance, reusable workflows and configurable permissions for coding, research, and everyday tasks.
 
 ```text
-  ◇  K E S T R E L
-     Think deeply. Move lightly.
+K E S T R E L / COMMAND DESK
 
-  Codex plans & creates · Jev decides · You control access
+Your model · Standard or Jev-assisted · Your execution backend
 
-  ❯ Find the documents relevant to this question and compare them.
-
-  ◌ Codex · thinking
-  → Plan ready
-  ◇ Jev · 3 decisions
-  ↳ read_file · Read the selected source
-  ✓ source · completed
-
-  ready │ Codex default + Jev │ workspace │ Ctrl+C quit · /help
+/setup        Configure models and execution
+/skills       Discover task procedures
+/workflow     Review and run saved plans
+/connections  Connect browser and service tools
+/memory       Inspect saved preferences and notes
 ```
+
+Start with `kestrel setup`. See [setup and Docker](docs/SETUP.md), [portable skills](docs/SKILLS.md), [typed workflows](docs/WORKFLOW-TEMPLATES.md), [memory](docs/MEMORY.md), and [isolated browser tools](docs/BROWSER.md).
 
 The terminal interface uses streamed activity, readable tool previews, Markdown responses, slash-command completion, a live status bar, and explicit permission prompts. It is inspired by familiar terminal assistants and has its own visual design.
 
