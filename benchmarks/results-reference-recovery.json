@@ -1,0 +1,517 @@
+{
+  "kind": "injected-invalid-reference-recovery",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "source_sha256": "97a37f69011ecaadb04add9cdd4e2abdabe8a2204d8bf81af5433e083954508b",
+  "harness_sha256": "0ecd40bec742a6dd1a135ec093cf1f5b29493f0150f2bcc580b72779f5c58600",
+  "answer": "SAVED",
+  "seconds": 106.003,
+  "generation_calls": 3,
+  "decision_calls": 4,
+  "jev_calls": 0,
+  "events": [
+    {
+      "kind": "decision",
+      "text": "skill \u2192 execute",
+      "seconds": 0.812
+    },
+    {
+      "kind": "tool",
+      "text": "load_skill \u00b7 Read supplied guidance",
+      "seconds": 1.024
+    },
+    {
+      "kind": "done",
+      "text": "skill \u00b7 completed",
+      "seconds": 2.054
+    },
+    {
+      "kind": "decision",
+      "text": "save \u2192 execute",
+      "seconds": 2.696
+    },
+    {
+      "kind": "tool",
+      "text": "write_file \u00b7 Save exact guidance",
+      "seconds": 2.696
+    },
+    {
+      "kind": "warning",
+      "text": "save \u00b7 error \u00b7 Cannot bind \"${skill.content}\": missing field \"content\" at \"skill\". Available fields: [\"name\", \"origin\", \"version\", \"workflows\", \"reference\", \"content_sha256\", \"guidance\", \"boundary\"]; 0 more omitted. Inspect the actual result or retrieve its evidenc",
+      "seconds": 3.34
+    },
+    {
+      "kind": "judge",
+      "text": "codex \u00b7 3 bounded decisions",
+      "seconds": 4.406
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 4.684
+    },
+    {
+      "kind": "warning",
+      "text": "More work needed \u00b7 revising the plan",
+      "seconds": 12.636
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 13.231
+    },
+    {
+      "kind": "plan",
+      "text": "Correct the guidance binding, save guide.txt, and verify its exact contents.",
+      "seconds": 30.016
+    },
+    {
+      "kind": "planned",
+      "text": "skill \u00b7 Reuse the completed skill load.",
+      "seconds": 30.016
+    },
+    {
+      "kind": "planned",
+      "text": "save \u00b7 Save the exact returned guidance, preserving whitespace and Unicode.",
+      "seconds": 30.016
+    },
+    {
+      "kind": "planned",
+      "text": "verify \u00b7 Verify the saved file against the loaded guidance.",
+      "seconds": 30.016
+    },
+    {
+      "kind": "decision",
+      "text": "skill \u2192 execute",
+      "seconds": 30.441
+    },
+    {
+      "kind": "tool",
+      "text": "load_skill \u00b7 Reuse the completed skill load.",
+      "seconds": 30.651
+    },
+    {
+      "kind": "done",
+      "text": "skill \u00b7 completed",
+      "seconds": 31.729
+    },
+    {
+      "kind": "decision",
+      "text": "save \u2192 execute",
+      "seconds": 32.364
+    },
+    {
+      "kind": "tool",
+      "text": "write_file \u00b7 Save the exact returned guidance, preserving whitespace and Unicode.",
+      "seconds": 32.364
+    },
+    {
+      "kind": "done",
+      "text": "save \u00b7 completed",
+      "seconds": 33.41
+    },
+    {
+      "kind": "decision",
+      "text": "verify \u2192 execute",
+      "seconds": 34.052
+    },
+    {
+      "kind": "tool",
+      "text": "read_file \u00b7 Verify the saved file against the loaded guidance.",
+      "seconds": 34.267
+    },
+    {
+      "kind": "output",
+      "text": "1: Use this procedure to preserve supplied text exactly.\n2: \n3: Fixture marker: df72a5d493b643e37fff2657\n4: Unicode note: \u6771\u4eac / caf\u00e9",
+      "seconds": 34.696
+    },
+    {
+      "kind": "done",
+      "text": "verify \u00b7 completed",
+      "seconds": 35.338
+    },
+    {
+      "kind": "judge",
+      "text": "codex \u00b7 5 bounded decisions",
+      "seconds": 36.41
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 36.411
+    },
+    {
+      "kind": "warning",
+      "text": "More work needed \u00b7 revising the plan",
+      "seconds": 46.74
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 46.794
+    },
+    {
+      "kind": "plan",
+      "text": "The saved text is verified. I\u2019ll look for workspace audit evidence to resolve the remaining check without repeating the write.",
+      "seconds": 63.218
+    },
+    {
+      "kind": "planned",
+      "text": "find_audit \u00b7 Locate any retained workspace baseline or change audit establishing whether files other than guide.txt changed.",
+      "seconds": 63.218
+    },
+    {
+      "kind": "decision",
+      "text": "find_audit \u2192 execute",
+      "seconds": 63.643
+    },
+    {
+      "kind": "tool",
+      "text": "search_evidence \u00b7 Locate any retained workspace baseline or change audit establishing whether files other than guide.txt changed.",
+      "seconds": 63.856
+    },
+    {
+      "kind": "done",
+      "text": "find_audit \u00b7 completed",
+      "seconds": 64.931
+    },
+    {
+      "kind": "judge",
+      "text": "codex \u00b7 6 bounded decisions",
+      "seconds": 66.012
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 66.012
+    },
+    {
+      "kind": "warning",
+      "text": "More work needed \u00b7 revising the plan",
+      "seconds": 76.769
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 76.823
+    },
+    {
+      "kind": "plan",
+      "text": "Inspect the workspace for files other than the verified guide.txt without changing any files.",
+      "seconds": 89.827
+    },
+    {
+      "kind": "planned",
+      "text": "inspect_workspace \u00b7 Collect a complete current file inventory, including hidden files, to assess the remaining workspace constraint alongside the recorded write receipt.",
+      "seconds": 89.827
+    },
+    {
+      "kind": "decision",
+      "text": "inspect_workspace \u2192 execute",
+      "seconds": 90.253
+    },
+    {
+      "kind": "tool",
+      "text": "shell \u00b7 Collect a complete current file inventory, including hidden files, to assess the remaining workspace constraint alongside the recorded write receipt.",
+      "seconds": 90.253
+    },
+    {
+      "kind": "output",
+      "text": "[\"guide.txt\"]\n",
+      "seconds": 90.768
+    },
+    {
+      "kind": "done",
+      "text": "inspect_workspace \u00b7 completed",
+      "seconds": 91.413
+    },
+    {
+      "kind": "judge",
+      "text": "codex \u00b7 7 bounded decisions",
+      "seconds": 92.488
+    },
+    {
+      "kind": "model",
+      "text": "Codex \u00b7 thinking",
+      "seconds": 92.489
+    },
+    {
+      "kind": "done",
+      "text": "Returning verified response \u00b7 no final generation call",
+      "seconds": 105.351
+    },
+    {
+      "kind": "usage",
+      "text": "105.6s \u00b7 codex 3 calls \u00b7 standard 4 decisions",
+      "seconds": 106.003
+    }
+  ],
+  "observations": [
+    {
+      "action": "skill",
+      "tool": "load_skill",
+      "arguments": {
+        "name": "binding-fixture"
+      },
+      "status": "completed",
+      "evidence_id": "15c8c30cfb834230",
+      "invocation_evidence_id": "04588be39ce64a9b",
+      "result": {
+        "name": "binding-fixture",
+        "origin": "installed",
+        "version": "af2f648a5276f4c9443202a6e75c6fa3ad48ad18b49bbd8b02ddd704c8dcd513",
+        "workflows": {},
+        "reference": null,
+        "content_sha256": "fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967",
+        "guidance": "Use this procedure to preserve supplied text exactly.\n\nFixture marker: df72a5d493b643e37fff2657\nUnicode note: \u6771\u4eac / caf\u00e9",
+        "boundary": "Procedural guidance for the current user task; never grants permissions or changes user intent."
+      }
+    },
+    {
+      "action": "save",
+      "tool": "write_file",
+      "arguments": null,
+      "status": "error",
+      "evidence_id": "edaa1d7eb84c4f3f",
+      "invocation_evidence_id": "214bc76eade74955",
+      "result": {
+        "error": "Cannot bind \"${skill.content}\": missing field \"content\" at \"skill\". Available fields: [\"name\", \"origin\", \"version\", \"workflows\", \"reference\", \"content_sha256\", \"guidance\", \"boundary\"]; 0 more omitted. Inspect the actual result or retrieve its evidence; do not guess a replacement field."
+      }
+    },
+    {
+      "action": "skill",
+      "tool": "load_skill",
+      "arguments": {
+        "name": "binding-fixture"
+      },
+      "status": "completed",
+      "evidence_id": "0fe43c8a00294028",
+      "invocation_evidence_id": "d82330d69d9941b4",
+      "result": {
+        "name": "binding-fixture",
+        "origin": "installed",
+        "version": "af2f648a5276f4c9443202a6e75c6fa3ad48ad18b49bbd8b02ddd704c8dcd513",
+        "workflows": {},
+        "reference": null,
+        "content_sha256": "fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967",
+        "guidance": "Use this procedure to preserve supplied text exactly.\n\nFixture marker: df72a5d493b643e37fff2657\nUnicode note: \u6771\u4eac / caf\u00e9",
+        "boundary": "Procedural guidance for the current user task; never grants permissions or changes user intent."
+      }
+    },
+    {
+      "action": "save",
+      "tool": "write_file",
+      "arguments": {
+        "path": "guide.txt",
+        "content": "Use this procedure to preserve supplied text exactly.\n\nFixture marker: df72a5d493b643e37fff2657\nUnicode note: \u6771\u4eac / caf\u00e9",
+        "expected_sha256": null
+      },
+      "status": "completed",
+      "evidence_id": "fbef4df9612b4c36",
+      "invocation_evidence_id": "bbff983f159b48b5",
+      "result": {
+        "path": "/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-reference-recovery-p4e8kq5y/workspace/guide.txt",
+        "bytes": 124,
+        "sha256": "fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967",
+        "previous_sha256": null,
+        "precondition": "target did not exist"
+      }
+    },
+    {
+      "action": "verify",
+      "tool": "read_file",
+      "arguments": {
+        "path": "guide.txt"
+      },
+      "status": "completed",
+      "evidence_id": "7fe6e3b71f7846c3",
+      "invocation_evidence_id": "6a8a9d17d8214806",
+      "result": {
+        "path": "/private/var/folders/n7/90_0w18s7zlgmk6lvdyzpt8m0000gn/T/kestrel-reference-recovery-p4e8kq5y/workspace/guide.txt",
+        "content": "1: Use this procedure to preserve supplied text exactly.\n2: \n3: Fixture marker: df72a5d493b643e37fff2657\n4: Unicode note: \u6771\u4eac / caf\u00e9",
+        "total_lines": 4,
+        "sha256": "fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967",
+        "start_line": 1,
+        "end_line": 4,
+        "next_line": null,
+        "char_limit_reached": false,
+        "source_truncated": false,
+        "truncated": false,
+        "raw_text": "Use this procedure to preserve supplied text exactly.\n\nFixture marker: df72a5d493b643e37fff2657\nUnicode note: \u6771\u4eac / caf\u00e9"
+      }
+    },
+    {
+      "action": "find_audit",
+      "tool": "search_evidence",
+      "arguments": {
+        "query": "audit",
+        "limit": 20
+      },
+      "status": "completed",
+      "evidence_id": "34e119367f3747ae",
+      "invocation_evidence_id": "92cd72864d7a4955",
+      "result": {
+        "matches": [],
+        "next_offset": null,
+        "historical_snapshots": true
+      }
+    },
+    {
+      "action": "inspect_workspace",
+      "tool": "shell",
+      "arguments": {
+        "command": [
+          "python3",
+          "-B",
+          "-c",
+          "import os,json; print(json.dumps(sorted(os.path.relpath(os.path.join(root,name), '.') for root,dirs,files in os.walk('.') for name in files), ensure_ascii=False))"
+        ],
+        "cwd": "."
+      },
+      "status": "completed",
+      "evidence_id": "4402267d29084568",
+      "invocation_evidence_id": "6430ac2b14874618",
+      "result": {
+        "exitCode": 0,
+        "stdout": "[\"guide.txt\"]\n",
+        "stderr": "",
+        "workspace_audit": {
+          "scope": "workspace",
+          "complete": true,
+          "unchanged_at_boundaries": true,
+          "changed_paths": [],
+          "changed_paths_omitted": 0,
+          "limitation": "Net content, path and mode changes between snapshots only; not transient writes or changes outside the workspace."
+        }
+      }
+    }
+  ],
+  "trace": [
+    {
+      "kind": "user",
+      "body": "\"Load the binding-fixture skill and save exactly its returned guidance text into guide.txt, preserving whitespace and Unicode. Do not change or create any other workspace files. Verify the saved file and reply exactly SAVED.\""
+    },
+    {
+      "kind": "explicit_workflow_plan",
+      "body": "{\"mode\": \"plan\", \"message\": \"Load the supplied guidance and save it.\", \"actions\": [{\"id\": \"skill\", \"tool\": \"load_skill\", \"arguments_json\": \"{\\\"name\\\": \\\"binding-fixture\\\"}\", \"depends_on\": [], \"purpose\": \"Read supplied guidance\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"save\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\": \\\"guide.txt\\\", \\\"content\\\": \\\"${skill.content}\\\"}\", \"depends_on\": [\"skill\"], \"purpose\": \"Save exact guidance\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"guide.txt contains exactly the loaded skill guidance and no other files changed.\"], \"final_response_ref\": null, \"final_response_text\": null, \"completion_checks\": []}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"skill\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"skill\", \"tool\": \"load_skill\", \"status\": \"completed\", \"evidence_id\": \"15c8c30cfb834230\"}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"save\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"save\", \"tool\": \"write_file\", \"status\": \"error\", \"evidence_id\": \"edaa1d7eb84c4f3f\"}"
+    },
+    {
+      "kind": "completion_checks",
+      "body": "{}"
+    },
+    {
+      "kind": "verification",
+      "body": "{\"criterion_0\": {\"choice\": \"not_met\", \"reason\": \"The save failed on a missing field; no successful write or verification is observed.\"}, \"original_task\": {\"choice\": \"not_met\", \"reason\": \"The skill was loaded, but saving and verifying guide.txt remain undone.\"}, \"recovery_save\": {\"choice\": \"not_met\", \"reason\": \"No later execution proves recovery from the failed save.\"}}"
+    },
+    {
+      "kind": "plan",
+      "body": "{\"mode\": \"plan\", \"message\": \"Correct the guidance binding, save guide.txt, and verify its exact contents.\", \"actions\": [{\"id\": \"skill\", \"tool\": \"load_skill\", \"arguments_json\": \"{\\\"name\\\":\\\"binding-fixture\\\"}\", \"depends_on\": [], \"purpose\": \"Reuse the completed skill load.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"save\", \"tool\": \"write_file\", \"arguments_json\": \"{\\\"path\\\":\\\"guide.txt\\\",\\\"content\\\":\\\"${skill.guidance}\\\",\\\"expected_sha256\\\":null}\", \"depends_on\": [\"skill\"], \"purpose\": \"Save the exact returned guidance, preserving whitespace and Unicode.\", \"condition\": \"always\", \"after\": \"success\"}, {\"id\": \"verify\", \"tool\": \"read_file\", \"arguments_json\": \"{\\\"path\\\":\\\"guide.txt\\\"}\", \"depends_on\": [\"save\"], \"purpose\": \"Verify the saved file against the loaded guidance.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"guide.txt exactly matches the loaded guidance.\", \"The only workspace file written is guide.txt.\"], \"final_response_ref\": null, \"final_response_text\": \"SAVED\", \"completion_checks\": [{\"id\": \"guide_exact\", \"requirement\": \"guide.txt contains exactly the returned guidance, including whitespace and Unicode.\", \"kind\": \"file_text_equals\", \"source\": \"guide.txt\", \"expected_json\": \"\\\"Use this procedure to preserve supplied text exactly.\\\\n\\\\nFixture marker: df72a5d493b643e37fff2657\\\\nUnicode note: \u6771\u4eac / caf\u00e9\\\"\"}]}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"skill\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"skill\", \"tool\": \"load_skill\", \"status\": \"completed\", \"evidence_id\": \"0fe43c8a00294028\"}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"save\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"save\", \"tool\": \"write_file\", \"status\": \"completed\", \"evidence_id\": \"fbef4df9612b4c36\"}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"verify\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"verify\", \"tool\": \"read_file\", \"status\": \"completed\", \"evidence_id\": \"7fe6e3b71f7846c3\"}"
+    },
+    {
+      "kind": "completion_checks",
+      "body": "{\"guide_exact\": {\"check\": {\"id\": \"guide_exact\", \"requirement\": \"guide.txt contains exactly the returned guidance, including whitespace and Unicode.\", \"kind\": \"file_text_equals\", \"source\": \"guide.txt\", \"expected_json\": \"\\\"Use this procedure to preserve supplied text exactly.\\\\n\\\\nFixture marker: df72a5d493b643e37fff2657\\\\nUnicode note: \u6771\u4eac / caf\u00e9\\\"\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967\"}}"
+    },
+    {
+      "kind": "verification",
+      "body": "{\"criterion_0\": {\"choice\": \"unclear\", \"reason\": \"Exact guidance content is verified, but no workspace audit establishes that no other files changed.\"}, \"criterion_1\": {\"choice\": \"met\", \"reason\": \"The read-back text and successful exact comparison match the loaded guidance, including whitespace and Unicode.\"}, \"criterion_2\": {\"choice\": \"unclear\", \"reason\": \"Only guide.txt has an observed successful write, but there is no affirmative verification excluding other workspace changes.\"}, \"original_task\": {\"choice\": \"unclear\", \"reason\": \"Loading, saving, and exact verification completed; the restriction on other workspace changes remains unverified.\"}, \"reuse_response\": {\"choice\": \"generate\", \"reason\": \"SAVED is the requested wording, but full compliance with the workspace restriction is not established.\"}}"
+    },
+    {
+      "kind": "plan",
+      "body": "{\"mode\": \"plan\", \"message\": \"The saved text is verified. I\u2019ll look for workspace audit evidence to resolve the remaining check without repeating the write.\", \"actions\": [{\"id\": \"find_audit\", \"tool\": \"search_evidence\", \"arguments_json\": \"{\\\"query\\\":\\\"audit\\\",\\\"limit\\\":20}\", \"depends_on\": [], \"purpose\": \"Locate any retained workspace baseline or change audit establishing whether files other than guide.txt changed.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"Workspace audit evidence is located, or its absence is established.\"], \"final_response_ref\": null, \"final_response_text\": \"SAVED\", \"completion_checks\": []}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"find_audit\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"find_audit\", \"tool\": \"search_evidence\", \"status\": \"completed\", \"evidence_id\": \"34e119367f3747ae\"}"
+    },
+    {
+      "kind": "completion_checks",
+      "body": "{\"guide_exact\": {\"check\": {\"id\": \"guide_exact\", \"requirement\": \"guide.txt contains exactly the returned guidance, including whitespace and Unicode.\", \"kind\": \"file_text_equals\", \"source\": \"guide.txt\", \"expected_json\": \"\\\"Use this procedure to preserve supplied text exactly.\\\\n\\\\nFixture marker: df72a5d493b643e37fff2657\\\\nUnicode note: \u6771\u4eac / caf\u00e9\\\"\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967\"}}"
+    },
+    {
+      "kind": "verification",
+      "body": "{\"criterion_0\": {\"choice\": \"unclear\", \"reason\": \"Exact guidance content is verified, but no workspace audit establishes that other files were unchanged.\"}, \"criterion_1\": {\"choice\": \"met\", \"reason\": \"The readback and successful exact comparison confirm matching text, whitespace, and Unicode.\"}, \"criterion_2\": {\"choice\": \"unclear\", \"reason\": \"Only guide.txt has an observed successful write, but exclusive workspace changes are not verified.\"}, \"criterion_3\": {\"choice\": \"met\", \"reason\": \"The audit search returned no matches and the effect receipt contains no workspace audit.\"}, \"original_task\": {\"choice\": \"unclear\", \"reason\": \"Loading, saving, and verification succeeded; the no-other-files constraint lacks sufficient evidence.\"}, \"reuse_response\": {\"choice\": \"generate\", \"reason\": \"SAVED is the requested wording, but evidence does not establish completion of the entire request.\"}}"
+    },
+    {
+      "kind": "plan",
+      "body": "{\"mode\": \"plan\", \"message\": \"Inspect the workspace for files other than the verified guide.txt without changing any files.\", \"actions\": [{\"id\": \"inspect_workspace\", \"tool\": \"shell\", \"arguments_json\": \"{\\\"command\\\":[\\\"python3\\\",\\\"-B\\\",\\\"-c\\\",\\\"import os,json; print(json.dumps(sorted(os.path.relpath(os.path.join(root,name), '.') for root,dirs,files in os.walk('.') for name in files), ensure_ascii=False))\\\"],\\\"cwd\\\":\\\".\\\"}\", \"depends_on\": [], \"purpose\": \"Collect a complete current file inventory, including hidden files, to assess the remaining workspace constraint alongside the recorded write receipt.\", \"condition\": \"always\", \"after\": \"success\"}], \"success_criteria\": [\"The complete workspace file inventory is observed and assessed alongside the sole successful write to guide.txt.\"], \"final_response_ref\": null, \"final_response_text\": \"SAVED\", \"completion_checks\": []}"
+    },
+    {
+      "kind": "decisions",
+      "body": "{\"inspect_workspace\": {\"choice\": \"execute\", \"reason\": \"Unconditional action from the selected model plan.\"}}"
+    },
+    {
+      "kind": "action",
+      "body": "{\"id\": \"inspect_workspace\", \"tool\": \"shell\", \"status\": \"completed\", \"evidence_id\": \"4402267d29084568\"}"
+    },
+    {
+      "kind": "completion_checks",
+      "body": "{\"guide_exact\": {\"check\": {\"id\": \"guide_exact\", \"requirement\": \"guide.txt contains exactly the returned guidance, including whitespace and Unicode.\", \"kind\": \"file_text_equals\", \"source\": \"guide.txt\", \"expected_json\": \"\\\"Use this procedure to preserve supplied text exactly.\\\\n\\\\nFixture marker: df72a5d493b643e37fff2657\\\\nUnicode note: \u6771\u4eac / caf\u00e9\\\"\"}, \"passed\": true, \"reason\": \"Exact comparison passed\", \"source_sha256\": \"fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967\"}}"
+    },
+    {
+      "kind": "verification",
+      "body": "{\"criterion_0\": {\"choice\": \"met\", \"reason\": \"Exact text verification passed; the sole successful write targeted guide.txt, and the complete inventory contains only that file.\"}, \"criterion_1\": {\"choice\": \"met\", \"reason\": \"Read-back raw text and SHA-256 match the loaded guidance, and exact comparison passed.\"}, \"criterion_2\": {\"choice\": \"met\", \"reason\": \"The only successful write targets guide.txt; workspace inspection lists only guide.txt and reports no inspection-induced changes.\"}, \"criterion_3\": {\"choice\": \"met\", \"reason\": \"Workspace audit evidence is included in the completed inspection result.\"}, \"criterion_4\": {\"choice\": \"met\", \"reason\": \"The complete inventory lists only guide.txt, consistent with the sole successful write.\"}, \"original_task\": {\"choice\": \"met\", \"reason\": \"The skill was loaded, its exact guidance saved and verified, and the observed writes and inventory support the file restriction. Only the final response remains.\"}, \"reuse_response\": {\"choice\": \"supported\", \"reason\": \"The user explicitly requested exactly SAVED, and the observed work supports completion.\"}}"
+    },
+    {
+      "kind": "verified_planned_response",
+      "body": "{\"reference\": null, \"text\": \"SAVED\"}"
+    },
+    {
+      "kind": "assistant",
+      "body": "\"SAVED\""
+    },
+    {
+      "kind": "usage",
+      "body": "{\"elapsed_seconds\": 105.56, \"codex_calls\": 7, \"jev_calls\": 0, \"codex_input_tokens\": 121678, \"codex_output_tokens\": 1725, \"jev_input_tokens\": 0, \"agent_mode\": \"standard\", \"decision_provider\": \"codex\", \"decision_calls\": 4, \"decision_input_tokens\": 58867, \"decision_output_tokens\": 722, \"provider_model_calls\": 7, \"provider\": \"codex\", \"generation_calls\": 3, \"generation_input_tokens\": 62811, \"generation_output_tokens\": 1003, \"telemetry\": {\"generation_and_tools\": [{\"stage\": \"tool\", \"tool\": \"load_skill\", \"action\": \"skill\", \"status\": \"completed\", \"seconds\": 0.198052}, {\"stage\": \"app_server_start\", \"status\": \"completed\", \"seconds\": 0.250701}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 0.250717}, {\"stage\": \"account_check\", \"status\": \"completed\", \"seconds\": 0.009275}, {\"stage\": \"config_read\", \"status\": \"completed\", \"seconds\": 0.017353}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.57682}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.015228}, {\"stage\": \"turn_stream\", \"seconds\": 6.667273, \"first_output_seconds\": 4.145824}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 6238, \"schema_bytes\": 786, \"queue_seconds\": 2.3e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 12035, \"output_tokens\": 86, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 7.537002}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.099624}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009743}, {\"stage\": \"turn_stream\", \"seconds\": 16.466141, \"first_output_seconds\": 7.74502}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 35881, \"schema_bytes\": 2601, \"queue_seconds\": 5.9e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 19431, \"output_tokens\": 408, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 108}, \"seconds\": 16.575723}, {\"stage\": \"tool\", \"tool\": \"load_skill\", \"action\": \"skill\", \"status\": \"completed\", \"seconds\": 0.224645}, {\"stage\": \"tool\", \"tool\": \"write_file\", \"action\": \"save\", \"status\": \"completed\", \"seconds\": 0.209874}, {\"stage\": \"tool\", \"tool\": \"read_file\", \"action\": \"verify\", \"status\": \"completed\", \"seconds\": 0.216409}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.093805}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.008226}, {\"stage\": \"turn_stream\", \"seconds\": 9.59446, \"first_output_seconds\": 4.883253}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 12948, \"schema_bytes\": 1295, \"queue_seconds\": 2.3e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 14921, \"output_tokens\": 210, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 49}, \"seconds\": 9.696655}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.101319}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009317}, {\"stage\": \"turn_stream\", \"seconds\": 16.100488, \"first_output_seconds\": 11.112687}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 41791, \"schema_bytes\": 2601, \"queue_seconds\": 5.5e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 21510, \"output_tokens\": 314, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 178}, \"seconds\": 16.211323}, {\"stage\": \"tool\", \"tool\": \"search_evidence\", \"action\": \"find_audit\", \"status\": \"completed\", \"seconds\": 0.215025}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.096388}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.008316}, {\"stage\": \"turn_stream\", \"seconds\": 10.023715, \"first_output_seconds\": 5.007435}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 14790, \"schema_bytes\": 1545, \"queue_seconds\": 2.4e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 15511, \"output_tokens\": 178, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 0}, \"seconds\": 10.12858}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.100299}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.00931}, {\"stage\": \"turn_stream\", \"seconds\": 12.68994, \"first_output_seconds\": 7.402306}, {\"stage\": \"generation\", \"provider\": \"codex\", \"prompt_bytes\": 42834, \"schema_bytes\": 2601, \"queue_seconds\": 5.7e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 21870, \"output_tokens\": 281, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 93}, \"seconds\": 12.799749}, {\"stage\": \"approval\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"tool\", \"tool\": \"shell\", \"action\": \"inspect_workspace\", \"status\": \"completed\", \"seconds\": 0.303088}, {\"stage\": \"runtime_start\", \"status\": \"completed\", \"seconds\": 2e-06}, {\"stage\": \"thread_start\", \"status\": \"completed\", \"seconds\": 0.506478}, {\"stage\": \"turn_start\", \"status\": \"completed\", \"seconds\": 0.009375}, {\"stage\": \"turn_stream\", \"seconds\": 11.705312, \"first_output_seconds\": 5.35853}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"prompt_bytes\": 17885, \"schema_bytes\": 1795, \"queue_seconds\": 2.9e-05, \"status\": \"completed\", \"usage\": {\"input_tokens\": 16400, \"output_tokens\": 248, \"cached_input_tokens\": 0, \"cache_write_input_tokens\": 0, \"reasoning_output_tokens\": 29}, \"seconds\": 12.221332}], \"decisions\": [{\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 3, \"status\": \"completed\", \"seconds\": 7.537087}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 5, \"status\": \"completed\", \"seconds\": 9.696774}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 6, \"status\": \"completed\", \"seconds\": 10.128705}, {\"stage\": \"model_decision\", \"provider\": \"codex\", \"questions\": 7, \"status\": \"completed\", \"seconds\": 12.22147}]}, \"generation_cached_input_tokens\": 0, \"generation_cache_write_input_tokens\": 0, \"decision_cached_input_tokens\": 0}"
+    }
+  ],
+  "scope_violations": [],
+  "expected_sha256": "fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967",
+  "saved_sha256": "fde03f4e917820173e72db62858f6af4cb6d6789dc8451238fed0175065d7967",
+  "failed_binding_not_dispatched": true,
+  "diagnostic_names_guidance": true,
+  "passed": true
+}

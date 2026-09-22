@@ -53,6 +53,21 @@ class MCP(Arguments):
     arguments: dict[str, Any] = Field(default_factory=dict)
 
 
+class DiscoverTools(Arguments):
+    query: str = Field(default='', max_length=200)
+    server: str = Field(default='', max_length=1000)
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=10, ge=1, le=20)
+
+
+class InspectTool(Arguments):
+    server: str = Field(min_length=1, max_length=1000)
+    tool: str = Field(min_length=1, max_length=1000)
+    offset: int = Field(default=0, ge=0)
+    max_chars: int = Field(default=12000, ge=1, le=20000)
+    expected_sha256: str | None = Field(default=None, pattern=r'^[a-f0-9]{64}$')
+
+
 class InspectImage(Arguments):
     source: str = Field(min_length=1, max_length=4096)
     question: str = Field(min_length=1, max_length=4000)
@@ -104,6 +119,7 @@ class LoadSkill(Arguments):
 
 
 CONTRACTS = {
+    'discover_tools': DiscoverTools, 'inspect_tool': InspectTool,
     'inspect_image': InspectImage,
     'list_skills': ListSkills, 'load_skill': LoadSkill,
     'list_files': ListFiles, 'read_file': ReadFile, 'search_files': SearchFiles,

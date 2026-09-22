@@ -15,11 +15,11 @@ Objective: review all proposed improvements, implement those supported by eviden
 | Typed tool arguments and executable completion checks | Typed argument boundaries and bounded exact-result/text/JSON completion contracts implemented; broad coverage still requires held-out evaluation | Invalid plans prevented; exit/artifact/format checks and original-task coverage |
 | Partial plan repair, no-progress budgets and effect reconciliation | No-progress budget, workspace receipts, conservative successful-subgraph retention, normalized retry guards and interruption receipts implemented; broad recovery evaluation pending | Resume, partial side effects, equivalent retries, no completed-effect replay |
 | Dependency-driven read scheduling | Verified; 155 offline tests, synthetic timing, live regressions 2/2 pass; no live speed claim | Fast read descendants proceed; bounded concurrency and cancellation |
-| Validated parameterized workflows | Pending | Review/promotion, applicability abstention, prerequisites, unseen parameters and effect controls |
+| Validated parameterized workflows | Typed templates, isolated file fixtures and exact-version tested skill exports implemented; independent certification/applicability still pending | Review/promotion, applicability abstention, prerequisites, unseen parameters and effect controls |
 | GEPA independent test splits and outcome labels | Implemented; offline isolation/promotion tests; no live optimization quality claim | Family separation, untouched final evaluation, activation guards |
-| Generator/decision/execution/tool capability boundaries | Pending | Provider adapter conformance; existing sandbox guarantees retained |
+| Generator/decision/execution/tool capability boundaries | HTTP generation/decision/file-tool boundaries verified through real loopback protocols; full backend/live-provider matrix pending | End-to-end successful and denied file tasks, exact-check rejection of affirmative false reviews, native-tool-response rejection; live provider and sandbox conformance remain required |
 | Broader held-out evaluations and fair baselines | Pending | Frozen task families, randomized paired repeats, independent grading, failures retained |
-| Compact action loop versus current DAG | Pending assessment | Evaluate after measured simpler changes; retain or reject with reasons/evidence |
+| Compact action loop versus current DAG | Two paired dynamic-browser variants assessed; quality tied, fewer calls and lower time for benchmark-only one-action mode; graph default retained | Broader task families, recovery and counterbalanced comparisons required before promotion |
 | Publication and final completion audit | Pending | Reviewed PRs, source hashes, all requirements verified or explicitly rejected on evidence |
 
 ## General-agent extension requested 2026-09-21
@@ -33,3 +33,11 @@ The initial pending list above records the original audit, not the current featu
 The generation-only Codex adapter now explicitly disables installed plugins as well as configured MCP servers, apps, and shell execution. The native browser benchmark exposed why plugin configuration must be included; native tool calls belong to the controller's execution path, not its generation component.
 
 Still unverified or incomplete: native desktop/vision, live Docker daemon execution, broad provider conformance, independent skill/workflow behavioral certification, compact-loop assessment, and repeated held-out comparisons. Neither passing regression tests nor a faster isolated browser task establishes universal superiority or completes the original goal.
+
+## Docker recovery checkpoint
+
+The Docker execution backend now persists pre-launch cleanup receipts, holds OS-level workspace ownership during execution/recovery, and verifies run labels before removal. It checks cleanup after ordinary client exit as well as cancellation, and rejects a changed Docker-target fingerprint. Process-fixture tests kill a real worker and verify recovery by a new executor before another run starts. This improves the execution/recovery boundary; it does not establish actual daemon isolation or replace the pending live Docker and provider-conformance gates.
+
+## HTTP controller conformance checkpoint
+
+Real loopback HTTP tests now run both supported provider protocols through planning, generation, permission-controlled file writes, deterministic completion checks and semantic review without starting Codex or Jev. Negative controls verify that the model cannot override a denied write or an incorrect artifact by affirming success. These are scripted-protocol tests, not external-model quality evaluations. See `benchmarks/PROVIDER-CONTROLLER-SEP22.md`; external-provider availability and execution-backend validation remain separate.
