@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "copy-text",
+  "description": "Copy a complete small UTF-8 text file into a new file, preserving its text exactly. Existing destinations are protected; large, binary, and extracted documents are not supported.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "source": {"type": "string", "minLength": 1},
+      "destination": {"type": "string", "minLength": 1}
+    },
+    "required": ["source", "destination"],
+    "additionalProperties": false
+  },
+  "actions": [
+    {
+      "id": "source", "tool": "read_file",
+      "arguments": {"path": {"$param": "source"}, "max_lines": 1000},
+      "depends_on": [], "purpose": "Read the complete source text", "condition": "always"
+    },
+    {
+      "id": "copy", "tool": "write_file",
+      "arguments": {"path": {"$param": "destination"}, "content": "${source.raw_text}", "expected_sha256": null},
+      "depends_on": ["source"], "purpose": "Save the original text without rewriting it", "condition": "always"
+    }
+  ],
+  "success_criteria": ["The new destination contains exactly the observed source text; report any failure without claiming a successful copy."],
+  "completion_checks": []
+}

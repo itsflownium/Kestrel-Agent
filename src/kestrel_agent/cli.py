@@ -464,6 +464,62 @@ def check_skills():
     list_skills()
 
 
+@skills_app.command("workflows")
+def skill_workflows(name: str):
+    """List declared workflow exports without executing skill content."""
+    from .skill_registry import SkillRegistry
+    skill = SkillRegistry(Settings.load(), Path.cwd()).discover().get(name)
+    if skill is None:
+        raise typer.BadParameter('Unknown skill.')
+    console.print_json(json.dumps({'skill': name, 'workflows': skill.requirements.get('workflows', {})}))
+
+
+@skills_app.command("test")
+def test_skill_workflow(name: str, workflow: str, suite: Path = typer.Argument(..., exists=True, dir_okay=False)):
+    """Evaluate a declared file workflow in isolation; not skill-prose certification."""
+    from .skill_registry import SkillRegistry
+    from .skill_evaluation import evaluate
+    settings = Settings.load()
+    store = Store(settings)
+    try:
+        result = evaluate(SkillRegistry(settings, Path.cwd()), name, workflow, suite, store)
+        console.print_json(json.dumps(result))
+        if not result['passed']:
+            raise typer.Exit(1)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    finally:
+        store.close()
+
+
+@skills_app.command("report")
+def skill_evaluation_report(evaluation: str):
+    """Read a controller-recorded workflow evaluation."""
+    from .skill_evaluation import report
+    store = Store(Settings.load())
+    try:
+        console.print_json(json.dumps(report(store, evaluation)))
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    finally:
+        store.close()
+
+
+@skills_app.command("export")
+def export_skill_workflow(name: str, workflow: str, evaluation: str, replace: bool = typer.Option(False)):
+    """Install an unchanged, evaluated workflow export; no task actions run."""
+    from .skill_registry import SkillRegistry
+    from .skill_evaluation import export
+    settings = Settings.load()
+    store = Store(settings)
+    try:
+        console.print_json(json.dumps(export(SkillRegistry(settings, Path.cwd()), name, workflow, evaluation, store, replace=replace)))
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    finally:
+        store.close()
+
+
 @skills_app.command("install")
 def install_skill(source: Path = typer.Argument(..., exists=True, file_okay=False), replace: bool = typer.Option(False)):
     from .skill_registry import install

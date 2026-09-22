@@ -1,0 +1,185 @@
+{
+  "harness_sha256": "6f22e1d2348e632300f2274b2ed7fb24e2d353921db7403147cf08025d8e1539",
+  "fixture_seed": 784261,
+  "model_calls": 0,
+  "passed": true,
+  "evaluation": {
+    "version": 1,
+    "template_sha256": "b2e512820dc7609f258568aa73f11d3a5ac344a67f383f3f9cacbf55e25e3b51",
+    "suite_sha256": "91145da97ce8636e2dde45bd7b6e5b59f50359ef7b61568bc3d46440faae52b5",
+    "passed": true,
+    "cases": [
+      {
+        "name": "varied-0",
+        "kind": "positive",
+        "passed": true,
+        "files_match": true,
+        "statuses_match": true,
+        "expected_errors_match": true,
+        "statuses": {
+          "source": "completed",
+          "copy": "completed"
+        },
+        "completion_checks_passed": true,
+        "error": null
+      },
+      {
+        "name": "varied-1",
+        "kind": "positive",
+        "passed": true,
+        "files_match": true,
+        "statuses_match": true,
+        "expected_errors_match": true,
+        "statuses": {
+          "source": "completed",
+          "copy": "completed"
+        },
+        "completion_checks_passed": true,
+        "error": null
+      },
+      {
+        "name": "varied-2",
+        "kind": "positive",
+        "passed": true,
+        "files_match": true,
+        "statuses_match": true,
+        "expected_errors_match": true,
+        "statuses": {
+          "source": "completed",
+          "copy": "completed"
+        },
+        "completion_checks_passed": true,
+        "error": null
+      },
+      {
+        "name": "varied-3",
+        "kind": "positive",
+        "passed": true,
+        "files_match": true,
+        "statuses_match": true,
+        "expected_errors_match": true,
+        "statuses": {
+          "source": "completed",
+          "copy": "completed"
+        },
+        "completion_checks_passed": true,
+        "error": null
+      },
+      {
+        "name": "missing-input",
+        "kind": "negative",
+        "passed": true,
+        "files_match": true,
+        "statuses_match": true,
+        "expected_errors_match": true,
+        "statuses": {
+          "source": "error",
+          "copy": "blocked"
+        },
+        "completion_checks_passed": true,
+        "error": null
+      },
+      {
+        "name": "existing-output",
+        "kind": "negative",
+        "passed": true,
+        "files_match": true,
+        "statuses_match": true,
+        "expected_errors_match": true,
+        "statuses": {
+          "source": "completed",
+          "copy": "error"
+        },
+        "completion_checks_passed": true,
+        "error": null
+      }
+    ],
+    "positive_cases": 4,
+    "negative_cases": 2,
+    "scope": "The declared typed file workflow only; skill Markdown, scripts and other exports are not executed or certified.",
+    "certification": "not_certified",
+    "limitations": "No independent suite authorship or held-out split is verified. No model repair, final answer, shell, browser, desktop or external provider is evaluated. No automatic activation or promotion.",
+    "evaluation_id": "b3ae1a59b8bc4a2faad4df70ddc5833f",
+    "created": 1790044319.772161,
+    "skill_name": "workflow-designer",
+    "skill_origin": "bundled",
+    "skill_entrypoint_sha256": "027f363dd4a9f4abb864afe552d506a4549dc023268b343109e69851143f6693",
+    "skill_package_sha256": "30282f3800489bc36f7e99c7fba1729cbfd847ecfd1c1959b527124e93f0f9a3",
+    "workflow_export": "copy-text",
+    "workflow_path": "workflows/copy-text.json",
+    "evaluated_template": {
+      "version": 1,
+      "name": "copy-text",
+      "description": "Copy a complete small UTF-8 text file into a new file, preserving its text exactly. Existing destinations are protected; large, binary, and extracted documents are not supported.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ],
+        "additionalProperties": false
+      },
+      "actions": [
+        {
+          "id": "source",
+          "tool": "read_file",
+          "arguments": {
+            "path": {
+              "$param": "source"
+            },
+            "max_lines": 1000
+          },
+          "depends_on": [],
+          "purpose": "Read the complete source text",
+          "condition": "always"
+        },
+        {
+          "id": "copy",
+          "tool": "write_file",
+          "arguments": {
+            "path": {
+              "$param": "destination"
+            },
+            "content": "${source.raw_text}",
+            "expected_sha256": null
+          },
+          "depends_on": [
+            "source"
+          ],
+          "purpose": "Save the original text without rewriting it",
+          "condition": "always"
+        }
+      ],
+      "success_criteria": [
+        "The new destination contains exactly the observed source text; report any failure without claiming a successful copy."
+      ],
+      "completion_checks": []
+    },
+    "fixture_authority": "Caller-supplied expectations; independent authorship and unseen inputs are not established.",
+    "export_eligible": true
+  },
+  "export": {
+    "workflow_name": "copy-text",
+    "template_sha256": "b2e512820dc7609f258568aa73f11d3a5ac344a67f383f3f9cacbf55e25e3b51",
+    "skill_name": "workflow-designer",
+    "skill_package_sha256": "30282f3800489bc36f7e99c7fba1729cbfd847ecfd1c1959b527124e93f0f9a3",
+    "evaluation_id": "b3ae1a59b8bc4a2faad4df70ddc5833f",
+    "status": "installed_from_tested_export",
+    "certification": "not_certified",
+    "scope": "The declared typed file workflow only; skill Markdown, scripts and other exports are not executed or certified.",
+    "actions_executed": false,
+    "next": "Preview and explicitly run the installed template with current parameters and normal permissions."
+  },
+  "installed_template_matches": true,
+  "export_executed_task_actions": false
+}
