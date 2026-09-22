@@ -42,6 +42,8 @@ class Settings(BaseModel):
     generation_session: Literal["fresh", "task"] = "fresh"
     cache_generation_setup: bool = True
     effort: Literal["low", "medium", "high"] = "low"
+    agent_mode: Literal["standard", "jev"] = "jev"
+    max_decision_calls: int = Field(default=32, ge=1, le=300)
     jev_model: str = "jev-latest"
     permission: Literal["read-only", "workspace", "full"] = "workspace"
     readable_roots: list[str] = []
@@ -66,7 +68,7 @@ class Settings(BaseModel):
     @classmethod
     def load(cls) -> "Settings":
         file = home() / "config.json"
-        return cls.model_validate_json(file.read_text()) if file.exists() else cls()
+        return cls.model_validate_json(file.read_text()) if file.exists() else cls(agent_mode="standard")
 
     def save(self) -> None:
         home().mkdir(parents=True, exist_ok=True, mode=0o700)

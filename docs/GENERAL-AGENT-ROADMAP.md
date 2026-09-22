@@ -67,3 +67,7 @@ Initial skill families should cover research with citations, documents/PDFs, CSV
 7. Freeze a general-task evaluation set. Compare Kestrel standard, Kestrel Jev, and Hermes using the same model/settings/tools/data wherever supported. Include research correctness/citations, document content and render checks, data accuracy, file-change scope, resumption, and prompt-injection cases. Report failures, repeated-trial distributions, wall time, tool calls, and priced token usage; mark unavailable prices rather than inventing savings.
 
 General-agent work will ship in successive reviewable PRs. The broader goal remains open until implementation and matched-scope evidence support completion. No model-weight training is required.
+
+## UI research update
+
+OpenCode documents discoverable slash commands, toggled tool details, file references and session switching; Aider documents concise command-driven interaction and explicit context control. Use those interaction patterns as inspiration for a compact Kestrel dashboard and searchable commands, with its own teal/slate visual language. Do not copy Hermes's large banner or dense inventory. [OpenCode TUI](https://opencode.ai/docs/tui/), [Aider commands](https://aider.chat/docs/usage/commands.html).

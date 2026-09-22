@@ -151,6 +151,7 @@ async def main():
     parser.add_argument('--output',default='benchmarks/results-workloads.json')
     parser.add_argument('--tasks',default='')
     parser.add_argument('--prompt-profile', choices=['default','compact'], default='default')
+    parser.add_argument('--agent-mode', choices=['jev','standard'], default='jev')
     parser.add_argument('--session-mode', choices=['fresh','task'],default='fresh')
     parser.add_argument('--no-setup-cache',action='store_true')
     parser.add_argument('--seed',type=int,default=20260921)
@@ -164,7 +165,7 @@ async def main():
     with tempfile.TemporaryDirectory(prefix='kestrel-workloads-') as directory:
         root=Path(directory)
         os.environ['KESTREL_HOME']=str(root/'state')
-        settings=Settings(generation_prompt_profile=args.prompt_profile,cache_generation_setup=not args.no_setup_cache,generation_session=args.session_mode,model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=3)
+        settings=Settings(agent_mode=args.agent_mode,generation_prompt_profile=args.prompt_profile,cache_generation_setup=not args.no_setup_cache,generation_session=args.session_mode,model='gpt-6-astra',effort='medium',permission='workspace',network=False,confirm_shell=False,max_minutes=3)
         store=Store(settings)
         rng=random.Random(args.seed)
         schedule=[(trial,case) for trial in range(1,args.repeat+1) for case in tasks]
@@ -184,7 +185,7 @@ async def main():
                 runtime=Runtime(settings,workspace,emit)
                 engine=None
                 commands=[]
-                record={'task':case['id'],'fixture_revision':case.get('revision',1),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
+                record={'task':case['id'],'fixture_revision':case.get('revision',1),'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'arm':arm,'repetition':repetition,'source_sha256':source_hash,'agent_mode':args.agent_mode,'model':settings.model,'effort':settings.effort,'session_mode':args.session_mode,'prompt_profile':args.prompt_profile,'setup_cache':not args.no_setup_cache,'seed':args.seed,'input_files':case['files'],'prompt':case['prompt']}
                 try:
                     async with asyncio.timeout(180):
                         if arm=='kestrel':
@@ -219,7 +220,7 @@ async def main():
                     if engine:
                         record.update(engine.state.get('usage', {}))
                         record['trace']=[dict(row) for row in store.db.execute('SELECT kind,body FROM events WHERE session=? ORDER BY id',(engine.sid,))]
-                        record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls)
+                        record.update(generation_calls=engine.runtime.model_calls,jev_calls=engine.judge.calls if settings.agent_mode == "jev" else 0,decision_calls=engine.judge.calls)
                         await engine.close()
                     await runtime.close()
                 record['observed_commands']=commands

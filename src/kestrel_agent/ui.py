@@ -26,7 +26,7 @@ from .engine import Engine
 from .store import Store
 from .provider_presets import PRESETS, select, label as provider_label
 
-COMMANDS = ["/help", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
+COMMANDS = ["/help", "/mode", "/mode standard", "/mode jev", "/new", "/continue", "/sessions", "/resume", "/model", "/model jev-key", "/model provider-key", "/provider", "/permissions", "/config", "/tools", "/status", "/clear", "/exit"]
 STYLE = Style.from_dict({
     "prompt": "#8bd5ca bold", "input-border": "#414b60", "hint": "#8993a7",
     "bottom-toolbar": "bg:#20232b #a8acb8", "status": "bg:#20232b #8bd5ca bold",
@@ -77,7 +77,7 @@ class Terminal:
             status = "● Ready"
         width = self.console.size.width
         interrupt_hint = "stop" if self.job and not self.job.done() else "quit"
-        details = f"  {self.settings.permission}  ·  Ctrl+C {interrupt_hint}" if width < 90 else f"  {self.settings.model or self.settings.provider} + Jev  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C {interrupt_hint}"
+        details = f"  {self.settings.permission}  ·  Ctrl+C {interrupt_hint}" if width < 90 else f"  {self.settings.model or self.settings.provider} · {self.settings.agent_mode}  ·  {self.settings.permission}  ·  /help  ·  Ctrl+C {interrupt_hint}"
         return [("class:status", f"  {status}  "), ("", details)]
 
     def input_prompt(self):
@@ -107,7 +107,7 @@ class Terminal:
         info.add_column(style="#d8dee9", overflow="fold")
         info.add_row("Workspace", workspace)
         info.add_row("Provider", provider_label(self.settings))
-        info.add_row("Models", f"{self.settings.model or 'default'}  +  Jev")
+        info.add_row("Models", f"{self.settings.model or 'default'}  ·  {self.settings.agent_mode}")
         info.add_row("Access", self.settings.permission)
         self.console.print(Panel(info, title="[bold #8bd5ca]Your workspace[/]", title_align="left",
                                  subtitle=f"[dim]session {self.sid}[/dim]", subtitle_align="right",
@@ -153,7 +153,7 @@ class Terminal:
         self.busy = True
         self.started_at = time.monotonic()
         self.phase = "Routing"
-        self.emit("connecting", "Jev · checking the quickest supported route")
+        self.emit("connecting", f"{self.settings.agent_mode.capitalize()} mode · preparing your task")
         try:
             answer = await self.engine.run(message)
             self.console.print()
@@ -212,6 +212,7 @@ class Terminal:
             for command, meaning in [
                 ("/new", "Start a fresh conversation"), ("/continue", "Continue interrupted work"),
                 ("/sessions · /resume ID", "List or reopen conversations"), ("/model [ID]", "List/select model and configure Jev key"),
+                ("/mode [standard|jev]", "Choose one-provider or Jev-assisted decisions"),
                 ("/provider [NAME]", "Choose provider, endpoint, model, and keys"),
                 ("/model jev-key · /model provider-key", "Enter or replace keys privately"),
                 ("/permissions [read-only|workspace|full]", "View or change access profile"),
@@ -250,6 +251,16 @@ class Terminal:
                 self.settings.permission = argument
                 self.settings.save()
             self.console.print(Text(f"  Profile: {self.settings.permission} · shell confirmation: {self.settings.confirm_shell} · network: {self.settings.network}"))
+        elif name == "/mode":
+            if argument:
+                if argument not in {"standard", "jev"}:
+                    raise ValueError("Choose /mode standard or /mode jev.")
+                await self.engine.close()
+                self.settings.agent_mode = argument
+                self.settings.save()
+                self.engine = Engine(self.settings, self.workspace, self.store, self.sid, self.emit, self.confirm)
+                await self.ensure_keys()
+            self.console.print(Text(f"  Mode: {self.settings.agent_mode} · " + ("decisions use your selected model" if self.settings.agent_mode == "standard" else "decisions use Jev")))
         elif name == "/provider":
             await self.configure_provider(argument)
         elif name == "/model":
@@ -259,7 +270,7 @@ class Terminal:
             load_secrets()
             self.console.print(Text(f"  Provider: {provider_label(self.settings)} · Model: {self.settings.model or 'default'} · Jev key: {'configured' if os.environ.get('TYPESAFE_API_KEY') else 'missing'}"))
             self.console.print("  /model jev-key replaces the Jev key; /model provider-key sets the generation API key.", style="dim")
-            if not os.environ.get('TYPESAFE_API_KEY'):
+            if self.settings.agent_mode == 'jev' and not os.environ.get('TYPESAFE_API_KEY'):
                 await self.configure_key(True)
             if self.settings.provider != "codex":
                 if argument:
@@ -326,7 +337,7 @@ class Terminal:
         load_secrets()
         if self.settings.provider != "codex" and not api_key(self.settings):
             await self.configure_key(False)
-        if not os.environ.get("TYPESAFE_API_KEY"):
+        if self.settings.agent_mode == "jev" and not os.environ.get("TYPESAFE_API_KEY"):
             await self.configure_key(True)
 
     async def configure_provider(self, name: str = ""):

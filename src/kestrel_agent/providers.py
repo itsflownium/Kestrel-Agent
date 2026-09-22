@@ -50,6 +50,8 @@ class Runtime:
         self.processes: set[str] = set()
         self.tool_thread = None
         self.model_calls = 0
+        self.decision_calls = 0
+        self.decision_input_tokens = self.decision_output_tokens = self.decision_cached_input_tokens = self.decision_cache_write_input_tokens = 0
         self.input_tokens = 0
         self.output_tokens = 0
         self._generation_lock = asyncio.Lock()
@@ -60,6 +62,8 @@ class Runtime:
         self._setup = None
 
     def begin_task(self):
+        self.decision_calls = 0
+        self.decision_input_tokens = self.decision_output_tokens = self.decision_cached_input_tokens = self.decision_cache_write_input_tokens = 0
         self.telemetry.records.clear()
         self.usage_ledger = UsageLedger()
         self._generation_thread = None
@@ -110,32 +114,42 @@ class Runtime:
         await self.start()
         return (await self.codex.account()).model_dump(mode="json", by_alias=True)
 
-    async def complete(self, prompt: str, *, schema: dict | None = None, research: bool = False, stream: bool = False) -> str:
+    async def complete(self, prompt: str, *, schema: dict | None = None, research: bool = False, stream: bool = False, decision: bool = False) -> str:
         queued = time.monotonic()
         async with self._generation_lock:
-            with self.telemetry.measure("generation", provider=self.settings.provider,
+            with self.telemetry.measure("model_decision" if decision else "generation", provider=self.settings.provider,
                     prompt_bytes=len(prompt.encode()), schema_bytes=len(json.dumps(schema).encode()) if schema else 0,
                     queue_seconds=round(time.monotonic() - queued, 6)) as record:
                 before = dict(self.usage_ledger.totals)
                 try:
-                    return await self._complete(prompt, schema=schema, research=research, stream=stream)
+                    return await self._complete(prompt, schema=schema, research=research, stream=stream, decision=decision)
                 except BaseException:
                     self._generation_thread = None
                     self._setup = None
                     raise
                 finally:
                     record["usage"] = {key: value - before[key] for key, value in self.usage_ledger.totals.items()}
+                    if decision:
+                        self.decision_input_tokens += record["usage"]["input_tokens"]
+                        self.decision_output_tokens += record["usage"]["output_tokens"]
+                        self.decision_cached_input_tokens += record["usage"]["cached_input_tokens"]
+                        self.decision_cache_write_input_tokens += record["usage"]["cache_write_input_tokens"]
                     if self.settings.provider != "codex":
                         for key in ("cached_input_tokens", "cache_write_input_tokens", "reasoning_output_tokens"):
                             record["usage"][key] = None
 
-    async def _complete(self, prompt: str, *, schema=None, research=False, stream=False) -> str:
-        if self.model_calls >= self.settings.max_model_calls:
+    async def _complete(self, prompt: str, *, schema=None, research=False, stream=False, decision=False) -> str:
+        if decision:
+            if self.decision_calls >= self.settings.max_decision_calls:
+                raise RuntimeError("Model decision call budget reached.")
+            self.decision_calls += 1
+        if not decision and self.model_calls >= self.settings.max_model_calls:
             raise RuntimeError("Generation call budget reached. Change max_model_calls or continue with a new message.")
         if self.settings.provider != "codex":
             if research:
                 raise ValueError("Built-in web research is available only with Codex. Use fetch_url with known sources for this provider.")
-            self.model_calls += 1
+            if not decision:
+                self.model_calls += 1
             self.emit("model", f"{self.settings.provider} · {self.settings.model or 'model not selected'}")
             text, input_tokens, output_tokens = await self.generator.complete(prompt, schema)
             self.input_tokens += input_tokens
@@ -164,7 +178,8 @@ class Runtime:
                     raise RuntimeError("Codex is not signed in. Run `kestrel auth login`.")
             with self.telemetry.measure("config_read"):
                 self._setup = await self.rpc("config/read", {"includeLayers": False})
-        self.model_calls += 1
+        if not decision:
+            self.model_calls += 1
         self.emit("model", "Codex · researching" if research else "Codex · thinking")
         servers = self._setup.get("config", {}).get("mcp_servers", {}) or {}
         thread_config = {

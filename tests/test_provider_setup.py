@@ -59,6 +59,7 @@ def test_switch_resets_transport_and_keeps_endpoint_keys_isolated(private):
 
 
 def test_cli_provider_asks_for_both_keys_privately(private):
+    Settings(agent_mode="jev").save()  # Existing Jev installations keep their mode.
     result = CliRunner().invoke(app, ['provider','poolside','--model','chosen-id'], input='poolside-dummy-secret\napikey_dummy_jev_secret\n')
     assert result.exit_code == 0, result.output
     assert 'Jev API key' in result.output and 'Provider API key' in result.output
