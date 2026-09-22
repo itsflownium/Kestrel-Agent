@@ -38,18 +38,49 @@ class DockerExecutor:
     def __init__(self, settings, workspace):
         self.settings, self.workspace = settings, workspace
         self.active: dict[str, asyncio.subprocess.Process] = {}
+        self.pending_cleanup: set[str] = set()
+
+    async def _cleanup_command(self, *argv):
+        process = await asyncio.create_subprocess_exec('docker', *argv,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+        try:
+            # Cleanup output is bounded independently of command output.
+            async def read():
+                data = bytearray()
+                while chunk := await process.stdout.read(8192):
+                    if len(data) < 4096:
+                        data.extend(chunk[:4096-len(data)])
+                return bytes(data)
+            reader = asyncio.create_task(read())
+            await asyncio.wait_for(asyncio.gather(process.wait(), reader), 10)
+            return process.returncode, reader.result()
+        finally:
+            if process.returncode is None:
+                process.kill()
+            await process.wait()
+            if 'reader' in locals():
+                if not reader.done():
+                    reader.cancel()
+                await asyncio.gather(reader, return_exceptions=True)
 
     async def _remove(self, name):
-        process = await asyncio.create_subprocess_exec('docker', 'rm', '-f', name,
-            stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+        self.pending_cleanup.add(name)
         try:
-            await asyncio.wait_for(process.wait(), 10)
-        except asyncio.TimeoutError:
-            process.kill()
-            await process.wait()
-            raise RuntimeError(f'Could not confirm container cleanup: {name}')
+            code, _ = await self._cleanup_command('rm', '-f', name)
+            if code:
+                # --rm may already have removed it. Verify absence instead of
+                # interpreting all nonzero exits as that benign race.
+                code, output = await self._cleanup_command('ps', '-aq', '--filter', f'name=^/{name}$')
+                if code or output.strip():
+                    raise RuntimeError('Container still exists or Docker is unavailable.')
+        except (OSError, asyncio.TimeoutError, RuntimeError) as error:
+            raise RuntimeError(f'Could not confirm container cleanup: {name}. '
+                               'Restore Docker access and retry cleanup before continuing.') from error
+        self.pending_cleanup.discard(name)
 
     async def command(self, argv, cwd):
+        if self.pending_cleanup:
+            await self.close()
         if not shutil.which('docker'):
             raise RuntimeError('Docker CLI is missing. Install Docker or select the Codex execution backend in /setup.')
         name = 'kestrel-' + uuid.uuid4().hex
@@ -88,5 +119,11 @@ class DockerExecutor:
             self.active.pop(name, None)
 
     async def close(self):
-        for name in list(self.active):
-            await self._remove(name)
+        failures = []
+        for name in set(self.active) | self.pending_cleanup.copy():
+            try:
+                await self._remove(name)
+            except RuntimeError as error:
+                failures.append(str(error))
+        if failures:
+            raise RuntimeError('; '.join(failures))

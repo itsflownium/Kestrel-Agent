@@ -19,3 +19,9 @@ Implementation is untested at the user's request to defer tests. The Docker CLI 
 ## Live window resizing
 
 The welcome dashboard is now part of the live prompt render, so it reflows when the terminal changes size before the first message. Fullscreen width is no longer capped at 116 columns. Below 34 rows, a compact header leaves room for input. Response and tool panels use the available terminal width. `/clear` returns to the responsive welcome view. Previously printed transcript lines remain terminal scrollback; Kestrel does not reconstruct historical output on resize.
+
+### Interrupted Docker commands
+
+On timeout or cancellation, Kestrel removes its named container and reaps the Docker CLI process. A failed removal is not treated as success: Kestrel asks Docker to confirm the exact container name is absent. If the daemon is unavailable or the container remains, the error includes its name and the runtime retains it for cleanup retry. Further commands cannot start while that cleanup remains unresolved. Runtime shutdown still closes the other clients and reports cleanup failures.
+
+The retry list exists in the current runtime; after a process crash, use the reported container name to inspect and remove the container through Docker. This is not durable crash recovery. Process-level tests cover cancellation, timeout, cleanup refusal, already-removed containers, and bounded output. Actual isolation and daemon behavior still require live Docker validation; the development machine's configured Colima socket was absent during this update.
