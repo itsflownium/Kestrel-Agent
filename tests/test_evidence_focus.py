@@ -91,6 +91,7 @@ async def test_context_continuation_reconstructs_actual_store_evidence(tmp_path,
             await engine.perform(Action(id='page_'+str(index),tool='read_evidence',
                 arguments_json=json.dumps({'id':eid,'offset':offset,'max_chars':20000}),
                 depends_on=[],purpose='Read omitted evidence',condition='always'))
+            assert len(json.dumps(engine.context(),default=str)) <= 8000
             focused=engine.context()['observations'][-1]['retrieved_page']
             assert focused['source_evidence_id']==eid and focused['offset']==offset
             collected.append(focused['content'])
@@ -112,3 +113,16 @@ def test_short_requested_page_returns_unused_capacity_to_other_observations():
     cost=sum(len(item['arguments_excerpt'])+len(item['result_excerpt'])+len(item['result_tail_excerpt']) for item in view)
     cost+=sum(len(json.dumps(item['retrieved_page']['content']))-2 for item in view if 'retrieved_page' in item)
     assert cost <= 18000
+
+
+def test_many_retrieved_pages_fit_the_small_decision_context():
+    state={'request':'Check the retained evidence.','requirements':{'required':{'text':'Preserve every required action.'}},
+           'observations':[page('page_'+str(i),'source','東京'*500,offset=i*1000,total=20000) for i in range(16)]}
+    before=copy.deepcopy(state)
+    view=context(state,4000)
+    assert len(json.dumps(view))<=8000
+    assert view['observations_omitted']>0
+    assert view['observations'][-1]['action']=='page_15'
+    assert view['observations'][-1]['retrieved_page']['content']
+    assert view['requirements']==state['requirements']
+    assert state==before

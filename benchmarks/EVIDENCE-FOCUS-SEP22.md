@@ -18,4 +18,4 @@ After the final regression suite finishes, rerun the same two matched multi-file
 python benchmarks/workloads.py --tasks multifile_ledger --agent-mode standard --repeat 2 --seed 48213 --max-minutes 5 --max-model-calls 20 --output benchmarks/results-multifile-evidence-focus.json
 ```
 
-Results are pending. Broader coding/task-family performance and universal superiority remain unestablished.
+The first finalized allocation passed 547 tests (20 focused plus 527 remaining regressions). A subsequent low-context metadata stress check exposed another size edge, now addressed by omitting older observation views with an explicit count while preserving historical records, task requirements and the newest page. The final guard passed 21 evidence tests and 69 related completion/decision/recovery checks; the refreshed wheel/source build also passed. These focused final checks followed the earlier complete 547-test run; the entire suite was not repeated after the narrow metadata guard. Live results are pending. Broader coding/task-family performance and universal superiority remain unestablished.
