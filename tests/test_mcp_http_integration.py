@@ -25,6 +25,14 @@ async def test_real_http_catalog_call_and_persistent_session_cleanup():
     def count(n: int) -> CountResult:
         calls.append(n)
         return CountResult(total=n + 1)
+    @server_app.tool()
+    def picture():
+        import io
+        from PIL import Image as Raster
+        from mcp.server.fastmcp import Image
+        buffer = io.BytesIO()
+        Raster.new('RGB', (20, 10), 'blue').save(buffer, format='PNG')
+        return Image(data=buffer.getvalue(), format='png')
     server = uvicorn.Server(uvicorn.Config(server_app.streamable_http_app(), host='127.0.0.1', port=port, log_level='error'))
     task = asyncio.create_task(server.serve(sockets=[listener]))
     pool = ConnectionPool(Settings(provider='openai-compatible', mcp_connections={'fixture': Connection(url=f'http://127.0.0.1:{port}/mcp')}))
@@ -36,13 +44,17 @@ async def test_real_http_catalog_call_and_persistent_session_cleanup():
                 await asyncio.sleep(.01)
         catalog = await pool.catalog()
         assert catalog[0]['name'] == 'direct:fixture'
-        assert [tool['name'] for tool in catalog[0]['tools']] == ['count']
+        assert [tool['name'] for tool in catalog[0]['tools']] == ['count', 'picture']
         worker = pool.workers['fixture']
         result = await pool.call('fixture', 'count', {'n': 4})
         assert result['structuredContent'] == {'total': 5}
         assert calls == [4]
         assert pool.workers['fixture'] is worker
+        picture = await pool.call('fixture', 'picture', {})
+        block = next(block for block in picture['content'] if block['type'] == 'image')
+        assert 'data' not in block and pool.images.get(block['image_id']).width == 20
         await pool.close()
+        assert not pool.images.entries
         assert worker.done() and not pool.workers
     finally:
         await pool.close()

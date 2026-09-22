@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-ToolName = Literal["load_skill", "list_skills", "list_files", "read_file", "search_files", "write_file", "shell", "fetch_url", "mcp", "generate", "research", "choose", "read_evidence", "search_evidence", "query_table", "repair_command"]
+ToolName = Literal["inspect_image", "load_skill", "list_skills", "list_files", "read_file", "search_files", "write_file", "shell", "fetch_url", "mcp", "generate", "research", "choose", "read_evidence", "search_evidence", "query_table", "repair_command"]
 
 
 class Action(BaseModel):

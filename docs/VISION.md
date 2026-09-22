@@ -1,0 +1,13 @@
+# Image inspection
+
+`inspect_image` accepts a readable local image path or an `image:` ID returned by a connected tool, plus a focused question. The controller sends the actual pixels to the selected model using Codex image input, OpenAI-compatible image_url blocks, or Anthropic image blocks. The selected model must support vision; a provider preset alone does not guarantee that capability. HTTP protocol tests are not live validation of every provider.
+
+Example request: “Inspect screenshot.png and identify the visible error message.” The planner can call `inspect_image(source="screenshot.png", question="What error is visible?")`. The result contains the model's interpretation, source identifier, SHA-256, dimensions, media type, and observation timestamp. It does not prove that a click, save, or other action occurred.
+
+Local paths use the normal configured read roots and credential-file exclusions. Inputs are limited to a single PNG, JPEG, or WebP, at most 4 MiB and 16 megapixels. Animated images are rejected. Connected images are validated and retained in an eight-entry runtime cache. Their base64 payload is removed from textual tool results; models see an image ID and metadata until they request inspection. Evicted IDs and IDs from a previous runtime fail and require a fresh observation. Shutdown clears the cache. Audio inspection is not implemented.
+
+This enables interpretation of screenshots supplied by a connected desktop/browser tool. It does not install a native desktop adapter, grant macOS Accessibility/Screen Recording permissions, map screenshot coordinates to desktop coordinates automatically, or verify that an external tool acted correctly. Prefer accessibility targets; re-observe after actions and never infer current UI state from an old screenshot.
+
+Validation: five new image tests cover malformed/mismatched/oversized inputs, cache eviction, protocol payloads, workspace boundaries, and Codex context separation. The real loopback MCP test returns an image, retrieves it by ID, and clears it on shutdown. The full suite passed 324 tests. `benchmarks/vision_smoke.py` also made a real Astra medium call through `inspect_image`, correctly reading the random text on the green button in a retained fixture, with one generation call and zero Jev calls. This small perception test is not a desktop-agent benchmark.
+
+Protocol references: [Anthropic vision](https://platform.claude.com/docs/en/build-with-claude/vision), [OpenAI Chat Completions image content](https://platform.openai.com/docs/api-reference/chat/object). Codex input uses the installed SDK's `TextInput` and `ImageInput` types.

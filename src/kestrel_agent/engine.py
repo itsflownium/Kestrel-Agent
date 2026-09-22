@@ -208,7 +208,7 @@ AVAILABLE SKILLS (metadata only): {json.dumps(skill_catalog, default=str)}
 SELECTED SKILLS: {json.dumps(self.state.get('selected_skills', []), default=str)}
 AVAILABLE TOOLS:\n{CATALOG}
 PROVIDER CAPABILITIES: {"Codex research and registered MCP are available." if self.settings.provider == "codex" else "No native web research. Direct MCP connections are available when listed below. Use fetch_url for known URLs. Generate uses the configured model provider."}
-For browser or desktop tasks, inspect the current page/accessibility state first, act only on observed targets, and re-observe after navigation or mutations. Never invent selectors, coordinates, successful clicks, or a completed workflow. Prefer accessibility/text state; image-only tool results are not visual observations for this text-only controller. Stop for a suitable adapter when inspection is unavailable.
+For browser or desktop tasks, inspect the current page/accessibility state first, act only on observed targets, and re-observe after navigation or mutations. Never invent selectors, coordinates, successful clicks, or a completed workflow. Prefer accessibility/text state; image metadata alone is not visual evidence. Use inspect_image on a returned image_id to inspect pixels with a vision-capable selected model. Its description is a model interpretation, not proof of a successful action. If image inspection fails or an image ID expires, request a fresh accessible observation; never guess.
 CONNECTED TOOLS (use only exact registered names): {json.dumps(self.mcp_tools, default=str)[:12000]}
 ACCESS: {self.settings.permission}; shell={self.settings.shell}; network={self.settings.network}
 WORKSPACE: {self.workspace}

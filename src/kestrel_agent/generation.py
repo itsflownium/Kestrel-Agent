@@ -99,16 +99,19 @@ class HTTPGenerator:
             raise RuntimeError('Provider returned an invalid model list.')
         return [row['id'] for row in rows if isinstance(row, dict) and isinstance(row.get('id'), str)]
 
-    async def complete(self, prompt: str, schema: dict | None = None) -> tuple[str, int, int]:
+    async def complete(self, prompt: str, schema: dict | None = None, *, images=None) -> tuple[str, int, int]:
         settings = self.settings
         if not settings.model:
             raise ValueError('Set a model ID for the selected provider with kestrel config set model MODEL_ID.')
         system = SYSTEM
         if schema:
             system += '\nReturn one valid JSON object matching this schema, without Markdown:\n' + json.dumps(schema)
+        if images and len(images) > 1:
+            raise ValueError('Inspect one image at a time.')
         if settings.provider == 'anthropic':
+            content = ([{'type':'image', 'source':{'type':'base64','media_type':image.mime,'data':image.encoded}} for image in images] + [{'type':'text','text':prompt}]) if images else prompt
             body = {'model': settings.model, 'max_tokens': settings.provider_max_tokens,
-                    'system': system, 'messages': [{'role': 'user', 'content': prompt}]}
+                    'system': system, 'messages': [{'role': 'user', 'content': content}]}
             data = await self.request('POST', '/messages', body)
             if data.get('stop_reason') != 'end_turn':
                 raise RuntimeError('Provider did not finish a text answer (truncation, refusal, or unsupported tool request).')
@@ -124,8 +127,9 @@ class HTTPGenerator:
             usage = data.get('usage', {})
             tokens = usage_tokens(usage, 'input_tokens', 'output_tokens')
         else:
+            content = ([{'type':'image_url','image_url':{'url':image.url}} for image in images] + [{'type':'text','text':prompt}]) if images else prompt
             body = {'model': settings.model, settings.provider_token_parameter: settings.provider_max_tokens,
-                    'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': prompt}]}
+                    'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': content}]}
             if settings.provider_send_reasoning_effort:
                 body['reasoning_effort'] = settings.effort
             if schema and settings.provider_json_mode == 'json_object':

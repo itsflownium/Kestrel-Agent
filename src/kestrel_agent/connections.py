@@ -32,6 +32,8 @@ class ConnectionPool:
         self.workers = {}
         self.queues = {}
         self.schemas = {}
+        from .vision import ImageCache
+        self.images = ImageCache()
 
     async def _worker(self, name, queue):
         from mcp import ClientSession
@@ -74,10 +76,7 @@ class ConnectionPool:
                         else:
                             response = await asyncio.wait_for(session.call_tool(arguments[0], arguments=arguments[1]), self.settings.command_timeout_seconds)
                             result = response.model_dump(mode='json', by_alias=True)
-                            for block in result.get('content', []):
-                                if block.get('type') in {'image', 'audio'}:
-                                    block.pop('data', None)
-                                    block['unavailable_to_model'] = 'Binary content is not a visual/audio observation in this text controller; request accessibility or text output.'
+                            result = self.images.ingest(result)
                         if not pending.done():
                             pending.set_result(result)
                     except Exception as error:
@@ -160,3 +159,4 @@ class ConnectionPool:
         self.workers.clear()
         self.queues.clear()
         self.schemas.clear()
+        self.images.entries.clear()

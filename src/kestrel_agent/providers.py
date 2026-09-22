@@ -118,7 +118,7 @@ class Runtime:
         await self.start()
         return (await self.codex.account()).model_dump(mode="json", by_alias=True)
 
-    async def complete(self, prompt: str, *, schema: dict | None = None, research: bool = False, stream: bool = False, decision: bool = False) -> str:
+    async def complete(self, prompt: str, *, schema: dict | None = None, research: bool = False, stream: bool = False, decision: bool = False, images=None) -> str:
         queued = time.monotonic()
         async with self._generation_lock:
             with self.telemetry.measure("model_decision" if decision else "generation", provider=self.settings.provider,
@@ -126,7 +126,7 @@ class Runtime:
                     queue_seconds=round(time.monotonic() - queued, 6)) as record:
                 before = dict(self.usage_ledger.totals)
                 try:
-                    return await self._complete(prompt, schema=schema, research=research, stream=stream, decision=decision)
+                    return await self._complete(prompt, schema=schema, research=research, stream=stream, decision=decision, images=images)
                 except BaseException:
                     self._generation_thread = None
                     self._setup = None
@@ -142,7 +142,7 @@ class Runtime:
                         for key in ("cached_input_tokens", "cache_write_input_tokens", "reasoning_output_tokens"):
                             record["usage"][key] = None
 
-    async def _complete(self, prompt: str, *, schema=None, research=False, stream=False, decision=False) -> str:
+    async def _complete(self, prompt: str, *, schema=None, research=False, stream=False, decision=False, images=None) -> str:
         if decision:
             if self.decision_calls >= self.settings.max_decision_calls:
                 raise RuntimeError("Model decision call budget reached.")
@@ -155,7 +155,7 @@ class Runtime:
             if not decision:
                 self.model_calls += 1
             self.emit("model", f"{self.settings.provider} · {self.settings.model or 'model not selected'}")
-            text, input_tokens, output_tokens = await self.generator.complete(prompt, schema)
+            text, input_tokens, output_tokens = await self.generator.complete(prompt, schema, **({"images":images} if images else {}))
             self.input_tokens += input_tokens
             self.output_tokens += output_tokens
             self.usage_ledger.totals['input_tokens'] += input_tokens
@@ -166,7 +166,7 @@ class Runtime:
         with self.telemetry.measure("runtime_start"):
             await self.start()
         signature = json.dumps([self.settings.model, self.settings.effort, self.settings.permission,
-            self.settings.network, str(self.workspace), research, self.settings.generation_prompt_profile], sort_keys=True)
+            self.settings.network, str(self.workspace), research, self.settings.generation_prompt_profile, [image.sha256 for image in images] if images else []], sort_keys=True)
         # A prior turn's structured format can persist in a reused SDK thread.
         thread_signature = json.dumps([signature, schema], sort_keys=True)
         if thread_signature != getattr(self, "_thread_signature", None):
@@ -214,7 +214,9 @@ class Runtime:
             if self.settings.generation_session == "task":
                 self._generation_thread = thread
         with self.telemetry.measure("turn_start"):
-            handle = await thread.turn(prompt, output_schema=schema, effort=ReasoningEffort(self.settings.effort))
+            from openai_codex import TextInput, ImageInput
+            turn_input = [TextInput(prompt), *[ImageInput(image.url) for image in images]] if images else prompt
+            handle = await thread.turn(turn_input, output_schema=schema, effort=ReasoningEffort(self.settings.effort))
         self.active_turn = handle
         final = ""
         fallback = ""
@@ -318,7 +320,8 @@ class Runtime:
             return await self.connections.call(server[len("direct:"):], tool, arguments)
         if self.settings.provider != "codex":
             raise ValueError("Configure a direct MCP connection for this provider.")
-        return await self.rpc("mcpServer/tool/call", {"threadId": await self.mcp_thread(), "server": server, "tool": tool, "arguments": arguments})
+        result = await self.rpc("mcpServer/tool/call", {"threadId": await self.mcp_thread(), "server": server, "tool": tool, "arguments": arguments})
+        return self.connections.images.ingest(result)
 
     async def cancel(self) -> None:
         if self.active_turn:
