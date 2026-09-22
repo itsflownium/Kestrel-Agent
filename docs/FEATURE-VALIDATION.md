@@ -44,3 +44,11 @@ Bounded image validation/cache and the inspect_image tool now send actual pixels
 ## Experimental native desktop boundary
 
 App-scoped macOS Accessibility observation/press/fill tools and a bearer-authenticated localhost MCP server are implemented. Nine adapter tests plus general feature checks: 21 passed. The actual macOS permission query returned false; the denial path was tested without changing permissions or inspecting personal apps. Real app interaction remains unvalidated. See DESKTOP.md for limits and setup. The requested deadline elapsed before full native validation; this is not marked as complete or superior.
+
+## Workflow artifacts and release checkpoint
+
+Nine new cases execute the copy-text template through the actual dependency scheduler, file tools, permission checks and SQLite storage. Empty, Unicode and whitespace-sensitive text is compared byte for byte. Negative cases cover missing input, existing destination, read-only permission, rejected approval, an outside-workspace destination and truncated input. A missing-input case exposed a checkpoint gap: blocked descendants were not saved when no further tool ran. The scheduler now persists these transitions immediately. Model generation and model decisions are asserted unused in this unconditional-template test; these cases do not evaluate final-answer quality or certify other workflows.
+
+The first complete regression invocation omitted the development Chromium path: 331 passed and two browser-launch tests failed because the default cache lacked the executable. With the matching runtime configured, the final complete suite passed **342 tests in 133.28 seconds**, including real Chromium, MCP transport, PTY interaction, native adapter contracts and workflow artifacts. Command: `PLAYWRIGHT_BROWSERS_PATH=/tmp/kestrel-browser-runtime python -m pytest -q`.
+
+`uv build` produced both the source distribution and wheel successfully. Wheel inspection confirmed all 13 bundled skills and the desktop/vision modules. This validates packaging and the covered regression paths; live Docker, live native desktop interaction, external-provider conformance and broad superiority remain unverified.

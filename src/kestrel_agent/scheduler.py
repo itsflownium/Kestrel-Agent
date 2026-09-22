@@ -41,6 +41,10 @@ async def execute_plan(engine, plan, gate_prompt):
                 else:
                     statuses[action.id] = outcome
                     changed = True
+            if changed:
+                # A failed dependency can finish the plan without another tool
+                # dispatch. Persist blocked/skipped descendants as well.
+                engine.save()
             reads = [a for a in ready if a.tool in READ_TOOLS]
             capacity = max(0, engine.settings.max_parallel_reads - len(running))
             selected = reads[:min(capacity, remaining)]
