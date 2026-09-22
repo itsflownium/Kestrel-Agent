@@ -136,3 +136,23 @@ def test_cli_workflow_testing_report_and_explicit_export(tmp_path,monkeypatch):
 def test_network_disabled_skills_cannot_advertise_tool_discovery():
     assert not {'discover_tools','inspect_tool'} & capabilities(Settings(network=False))
     assert {'discover_tools','inspect_tool'} <= capabilities(Settings(network=True,permission='read-only'))
+
+
+@pytest.mark.parametrize('recorded', [None, 'obsolete-runtime'])
+def test_export_rejects_missing_or_obsolete_runtime(tmp_path, monkeypatch, recorded):
+    registry, store, root = setup(tmp_path, monkeypatch)
+    try:
+        result = evaluate(registry, 'sample-skill', 'copy', SUITE, store)
+        assert len(result['runtime_sha256']) == 64
+        if recorded is None:
+            result.pop('runtime_sha256')
+        else:
+            result['runtime_sha256'] = recorded
+        with store.db:
+            store.db.execute('UPDATE skill_workflow_evaluations SET body=? WHERE id=?',
+                             (json.dumps(result), result['evaluation_id']))
+        with pytest.raises(ValueError, match='rerun the suite'):
+            export(registry, 'sample-skill', 'copy', result['evaluation_id'], store)
+        assert not (tmp_path/'state'/'workflow_templates').exists()
+    finally:
+        store.close()
