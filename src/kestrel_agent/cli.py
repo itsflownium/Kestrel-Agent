@@ -560,5 +560,14 @@ def browser_server(port: int = typer.Option(8931, min=1024, max=65535), headless
     serve_browser(port, headless)
 
 
+@app.command("desktop-server")
+def desktop_server(bundle_id: str = typer.Option(..., "--app"), port: int = typer.Option(8932, min=1024, max=65535)):
+    """Serve app-scoped macOS Accessibility tools with required bearer authentication."""
+    from .desktop import serve_desktop
+    console.print(Text(f'Desktop tools for {bundle_id}: http://127.0.0.1:{port}/mcp'))
+    console.print('Requires KESTREL_DESKTOP_TOKEN and macOS Accessibility permission. No global mouse/keyboard access.')
+    serve_desktop(bundle_id, port)
+
+
 if __name__ == "__main__":
     app()

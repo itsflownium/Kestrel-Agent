@@ -29,6 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 browser = ["playwright>=1.58,<2"]
+desktop = ["pyobjc-framework-ApplicationServices>=12,<13; sys_platform == 'darwin'", "pyobjc-framework-Cocoa>=12,<13; sys_platform == 'darwin'"]
 learning = ["gepa==0.1.4"]
 dev = ["pytest>=8,<10", "pytest-asyncio>=1,<2", "pyte>=0.8,<1"]
 
